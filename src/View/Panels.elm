@@ -455,8 +455,10 @@ viewHelpModal =
             , style "border" "1px solid rgba(124,77,255,0.4)"
             , style "border-radius" "16px"
             , style "padding" "26px 28px"
-            , style "max-width" "420px"
+            , style "max-width" "700px"
             , style "width" "90%"
+            , style "max-height" "88vh"
+            , style "overflow-y" "auto"
             , style "box-shadow" "0 8px 32px rgba(0,0,0,0.5)"
             , custom "click"
                 (Decode.succeed
@@ -466,26 +468,138 @@ viewHelpModal =
                     }
                 )
             ]
-            [ h3
+            [ 
+              h3
                 [ style "margin-top" "0"
-                , style "margin-bottom" "14px"
-                , style "font-size" "1.1rem"
+                , style "margin-bottom" "6px"
+                , style "font-size" "1.2rem"
+                , style "color" "#fff"
                 ]
                 [ text "📖 Help & Controls" ]
+
+            
+            , div
+                [ style "background" "rgba(124,77,255,0.12)"
+                , style "border" "1px solid rgba(124,77,255,0.35)"
+                , style "border-radius" "10px"
+                , style "padding" "12px 14px"
+                , style "margin-bottom" "18px"
+                , style "font-size" "0.83rem"
+                , style "color" "#c5cae9"
+                , style "line-height" "1.65"
+                ]
+                [ p [ style "margin" "0 0 6px 0", style "font-weight" "700", style "color" "#e8eaf6" ]
+                    [ text "What is this app?" ]
+                , p [ style "margin" "0" ]
+                    [ text "This tool is an interactive "
+                    , span [ style "color" "#e040fb", style "font-weight" "700" ] [ text "Deterministic Finite Automaton (DFA)" ]
+                    , text " simulator designed for college and university students. The goal is to help learners visually and interactively understand how automata work during theoretical computer science classes — how a DFA processes an input word, when it accepts, and when it rejects. Save and Load features are coming soon."
+                    ]
+                ]
+
+           
+            , helpSectionTitle " Editing the Diagram"
             , helpLine "✋ Select" "Drag states to move them. Double-click a state to rename it."
-            , helpLine "⊕ Add State" "Click empty canvas to place a new state."
-            , helpLine "→ Add Transition" "Click source state, then target. Enter the character."
-            , helpLine "✎ Rename" "Via state list button or double-click on the state."
-            , helpLine "S / A / X" "Set Start, toggle Accept, or delete the state."
-            , helpLine "Code panel" "Format: from,char,to — one per line. Click Generate diagram."
-            , helpLine "Simulation" "Enter test word → Load DFA → Step / Run / Read all."
-            , helpLine "🖐 Pan" "Drag on empty canvas space to move the view."
-            , helpLine "View buttons" "Use + / − / ⌂ buttons to zoom and reset the view."
-            , div [ style "margin-top" "16px" ]
-                [ styledBtn "Got it!" ToggleHelp purpleGrad "100%" "9px 0" ]
+            , helpLine "⊕ Add State" "Click on the empty canvas to place a new state."
+            , helpLine "→ Add Transition" "Click the source state, then the target state. Enter the transition character."
+            , helpLine "✎ Rename" "Use the button in the state list or double-click directly on the state."
+            , helpLine "S / A / ×" "S = set as start state, A = toggle accept state, × = delete state."
+            , helpLine "Pan" "Drag the empty canvas area to move the view."
+            , helpLine "+ / − / ⌂" "Zoom in, zoom out, and reset the view."
+
+         
+            , helpSectionTitle "Undo / Redo / Clear"
+            , helpLine "↩ Undo" "Undo the last diagram change (up to 50 steps)."
+            , helpLine "↪ Redo" "Redo a previously undone action."
+            , helpLine "🗑 Clear All" "Deletes all states, transitions and simulation data. This action CANNOT be undone."
+
+           
+            , helpSectionTitle "Code Panel"
+            , helpLine "Format" "One transition per line: from,character,to — e.g. q0,a,q1"
+            , helpLine "Generate diagram" "Automatically builds the diagram from the typed code, arranging states in a circle."
+            , helpLine "States / Alphabet / Start / Accept" "Fill in these fields for a formal DFA description. They update automatically when editing the diagram."
+
+           
+            , helpSectionTitle "Simulation"
+            , helpLine "Test word" "Type the word you want to test (e.g. \"aab\")."
+            , helpLine "⚙ Load DFA" "Loads the DFA and sets the simulation to the start state. Press this first."
+            , helpLine "▶ Run / ⏹ Stop" "Run: automatically plays through the simulation at the set speed. Stop: pauses it."
+            , helpLine "🐌 Speed slider 🐎" "Adjust the speed of the automatic playback (slower ↔ faster)."
+            , helpLine "< Back / > Step" "Manually step through the simulation: go back or forward one character at a time."
+            , helpLine ">> Read all" "Processes the entire word at once and shows the final result."
+            , helpLine "<< Reset" "Resets the simulation back to the beginning."
+
+          
+
+            , helpSectionTitle "What do the status indicators mean?"
+            , div
+                [ style "background" "rgba(255,255,255,0.04)"
+                , style "border-radius" "10px"
+                , style "padding" "12px 14px"
+                , style "margin-bottom" "6px"
+                , style "font-size" "0.8rem"
+                , style "line-height" "1.7"
+                ]
+                [ statusExplain "Status"
+                    "A text description of the current event. Green = ACCEPTED, Red = REJECTED, Purple = in progress."
+                    "Shown in the Test String panel and updates continuously as the simulation runs."
+                    "Determined by whether a valid transition exists in the transitions field for the current input character."
+                    "The highlighted state on the canvas (green or red border) shows where the simulation currently is."
+                , statusExplain "Index"
+                    "Shows which character position in the input word the simulation is currently at (e.g. 2 / 4)."
+                    "Counts the characters of the word entered in the Test String field."
+                    "The transitions rows determine whether a valid transition exists at each index position."
+                    "The active arrow on the diagram shows which character was just read."
+                , statusExplain "Current State"
+                    "The state the DFA is currently in. If shown as — (Nothing), the DFA has no valid transition and is stuck."
+                    "Starts from the start state when Load DFA is pressed, then changes step by step."
+                    "The start state field in the Code panel determines the initial Current State."
+                    "The state with the green border and dark green fill on the diagram is the current state."
+                ]
+
+            , div [ style "margin-top" "18px" ]
+                [ styledBtn "Got it! 👍" ToggleHelp purpleGrad "100%" "9px 0" ]
             ]
         ]
 
+
+helpSectionTitle : String -> Html Msg
+helpSectionTitle t =
+    div
+        [ style "font-size" "0.78rem"
+        , style "font-weight" "700"
+        , style "color" "#7c4dff"
+        , style "letter-spacing" "0.8px"
+        , style "text-transform" "uppercase"
+        , style "margin-top" "16px"
+        , style "margin-bottom" "6px"
+        , style "border-bottom" "1px solid rgba(124,77,255,0.25)"
+        , style "padding-bottom" "4px"
+        ]
+        [ text t ]
+
+
+statusExplain : String -> String -> String -> String -> String -> Html Msg
+statusExplain fieldName general testPanel codePanel diagram =
+    div [ style "margin-bottom" "12px" ]
+        [ div [ style "font-weight" "700", style "color" "#e040fb", style "margin-bottom" "3px" ]
+            [ text fieldName ]
+        , div [ style "color" "#c5cae9", style "margin-bottom" "4px" ] [ text general ]
+        , div [ style "display" "flex", style "flex-direction" "column", style "gap" "2px", style "padding-left" "8px", style "border-left" "2px solid rgba(124,77,255,0.3)" ]
+            [ div []
+                [ span [ style "color" "#9fa8da", style "font-size" "0.75rem" ] [ text "Test String: " ]
+                , span [ style "color" "#e8eaf6", style "font-size" "0.75rem" ] [ text testPanel ]
+                ]
+            , div []
+                [ span [ style "color" "#9fa8da", style "font-size" "0.75rem" ] [ text "Code panel: " ]
+                , span [ style "color" "#e8eaf6", style "font-size" "0.75rem" ] [ text codePanel ]
+                ]
+            , div []
+                [ span [ style "color" "#9fa8da", style "font-size" "0.75rem" ] [ text "State Diagram: " ]
+                , span [ style "color" "#e8eaf6", style "font-size" "0.75rem" ] [ text diagram ]
+                ]
+            ]
+        ]
 
 
 -------------------------------------- FEEDBACK MODAL ---------------------------------------------------------

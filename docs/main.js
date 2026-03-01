@@ -8488,7 +8488,159 @@ var $author$project$View$Widgets$helpLine = F2(
 						]))
 				]));
 	});
+var $author$project$View$Panels$helpSectionTitle = function (t) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'font-size', '0.78rem'),
+				A2($elm$html$Html$Attributes$style, 'font-weight', '700'),
+				A2($elm$html$Html$Attributes$style, 'color', '#7c4dff'),
+				A2($elm$html$Html$Attributes$style, 'letter-spacing', '0.8px'),
+				A2($elm$html$Html$Attributes$style, 'text-transform', 'uppercase'),
+				A2($elm$html$Html$Attributes$style, 'margin-top', '16px'),
+				A2($elm$html$Html$Attributes$style, 'margin-bottom', '6px'),
+				A2($elm$html$Html$Attributes$style, 'border-bottom', '1px solid rgba(124,77,255,0.25)'),
+				A2($elm$html$Html$Attributes$style, 'padding-bottom', '4px')
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text(t)
+			]));
+};
 var $author$project$View$Widgets$purpleGrad = 'linear-gradient(135deg, #7c4dff, #e040fb)';
+var $author$project$View$Panels$statusExplain = F5(
+	function (fieldName, general, testPanel, codePanel, diagram) {
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'margin-bottom', '12px')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'font-weight', '700'),
+							A2($elm$html$Html$Attributes$style, 'color', '#e040fb'),
+							A2($elm$html$Html$Attributes$style, 'margin-bottom', '3px')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(fieldName)
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'color', '#c5cae9'),
+							A2($elm$html$Html$Attributes$style, 'margin-bottom', '4px')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(general)
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+							A2($elm$html$Html$Attributes$style, 'flex-direction', 'column'),
+							A2($elm$html$Html$Attributes$style, 'gap', '2px'),
+							A2($elm$html$Html$Attributes$style, 'padding-left', '8px'),
+							A2($elm$html$Html$Attributes$style, 'border-left', '2px solid rgba(124,77,255,0.3)')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$span,
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'color', '#9fa8da'),
+											A2($elm$html$Html$Attributes$style, 'font-size', '0.75rem')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Test String: ')
+										])),
+									A2(
+									$elm$html$Html$span,
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'color', '#e8eaf6'),
+											A2($elm$html$Html$Attributes$style, 'font-size', '0.75rem')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text(testPanel)
+										]))
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$span,
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'color', '#9fa8da'),
+											A2($elm$html$Html$Attributes$style, 'font-size', '0.75rem')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Code panel: ')
+										])),
+									A2(
+									$elm$html$Html$span,
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'color', '#e8eaf6'),
+											A2($elm$html$Html$Attributes$style, 'font-size', '0.75rem')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text(codePanel)
+										]))
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$span,
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'color', '#9fa8da'),
+											A2($elm$html$Html$Attributes$style, 'font-size', '0.75rem')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('State Diagram: ')
+										])),
+									A2(
+									$elm$html$Html$span,
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'color', '#e8eaf6'),
+											A2($elm$html$Html$Attributes$style, 'font-size', '0.75rem')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text(diagram)
+										]))
+								]))
+						]))
+				]));
+	});
 var $author$project$View$Panels$viewHelpModal = A2(
 	$elm$html$Html$div,
 	_List_fromArray(
@@ -8512,8 +8664,10 @@ var $author$project$View$Panels$viewHelpModal = A2(
 					A2($elm$html$Html$Attributes$style, 'border', '1px solid rgba(124,77,255,0.4)'),
 					A2($elm$html$Html$Attributes$style, 'border-radius', '16px'),
 					A2($elm$html$Html$Attributes$style, 'padding', '26px 28px'),
-					A2($elm$html$Html$Attributes$style, 'max-width', '420px'),
+					A2($elm$html$Html$Attributes$style, 'max-width', '700px'),
 					A2($elm$html$Html$Attributes$style, 'width', '90%'),
+					A2($elm$html$Html$Attributes$style, 'max-height', '88vh'),
+					A2($elm$html$Html$Attributes$style, 'overflow-y', 'auto'),
 					A2($elm$html$Html$Attributes$style, 'box-shadow', '0 8px 32px rgba(0,0,0,0.5)'),
 					A2(
 					$elm$html$Html$Events$custom,
@@ -8528,31 +8682,115 @@ var $author$project$View$Panels$viewHelpModal = A2(
 					_List_fromArray(
 						[
 							A2($elm$html$Html$Attributes$style, 'margin-top', '0'),
-							A2($elm$html$Html$Attributes$style, 'margin-bottom', '14px'),
-							A2($elm$html$Html$Attributes$style, 'font-size', '1.1rem')
+							A2($elm$html$Html$Attributes$style, 'margin-bottom', '6px'),
+							A2($elm$html$Html$Attributes$style, 'font-size', '1.2rem'),
+							A2($elm$html$Html$Attributes$style, 'color', '#fff')
 						]),
 					_List_fromArray(
 						[
 							$elm$html$Html$text('📖 Help & Controls')
 						])),
-					A2($author$project$View$Widgets$helpLine, '✋ Select', 'Drag states to move them. Double-click a state to rename it.'),
-					A2($author$project$View$Widgets$helpLine, '⊕ Add State', 'Click empty canvas to place a new state.'),
-					A2($author$project$View$Widgets$helpLine, '→ Add Transition', 'Click source state, then target. Enter the character.'),
-					A2($author$project$View$Widgets$helpLine, '✎ Rename', 'Via state list button or double-click on the state.'),
-					A2($author$project$View$Widgets$helpLine, 'S / A / X', 'Set Start, toggle Accept, or delete the state.'),
-					A2($author$project$View$Widgets$helpLine, 'Code panel', 'Format: from,char,to — one per line. Click Generate diagram.'),
-					A2($author$project$View$Widgets$helpLine, 'Simulation', 'Enter test word → Load DFA → Step / Run / Read all.'),
-					A2($author$project$View$Widgets$helpLine, '🖐 Pan', 'Drag on empty canvas space to move the view.'),
-					A2($author$project$View$Widgets$helpLine, 'View buttons', 'Use + / − / ⌂ buttons to zoom and reset the view.'),
 					A2(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							A2($elm$html$Html$Attributes$style, 'margin-top', '16px')
+							A2($elm$html$Html$Attributes$style, 'background', 'rgba(124,77,255,0.12)'),
+							A2($elm$html$Html$Attributes$style, 'border', '1px solid rgba(124,77,255,0.35)'),
+							A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
+							A2($elm$html$Html$Attributes$style, 'padding', '12px 14px'),
+							A2($elm$html$Html$Attributes$style, 'margin-bottom', '18px'),
+							A2($elm$html$Html$Attributes$style, 'font-size', '0.83rem'),
+							A2($elm$html$Html$Attributes$style, 'color', '#c5cae9'),
+							A2($elm$html$Html$Attributes$style, 'line-height', '1.65')
 						]),
 					_List_fromArray(
 						[
-							A5($author$project$View$Widgets$styledBtn, 'Got it!', $author$project$Types$ToggleHelp, $author$project$View$Widgets$purpleGrad, '100%', '9px 0')
+							A2(
+							$elm$html$Html$p,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'margin', '0 0 6px 0'),
+									A2($elm$html$Html$Attributes$style, 'font-weight', '700'),
+									A2($elm$html$Html$Attributes$style, 'color', '#e8eaf6')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('What is this app?')
+								])),
+							A2(
+							$elm$html$Html$p,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'margin', '0')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('This tool is an interactive '),
+									A2(
+									$elm$html$Html$span,
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'color', '#e040fb'),
+											A2($elm$html$Html$Attributes$style, 'font-weight', '700')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Deterministic Finite Automaton (DFA)')
+										])),
+									$elm$html$Html$text(' simulator designed for college and university students. The goal is to help learners visually and interactively understand how automata work during theoretical computer science classes — how a DFA processes an input word, when it accepts, and when it rejects. Save and Load features are coming soon.')
+								]))
+						])),
+					$author$project$View$Panels$helpSectionTitle(' Editing the Diagram'),
+					A2($author$project$View$Widgets$helpLine, '✋ Select', 'Drag states to move them. Double-click a state to rename it.'),
+					A2($author$project$View$Widgets$helpLine, '⊕ Add State', 'Click on the empty canvas to place a new state.'),
+					A2($author$project$View$Widgets$helpLine, '→ Add Transition', 'Click the source state, then the target state. Enter the transition character.'),
+					A2($author$project$View$Widgets$helpLine, '✎ Rename', 'Use the button in the state list or double-click directly on the state.'),
+					A2($author$project$View$Widgets$helpLine, 'S / A / ×', 'S = set as start state, A = toggle accept state, × = delete state.'),
+					A2($author$project$View$Widgets$helpLine, 'Pan', 'Drag the empty canvas area to move the view.'),
+					A2($author$project$View$Widgets$helpLine, '+ / − / ⌂', 'Zoom in, zoom out, and reset the view.'),
+					$author$project$View$Panels$helpSectionTitle('Undo / Redo / Clear'),
+					A2($author$project$View$Widgets$helpLine, '↩ Undo', 'Undo the last diagram change (up to 50 steps).'),
+					A2($author$project$View$Widgets$helpLine, '↪ Redo', 'Redo a previously undone action.'),
+					A2($author$project$View$Widgets$helpLine, '🗑 Clear All', 'Deletes all states, transitions and simulation data. This action CANNOT be undone.'),
+					$author$project$View$Panels$helpSectionTitle('Code Panel'),
+					A2($author$project$View$Widgets$helpLine, 'Format', 'One transition per line: from,character,to — e.g. q0,a,q1'),
+					A2($author$project$View$Widgets$helpLine, 'Generate diagram', 'Automatically builds the diagram from the typed code, arranging states in a circle.'),
+					A2($author$project$View$Widgets$helpLine, 'States / Alphabet / Start / Accept', 'Fill in these fields for a formal DFA description. They update automatically when editing the diagram.'),
+					$author$project$View$Panels$helpSectionTitle('Simulation'),
+					A2($author$project$View$Widgets$helpLine, 'Test word', 'Type the word you want to test (e.g. \"aab\").'),
+					A2($author$project$View$Widgets$helpLine, '⚙ Load DFA', 'Loads the DFA and sets the simulation to the start state. Press this first.'),
+					A2($author$project$View$Widgets$helpLine, '▶ Run / ⏹ Stop', 'Run: automatically plays through the simulation at the set speed. Stop: pauses it.'),
+					A2($author$project$View$Widgets$helpLine, '🐌 Speed slider 🐎', 'Adjust the speed of the automatic playback (slower ↔ faster).'),
+					A2($author$project$View$Widgets$helpLine, '< Back / > Step', 'Manually step through the simulation: go back or forward one character at a time.'),
+					A2($author$project$View$Widgets$helpLine, '>> Read all', 'Processes the entire word at once and shows the final result.'),
+					A2($author$project$View$Widgets$helpLine, '<< Reset', 'Resets the simulation back to the beginning.'),
+					$author$project$View$Panels$helpSectionTitle('What do the status indicators mean?'),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.04)'),
+							A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
+							A2($elm$html$Html$Attributes$style, 'padding', '12px 14px'),
+							A2($elm$html$Html$Attributes$style, 'margin-bottom', '6px'),
+							A2($elm$html$Html$Attributes$style, 'font-size', '0.8rem'),
+							A2($elm$html$Html$Attributes$style, 'line-height', '1.7')
+						]),
+					_List_fromArray(
+						[
+							A5($author$project$View$Panels$statusExplain, 'Status', 'A text description of the current event. Green = ACCEPTED, Red = REJECTED, Purple = in progress.', 'Shown in the Test String panel and updates continuously as the simulation runs.', 'Determined by whether a valid transition exists in the transitions field for the current input character.', 'The highlighted state on the canvas (green or red border) shows where the simulation currently is.'),
+							A5($author$project$View$Panels$statusExplain, 'Index', 'Shows which character position in the input word the simulation is currently at (e.g. 2 / 4).', 'Counts the characters of the word entered in the Test String field.', 'The transitions rows determine whether a valid transition exists at each index position.', 'The active arrow on the diagram shows which character was just read.'),
+							A5($author$project$View$Panels$statusExplain, 'Current State', 'The state the DFA is currently in. If shown as — (Nothing), the DFA has no valid transition and is stuck.', 'Starts from the start state when Load DFA is pressed, then changes step by step.', 'The start state field in the Code panel determines the initial Current State.', 'The state with the green border and dark green fill on the diagram is the current state.')
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'margin-top', '18px')
+						]),
+					_List_fromArray(
+						[
+							A5($author$project$View$Widgets$styledBtn, 'Got it! 👍', $author$project$Types$ToggleHelp, $author$project$View$Widgets$purpleGrad, '100%', '9px 0')
 						]))
 				]))
 		]));
