@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>DFA Simulator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; }
+
+        #dfa-savebar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .dfa-topbtn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 7px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: background 0.15s;
+        }
+        .dfa-topbtn:hover { background: rgba(255,255,255,0.28); }
+
+        
+        .dfa-modal-backdrop {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .dfa-modal-backdrop.open { display: flex; }
+
+        .dfa-modal {
+            background: #1e1e3a;
+            border: 1px solid rgba(124,77,255,0.4);
+            border-radius: 18px;
+            padding: 28px 32px;
+            width: 560px;
+            max-width: 95vw;
+            max-height: 82vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 48px rgba(0,0,0,0.7);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #e8eaf6;
+        }
+        .dfa-modal h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dfa-modal-close {
+            margin-left: auto;
+            background: transparent;
+            border: none;
+            color: #9fa8da;
+            font-size: 1.3rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 4px;
+        }
+        .dfa-modal-close:hover { color: #fff; }
+
+        .dfa-save-name-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .dfa-save-name-row input {
+            flex: 1;
+            background: rgba(255,255,255,0.07);
+            border: 1.5px solid rgba(124,77,255,0.5);
+            border-radius: 10px;
+            padding: 9px 14px;
+            color: #e8eaf6;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .dfa-save-name-row input:focus { border-color: #7c4dff; }
+        .dfa-save-name-row input::placeholder { color: #5c6bc0; }
+
+        .dfa-btn-primary {
+            background: linear-gradient(135deg, #7c4dff, #e040fb);
+            border: none;
+            color: #fff;
+            padding: 9px 22px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .dfa-btn-primary:hover { opacity: 0.88; }
+
+        .dfa-saves-list {
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-right: 4px;
+        }
+        .dfa-saves-list::-webkit-scrollbar { width: 5px; }
+        .dfa-saves-list::-webkit-scrollbar-thumb { background: rgba(124,77,255,0.4); border-radius: 4px; }
+
+        .dfa-save-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: border-color 0.15s;
+        }
+        .dfa-save-item:hover { border-color: rgba(124,77,255,0.5); }
+
+        .dfa-save-info { flex: 1; min-width: 0; }
+        .dfa-save-name {
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .dfa-save-meta {
+            font-size: 0.73rem;
+            color: #7986cb;
+            margin-top: 3px;
+        }
+
+        .dfa-save-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+        .dfa-btn-load {
+            background: rgba(124,77,255,0.2);
+            border: 1px solid rgba(124,77,255,0.5);
+            color: #ce93d8;
+            padding: 5px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .dfa-btn-load:hover { background: rgba(124,77,255,0.38); }
+
+        .dfa-btn-del {
+            background: rgba(239,83,80,0.15);
+            border: 1px solid rgba(239,83,80,0.4);
+            color: #ef9a9a;
+            padding: 5px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .dfa-btn-del:hover { background: rgba(239,83,80,0.3); }
+
+        .dfa-empty {
+            text-align: center;
+            color: #5c6bc0;
+            font-size: 0.85rem;
+            padding: 32px 0;
+        }
+
+        .dfa-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.08);
+            margin: 16px 0;
+        }
+
+        .dfa-toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: linear-gradient(135deg, #7c4dff, #e040fb);
+            color: #fff;
+            padding: 10px 28px;
+            border-radius: 24px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            z-index: 99999;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+            transition: transform 0.35s cubic-bezier(.22,1,.36,1), opacity 0.35s;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .dfa-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .dfa-rename-input {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border: 1.5px solid #7c4dff;
+            border-radius: 6px;
+            padding: 3px 8px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.88rem;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+    <div id="dfa-toast" class="dfa-toast"></div>
+
+    <div id="dfa-save-modal" class="dfa-modal-backdrop">
+        <div class="dfa-modal">
+            <h2>Save <button class="dfa-modal-close" id="dfa-save-close">✕</button></h2>
+            <div class="dfa-save-name-row">
+                <input id="dfa-save-input" type="text" placeholder="Name your save (e.g. My DFA)…" maxlength="60" />
+                <button class="dfa-btn-primary" id="dfa-save-confirm">Save</button>
+            </div>
+            <div class="dfa-divider"></div>
+            <div style="font-size:0.72rem; color:#7986cb; margin-bottom:10px; letter-spacing:0.5px; text-transform:uppercase; font-weight:600;">Saved diagrams</div>
+            <div class="dfa-saves-list" id="dfa-saves-list-save"></div>
+        </div>
+    </div>
+
+    
+    <div id="dfa-load-modal" class="dfa-modal-backdrop">
+        <div class="dfa-modal">
+            <h2>Load <button class="dfa-modal-close" id="dfa-load-close">✕</button></h2>
+            <div style="font-size:0.72rem; color:#7986cb; margin-bottom:14px; letter-spacing:0.5px; text-transform:uppercase; font-weight:600;">Your saved diagrams</div>
+            <div class="dfa-saves-list" id="dfa-saves-list-load"></div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+    
+
+    const STORAGE_KEY = 'dfa_simulator_saves_v1';
+
+    
+    function loadSaves() {
+        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+        catch(e) { return []; }
+    }
+    function persistSaves(arr) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+    }
+
+    function fmtDate(iso) {
+        const d = new Date(iso);
+        const pad = n => String(n).padStart(2,'0');
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}  ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+        const t = document.getElementById('dfa-toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+    }
+
+    
+    function scrapeDFAState() {
+        const inputs = [...document.querySelectorAll('input[type=text], input:not([type])')];
+        const textareas = [...document.querySelectorAll('textarea')];
+
+        function byPlaceholder(collection, ph) {
+            return collection.find(el => el.placeholder && el.placeholder.startsWith(ph));
+        }
+
+        const statesEl = byPlaceholder(inputs, 'q0, q1');
+        const alphaEl = byPlaceholder(inputs, 'a, b');
+        const startEl = byPlaceholder(inputs, 'q0');
+        const acceptEl = byPlaceholder(inputs, 'q2');
+        const transEl = byPlaceholder(textareas, 'q0,a,q1');
+
+        return {
+            states: statesEl ? statesEl.value: '',
+            alphabet: alphaEl ? alphaEl.value: '',
+            start: startEl ? startEl.value: '',
+            accept: acceptEl ? acceptEl.value: '',
+            transitions: transEl ? transEl.value: '',
+        };
+    }
+
+    
+    function setElmInputValue(el, value) {
+        if (!el) return;
+        const nativeSetter = Object.getOwnPropertyDescriptor(
+            el.tagName === 'TEXTAREA' ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype,
+            'value'
+        ).set;
+        nativeSetter.call(el, value);
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function restoreDFAState(saved) {
+        const inputs = [...document.querySelectorAll('input[type=text], input:not([type])')];
+        const textareas = [...document.querySelectorAll('textarea')];
+
+        function byPlaceholder(collection, ph) {
+            return collection.find(el => el.placeholder && el.placeholder.startsWith(ph));
+        }
+
+        expandCodePanel();
+
+        setTimeout(() => {
+            const statesEl = byPlaceholder([...document.querySelectorAll('input[type=text], input:not([type])')], 'q0, q1');
+            const alphaEl = byPlaceholder([...document.querySelectorAll('input[type=text], input:not([type])')], 'a, b');
+            const startEl= byPlaceholder([...document.querySelectorAll('input[type=text], input:not([type])')], 'q0');
+            const acceptEl = byPlaceholder([...document.querySelectorAll('input[type=text], input:not([type])')], 'q2');
+            const transEl = byPlaceholder([...document.querySelectorAll('textarea')], 'q0,a,q1');
+
+            setElmInputValue(statesEl, saved.states);
+            setElmInputValue(alphaEl, saved.alphabet);
+            setElmInputValue(startEl, saved.start);
+            setElmInputValue(acceptEl, saved.accept);
+            setElmInputValue(transEl, saved.transitions);
+
+           
+            setTimeout(() => {
+                const btns = [...document.querySelectorAll('button')];
+                const genBtn = btns.find(b => b.textContent.trim().toLowerCase().includes('generate diagram'));
+                if (genBtn) genBtn.click();
+            }, 80);
+        }, 120);
+    }
+
+    
+
+    function expandCodePanel() {
+        const headers = [...document.querySelectorAll('div[style*="cursor: pointer"], div[style*="cursor:pointer"]')];
+        const codeHeader = headers.find(h => h.textContent.includes('CODE') || h.textContent.includes('Code'));
+        if (codeHeader) {
+            const parent = codeHeader.closest('div');
+            if (parent) {
+                const btns = [...document.querySelectorAll('button')];
+                const genBtn = btns.find(b => b.textContent.trim().toLowerCase().includes('generate diagram'));
+                if (!genBtn) codeHeader.click();
+            }
+        }
+    }
+
+    
+
+    function renderSavesList(containerId, mode) {
+        const container = document.getElementById(containerId);
+        const saves = loadSaves();
+        container.innerHTML = '';
+
+        if (saves.length === 0) {
+            container.innerHTML = '<div class="dfa-empty">No saved diagrams yet.<br>Build something and save it!</div>';
+            return;
+        }
+
+        [...saves].reverse().forEach(save => {
+            const item = document.createElement('div');
+            item.className = 'dfa-save-item';
+
+            const info = document.createElement('div');
+            info.className = 'dfa-save-info';
+
+            const nameEl = document.createElement('div');
+            nameEl.className = 'dfa-save-name';
+            nameEl.textContent = save.name;
+
+            const meta = document.createElement('div');
+            meta.className = 'dfa-save-meta';
+            const stateCount = save.data.states ? save.data.states.split(',').filter(s=>s.trim()).length : 0;
+            const transCount = save.data.transitions ? save.data.transitions.split('\n').filter(s=>s.trim()).length : 0;
+            meta.textContent = `${fmtDate(save.savedAt)}  ·  ${stateCount} state${stateCount!==1?'s':''}  ·  ${transCount} transition${transCount!==1?'s':''}`;
+
+            info.appendChild(nameEl);
+            info.appendChild(meta);
+
+            const actions = document.createElement('div');
+            actions.className = 'dfa-save-actions';
+
+            if (mode === 'save') {
+                const renameBtn = document.createElement('button');
+                renameBtn.className = 'dfa-btn-load';
+                renameBtn.textContent = '✎';
+                renameBtn.title = 'Rename';
+                renameBtn.onclick = () => startInlineRename(save.id, nameEl, renameBtn);
+                actions.appendChild(renameBtn);
+            }
+
+            if (mode === 'load') {
+                const loadBtn = document.createElement('button');
+                loadBtn.className = 'dfa-btn-load';
+                loadBtn.textContent = '↩ Load';
+                loadBtn.onclick = () => {
+                    closeModal('dfa-load-modal');
+                    restoreDFAState(save.data);
+                    showToast(`Loaded "${save.name}"`);
+                };
+                actions.appendChild(loadBtn);
+            }
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'dfa-btn-del';
+            delBtn.textContent = 'X';
+            delBtn.title = 'Delete';
+            delBtn.onclick = () => {
+                const arr = loadSaves().filter(s => s.id !== save.id);
+                persistSaves(arr);
+                renderSavesList(containerId, mode);
+                showToast('Deleted');
+            };
+            actions.appendChild(delBtn);
+
+            item.appendChild(info);
+            item.appendChild(actions);
+            container.appendChild(item);
+        });
+    }
+
+
+    function startInlineRename(id, nameEl, renameBtn) {
+        const oldName = nameEl.textContent;
+        const inp = document.createElement('input');
+        inp.className = 'dfa-rename-input';
+        inp.value = oldName;
+        inp.maxLength = 60;
+        nameEl.replaceWith(inp);
+        renameBtn.textContent = '✔';
+        inp.focus();
+        inp.select();
+
+        const confirm = () => {
+            const newName = inp.value.trim() || oldName;
+            const arr = loadSaves();
+            const idx = arr.findIndex(s => s.id === id);
+            if (idx !== -1) { arr[idx].name = newName; persistSaves(arr); }
+            renderSavesList('dfa-saves-list-save', 'save');
+        };
+        renameBtn.onclick = confirm;
+        inp.addEventListener('keydown', e => { if (e.key === 'Enter') confirm(); if (e.key === 'Escape') renderSavesList('dfa-saves-list-save', 'save'); });
+    }
+
+ 
+    function openModal(id) {
+        document.getElementById(id).classList.add('open');
+    }
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('open');
+    }
+
+   
+    function injectTopBarButtons() {
+        const poll = setInterval(() => {
+            const btns = [...document.querySelectorAll('button')];
+            const guideBtn = btns.find(b => b.textContent.trim().includes('Guide'));
+            if (!guideBtn) return;
+            clearInterval(poll);
+
+            const bar = guideBtn.closest('div');
+            if (!bar || document.getElementById('dfa-savebar')) return;
+
+            const savebar = document.createElement('div');
+            savebar.id = 'dfa-savebar';
+            savebar.style.cssText = 'display:flex; gap:10px; align-items:center;';
+
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'dfa-topbtn';
+            saveBtn.textContent = 'Save';
+            saveBtn.onclick = () => {
+                const nameInput = document.getElementById('dfa-save-input');
+                if (!nameInput.value.trim()) {
+                    const now = new Date();
+                    const pad = n => String(n).padStart(2,'0');
+                    nameInput.value = `DFA ${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+                }
+                renderSavesList('dfa-saves-list-save', 'save');
+                openModal('dfa-save-modal');
+            };
+
+            const loadBtn = document.createElement('button');
+            loadBtn.className = 'dfa-topbtn';
+            loadBtn.textContent = 'Load';
+            loadBtn.onclick = () => {
+                renderSavesList('dfa-saves-list-load', 'load');
+                openModal('dfa-load-modal');
+            };
+
+            savebar.appendChild(saveBtn);
+            savebar.appendChild(loadBtn);
+
+            bar.insertBefore(savebar, bar.firstChild);
+        }, 150);
+    }
+
+    
+    document.getElementById('dfa-save-confirm').onclick = () => {
+        const nameInput = document.getElementById('dfa-save-input');
+        const name = nameInput.value.trim();
+        if (!name) { nameInput.focus(); return; }
+
+       
+        const btns = [...document.querySelectorAll('button')];
+        const exportBtn = btns.find(b => b.textContent.includes('Export code') || b.textContent.includes('Generate code'));
+        if (exportBtn) {
+            exportBtn.click();
+            setTimeout(() => doSave(name, nameInput), 150);
+        } else {
+            doSave(name, nameInput);
+        }
+    };
+
+    function doSave(name, nameInput) {
+        const data = scrapeDFAState();
+        const save = {
+            id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+            name,
+            savedAt: new Date().toISOString(),
+            data,
+        };
+        const arr = loadSaves();
+        arr.push(save);
+        persistSaves(arr);
+        nameInput.value = '';
+        renderSavesList('dfa-saves-list-save', 'save');
+        showToast(`Saved "${name}"`);
+    }
+
+ 
+    document.getElementById('dfa-save-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('dfa-save-confirm').click();
+    });
+
+    document.getElementById('dfa-save-close').onclick = () => closeModal('dfa-save-modal');
+    document.getElementById('dfa-load-close').onclick = () => closeModal('dfa-load-modal');
+
+
+    document.getElementById('dfa-save-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal('dfa-save-modal'); });
+    document.getElementById('dfa-load-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal('dfa-load-modal'); });
+
+  
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            closeModal('dfa-save-modal');
+            closeModal('dfa-load-modal');
+        }
+    });
+
+    var app = Elm.Main.init({ node: document.getElementById('app') });
+    injectTopBarButtons();
+    </script>
+</body>
+</html>
