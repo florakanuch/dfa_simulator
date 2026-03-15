@@ -493,17 +493,22 @@ viewHelpModal =
                 , p [ style "margin" "0" ]
                     [ text "This tool is an interactive "
                     , span [ style "color" "#e040fb", style "font-weight" "700" ] [ text "Deterministic Finite Automaton (DFA)" ]
-                    , text " simulator designed for college and university students. The goal is to help learners visually and interactively understand how automata work during theoretical computer science classes — how a DFA processes an input word, when it accepts, and when it rejects. Save and Load features are coming soon."
+                    , text " simulator designed for college and university students. The goal is to help learners visually and interactively understand how automata work during theoretical computer science classes — how a DFA processes an input word, when it accepts, and when it rejects."
                     ]
                 ]
 
-           
+            , helpSectionTitle " Save and Load"
+            , helpLine "Save" "Save the current diagram to future use. You can rename the saved sloth and also delete it."
+            , helpLine "Load" "Choose one sloth from SAVED DIAGRAMS and it will be loaded. You can add the start state through the CODE PANEL or mark it at the STATES list if the start state does not load. The loaded diagram and code can be edited but it needs to be saved again separately after the editing."
+
+
             , helpSectionTitle " Editing the Diagram"
             , helpLine "✋ Select" "Drag states to move them. Double-click a state to rename it."
             , helpLine "⊕ Add State" "Click on the empty canvas to place a new state."
             , helpLine "→ Add Transition" "Click the source state, then the target state. Enter the transition character."
+            , helpLine "X Delete state/transition" "Click on a state or transition to delete it."
             , helpLine "✎ Rename" "Use the button in the state list or double-click directly on the state."
-            , helpLine "S / A / ×" "S = set as start state, A = toggle accept state, × = delete state."
+            , helpLine "S / A / X" "S = set as start state, A = toggle accept state, × = delete state."
             , helpLine "Pan" "Drag the empty canvas area to move the view."
             , helpLine "+ / − / ⌂" "Zoom in, zoom out, and reset the view."
 
@@ -558,7 +563,7 @@ viewHelpModal =
                 ]
 
             , div [ style "margin-top" "18px" ]
-                [ styledBtn "Got it! 👍" ToggleHelp purpleGrad "100%" "9px 0" ]
+                [ styledBtn "Got it!" ToggleHelp purpleGrad "100%" "9px 0" ]
             ]
         ]
 

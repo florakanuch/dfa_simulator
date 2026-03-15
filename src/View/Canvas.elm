@@ -31,7 +31,7 @@ ellipseEdge pos dx dy rx ry =
         dist = mySqrt (dx * dx + dy * dy)
     in
     if dist < 0.001 then
-        ( pos.x, pos.y )
+        (pos.x, pos.y)
 
     else
         let
@@ -133,10 +133,10 @@ drawDFA model =
                                             toRx = stateRx to
                                         in
                                         if from == to then
-                                            drawSelfLoop label fromPos fromRx isActive
+                                            drawSelfLoop label fromPos fromRx isActive model.drawTool from to
 
                                         else
-                                            drawArrow label fromPos toPos fromRx toRx (hasBidirectional from to) isActive
+                                            drawArrow label fromPos toPos fromRx toRx (hasBidirectional from to) isActive model.drawTool from to
                                     )
                                     (Dict.get from model.statePositions)
                                     (Dict.get to model.statePositions)
@@ -172,6 +172,9 @@ drawState model name pos isStart isAccept isCurrent isPending =
         fillColor =
             if isCurrent then
                 "#1b5e20"
+
+            else if model.drawTool == DeleteTool then
+                "rgba(239,83,80,0.15)"
 
             else if isPending then
                 "rgba(255,183,77,0.2)"
@@ -219,6 +222,9 @@ drawState model name pos isStart isAccept isCurrent isPending =
 
                 AddStateTool ->
                     "default"
+
+                DeleteTool ->
+                    "pointer"
 
         startArrow =
             if isStart then
@@ -312,8 +318,8 @@ drawState model name pos isStart isAccept isCurrent isPending =
            ]
 
 
-drawArrow : String -> StatePos -> StatePos -> Float -> Float -> Bool -> Bool -> List (Svg Msg)
-drawArrow label p1 p2 rx1 rx2 curved isActive =
+drawArrow : String -> StatePos -> StatePos -> Float -> Float -> Bool -> Bool -> DrawTool -> String -> String -> List (Svg Msg)
+drawArrow label p1 p2 rx1 rx2 curved isActive drawTool from to =
     let
         dx = p2.x - p1.x
 
@@ -321,7 +327,12 @@ drawArrow label p1 p2 rx1 rx2 curved isActive =
 
         dist = mySqrt (dx * dx + dy * dy)
 
-        strokeColor = if isActive then "#69f0ae" else "#9fa8da"
+        isDeleteMode = drawTool == DeleteTool
+
+        strokeColor =
+            if isDeleteMode then "#ef5350"
+            else if isActive then "#69f0ae"
+            else "#9fa8da"
 
         strokeW = if isActive then "2.5" else "2"
 
@@ -329,15 +340,34 @@ drawArrow label p1 p2 rx1 rx2 curved isActive =
 
         ry = stateRy
 
+        deleteClick path_ =
+            if isDeleteMode then
+                [ Svg.path
+                    [ SvgAttr.d path_
+                    , SvgAttr.stroke "transparent"
+                    , SvgAttr.strokeWidth "14"
+                    , SvgAttr.fill "none"
+                    , SvgAttr.cursor "pointer"
+                    , custom "click"
+                        (Decode.succeed
+                            { message = DeleteTransition from to
+                            , stopPropagation = True
+                            , preventDefault = False
+                            }
+                        )
+                    ]
+                    []
+                ]
+            else
+                []
+
     in
     if curved then
         let
             nx = -(dy / dist)
-
             ny = dx / dist
 
             offset = 20
-
             (sx, sy) = ellipseEdge p1 (dx + nx * offset) (dy + ny * offset) rx1 ry
 
             (ex, ey) = ellipseEdge p2 (-(dx - nx * offset)) (-(dy - ny * offset)) rx2 ry
@@ -349,23 +379,16 @@ drawArrow label p1 p2 rx1 rx2 curved isActive =
             lx = (sx + 2 * cpx + ex) / 4
 
             ly = (sy + 2 * cpy + ey) / 4 - 8
+
+            pathStr =
+                "M "
+                    ++ flt sx ++ " " ++ flt sy
+                    ++ " Q " ++ flt cpx ++ " " ++ flt cpy
+                    ++ " " ++ flt ex ++ " " ++ flt ey
         
         in
         [ Svg.path
-            [ SvgAttr.d
-                ("M "
-                    ++ flt sx
-                    ++ " "
-                    ++ flt sy
-                    ++ " Q "
-                    ++ flt cpx
-                    ++ " "
-                    ++ flt cpy
-                    ++ " "
-                    ++ flt ex
-                    ++ " "
-                    ++ flt ey
-                )
+            [ SvgAttr.d pathStr
             , SvgAttr.stroke strokeColor
             , SvgAttr.strokeWidth strokeW
             , SvgAttr.fill "none"
@@ -374,7 +397,7 @@ drawArrow label p1 p2 rx1 rx2 curved isActive =
             ]
             []
         , transLabel lx ly label isActive
-        ]
+        ] ++ deleteClick pathStr
 
     else
         let
@@ -383,8 +406,11 @@ drawArrow label p1 p2 rx1 rx2 curved isActive =
             (ex, ey) = ellipseEdge p2 (-dx) (-dy) rx2 ry
 
             mx = (sx + ex) / 2
-
             my = (sy + ey) / 2 - 10
+
+            pathStr =
+                "M " ++ flt sx ++ " " ++ flt sy
+                ++ " L " ++ flt ex ++ " " ++ flt ey
         in
         [ Svg.line
             [ SvgAttr.x1 (flt sx)
@@ -398,33 +424,42 @@ drawArrow label p1 p2 rx1 rx2 curved isActive =
             ]
             []
         , transLabel mx my label isActive
-        ]
+        ] ++ deleteClick pathStr
 
 
-drawSelfLoop : String -> StatePos -> Float -> Bool -> List (Svg Msg)
-drawSelfLoop label pos rx isActive =
+drawSelfLoop : String -> StatePos -> Float -> Bool -> DrawTool -> String -> String -> List (Svg Msg)
+drawSelfLoop label pos rx isActive drawTool from to =
     let
         ry = stateRy
 
-        strokeColor = if isActive then "#69f0ae" else "#9fa8da"
+        isDeleteMode = drawTool == DeleteTool
+
+        strokeColor =
+            if isDeleteMode then "#ef5350"
+            else if isActive then "#69f0ae"
+            else "#9fa8da"
 
         strokeW = if isActive then "2.5" else "2"
 
         markerUrl = if isActive then "url(#arrow-active)" else "url(#arrow)"
 
+        loopR = 13.0
+        lcx = pos.x
+        lcy = pos.y - ry - loopR - 1.0
+        gap = 4.0
+        ex = lcx - gap
+        ey = lcy + loopR
+        sx = lcx + gap
+        sy = lcy + loopR
+
         pathD =
-            "M "
-                ++ flt pos.x
-                ++ " "
-                ++ flt (pos.y - ry)
-                ++ " Q "
-                ++ flt (pos.x + rx + 40)
-                ++ " "
-                ++ flt (pos.y - ry - 55)
-                ++ " "
-                ++ flt (pos.x + 3)
-                ++ " "
-                ++ flt (pos.y - ry)
+            "M " ++ flt sx ++ " " ++ flt sy
+            ++ " A " ++ flt loopR ++ " " ++ flt loopR
+            ++ " 0 1 0 "
+            ++ flt ex ++ " " ++ flt ey
+
+        lx = lcx
+        ly = lcy - loopR - 5
     in
     [ Svg.path
         [ SvgAttr.d pathD
@@ -435,8 +470,28 @@ drawSelfLoop label pos rx isActive =
         , SvgAttr.pointerEvents "none"
         ]
         []
-    , transLabel (pos.x + rx + 18) (pos.y - ry - 42) label isActive
+    , transLabel lx ly label isActive
     ]
+    ++ ( if isDeleteMode then
+            [ Svg.path
+                [ SvgAttr.d pathD
+                , SvgAttr.stroke "transparent"
+                , SvgAttr.strokeWidth "14"
+                , SvgAttr.fill "none"
+                , SvgAttr.cursor "pointer"
+                , custom "click"
+                    (Decode.succeed
+                        { message = DeleteTransition from to
+                        , stopPropagation = True
+                        , preventDefault = False
+                        }
+                    )
+                ]
+                []
+            ]
+         else
+            []
+       )
 
 
 transLabel : Float -> Float -> String -> Bool -> Svg Msg
