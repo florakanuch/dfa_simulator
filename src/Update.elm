@@ -87,9 +87,7 @@ applySnapshot snap model =
     }
 
 
--- ============================================================
--- UPDATE
--- ============================================================
+-------------------------------------------UPDATE-------------------------
 
 update : Msg -> Model -> Model
 update msg model =
@@ -135,6 +133,23 @@ update msg model =
                                 , transitionFrom = Nothing
                             }
 
+                DeleteTool ->
+                    let
+                        m0 = saveUndo model
+                        newPos = Dict.remove stateName m0.statePositions
+                        newTrans = Dict.filter (\( fr, _ ) to -> fr /= stateName && to /= stateName) m0.transitions
+                        newAccept = List.filter ((/=) stateName) m0.acceptStates
+                        newStart = if m0.startState == stateName then "" else m0.startState
+                    in
+                    { m0
+                        | statePositions = newPos
+                        , transitions = newTrans
+                        , acceptStates = newAccept
+                        , startState = newStart
+                        , simMessage = "Deleted state: " ++ stateName
+                    }
+                        |> syncCodeFromDiagram
+
                 SelectTool -> model
 
                 AddStateTool -> model
@@ -151,6 +166,8 @@ update msg model =
                         AddTransitionTool ->  "Click source state to start a transition."
 
                         SelectTool -> "Drag states to move. Double-click to rename."
+
+                        DeleteTool -> "Click a state or transition to delete it."
             }
 
         MouseDownOnState stateName mouseX mouseY ->
@@ -164,8 +181,8 @@ update msg model =
                             | dragging =
                                 Just
                                     { stateName = stateName
-                                    , offsetX = mouseX - pos.x
-                                    , offsetY = mouseY - pos.y
+                                    , offsetX =0
+                                    , offsetY = 0
                                     }
                         }
 
@@ -182,8 +199,8 @@ update msg model =
                     { model
                         | statePositions =
                             Dict.insert drag.stateName
-                                { x = mouseX - drag.offsetX
-                                , y = mouseY - drag.offsetY
+                                { x = mouseX 
+                                , y = mouseY 
                                 }
                                 model.statePositions
                     }
@@ -243,6 +260,19 @@ update msg model =
 
         ToggleStateList ->
             { model | stateListCollapsed = not model.stateListCollapsed }
+
+        DeleteTransition from to ->
+            let
+                m0 = saveUndo model
+                newTrans =
+                    m0.transitions
+                        |> Dict.filter (\( fr, _ ) tgt -> not (fr == from && tgt == to))
+            in
+            { m0
+                | transitions = newTrans
+                , simMessage = "Deleted transition: " ++ from ++ " → " ++ to
+            }
+                |> syncCodeFromDiagram
 
         StartRename stateName ->
             { model

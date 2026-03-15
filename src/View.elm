@@ -150,6 +150,7 @@ viewDiagramPanel model =
                                     case model.dragging of
                                         Just _ -> "grabbing"
                                         Nothing -> "grab"
+                                DeleteTool -> "pointer"
                            )
                     )
                 , custom "click"
@@ -202,6 +203,7 @@ viewDiagramPanel model =
                 [ toolBtn "✋" (model.drawTool == SelectTool) (SetDrawTool SelectTool) "Select/Move"
                 , toolBtn "⊕" (model.drawTool == AddStateTool) (SetDrawTool AddStateTool) "Add state"
                 , toolBtn "→" (model.drawTool == AddTransitionTool) (SetDrawTool AddTransitionTool) "Add transition"
+                , toolBtn "X" (model.drawTool == DeleteTool) (SetDrawTool DeleteTool) "Delete state/transition"
                 ]
             , toolGroup "Actions"
                 [ undoRedoBtn "↩" Undo (model.undoStack /= []) "Undo"

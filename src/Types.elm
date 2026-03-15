@@ -9,6 +9,7 @@ type DrawTool
     = SelectTool
     | AddStateTool
     | AddTransitionTool
+    | DeleteTool
 
 
 
@@ -130,3 +131,4 @@ type Msg
     | ToggleTestPanel
     | ToggleCodePanel
     | ToggleStateList
+    | DeleteTransition String String
