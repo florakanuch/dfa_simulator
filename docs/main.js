@@ -6545,6 +6545,26 @@ var $author$project$Update$update = F2(
 								model,
 								{aR: fromState, aS: stateName, a_: true, bd: $elm$core$Maybe$Nothing});
 						}
+					case 3:
+						var m0 = $author$project$Update$saveUndo(model);
+						var newAccept = A2(
+							$elm$core$List$filter,
+							$elm$core$Basics$neq(stateName),
+							m0.J);
+						var newPos = A2($elm$core$Dict$remove, stateName, m0.aj);
+						var newStart = _Utils_eq(m0.ai, stateName) ? '' : m0.ai;
+						var newTrans = A2(
+							$elm$core$Dict$filter,
+							F2(
+								function (_v4, to) {
+									var fr = _v4.a;
+									return (!_Utils_eq(fr, stateName)) && (!_Utils_eq(to, stateName));
+								}),
+							m0.I);
+						return $author$project$CodeSync$syncCodeFromDiagram(
+							_Utils_update(
+								m0,
+								{J: newAccept, a0: 'Deleted state: ' + stateName, ai: newStart, aj: newPos, I: newTrans}));
 					case 0:
 						return model;
 					default:
@@ -6563,8 +6583,10 @@ var $author$project$Update$update = F2(
 									return 'Click canvas to add a state.';
 								case 2:
 									return 'Click source state to start a transition.';
-								default:
+								case 0:
 									return 'Drag states to move. Double-click to rename.';
+								default:
+									return 'Click a state or transition to delete it.';
 							}
 						}(),
 						bd: $elm$core$Maybe$Nothing
@@ -6574,15 +6596,15 @@ var $author$project$Update$update = F2(
 				var mouseX = msg.b;
 				var mouseY = msg.c;
 				if (!model.az) {
-					var _v5 = A2($elm$core$Dict$get, stateName, model.aj);
-					if (!_v5.$) {
-						var pos = _v5.a;
+					var _v6 = A2($elm$core$Dict$get, stateName, model.aj);
+					if (!_v6.$) {
+						var pos = _v6.a;
 						var m0 = $author$project$Update$saveUndo(model);
 						return _Utils_update(
 							m0,
 							{
 								ay: $elm$core$Maybe$Just(
-									{aI: mouseX - pos.bi, aJ: mouseY - pos.bj, a4: stateName})
+									{aI: 0, aJ: 0, a4: stateName})
 							});
 					} else {
 						return model;
@@ -6593,18 +6615,18 @@ var $author$project$Update$update = F2(
 			case 4:
 				var mouseX = msg.a;
 				var mouseY = msg.b;
-				var _v6 = model.ay;
-				if (_v6.$ === 1) {
+				var _v7 = model.ay;
+				if (_v7.$ === 1) {
 					return model;
 				} else {
-					var drag = _v6.a;
+					var drag = _v7.a;
 					return _Utils_update(
 						model,
 						{
 							aj: A3(
 								$elm$core$Dict$insert,
 								drag.a4,
-								{bi: mouseX - drag.aI, bj: mouseY - drag.aJ},
+								{bi: mouseX, bj: mouseY},
 								model.aj)
 						});
 				}
@@ -6662,6 +6684,22 @@ var $author$project$Update$update = F2(
 				return _Utils_update(
 					model,
 					{a3: !model.a3});
+			case 48:
+				var from = msg.a;
+				var to = msg.b;
+				var m0 = $author$project$Update$saveUndo(model);
+				var newTrans = A2(
+					$elm$core$Dict$filter,
+					F2(
+						function (_v8, tgt) {
+							var fr = _v8.a;
+							return !(_Utils_eq(fr, from) && _Utils_eq(tgt, to));
+						}),
+					m0.I);
+				return $author$project$CodeSync$syncCodeFromDiagram(
+					_Utils_update(
+						m0,
+						{a0: 'Deleted transition: ' + (from + (' → ' + to)), I: newTrans}));
 			case 6:
 				var stateName = msg.a;
 				return _Utils_update(
@@ -6676,11 +6714,11 @@ var $author$project$Update$update = F2(
 					model,
 					{aV: v});
 			case 8:
-				var _v7 = model.aW;
-				if (_v7.$ === 1) {
+				var _v9 = model.aW;
+				if (_v9.$ === 1) {
 					return model;
 				} else {
-					var oldName = _v7.a;
+					var oldName = _v9.a;
 					var newName = $elm$core$String$trim(model.aV);
 					if ((newName === '') || _Utils_eq(newName, oldName)) {
 						return _Utils_update(
@@ -6703,11 +6741,11 @@ var $author$project$Update$update = F2(
 							var newTransitions = $elm$core$Dict$fromList(
 								A2(
 									$elm$core$List$map,
-									function (_v8) {
-										var _v9 = _v8.a;
-										var fr = _v9.a;
-										var ch = _v9.b;
-										var to = _v8.b;
+									function (_v10) {
+										var _v11 = _v10.a;
+										var fr = _v11.a;
+										var ch = _v11.b;
+										var to = _v10.b;
 										return _Utils_Tuple2(
 											_Utils_Tuple2(
 												_Utils_eq(fr, oldName) ? newName : fr,
@@ -6767,8 +6805,8 @@ var $author$project$Update$update = F2(
 				var newTrans = A2(
 					$elm$core$Dict$filter,
 					F2(
-						function (_v10, to) {
-							var fr = _v10.a;
+						function (_v12, to) {
+							var fr = _v12.a;
 							return (!_Utils_eq(fr, state)) && (!_Utils_eq(to, state));
 						}),
 					m0.I);
@@ -6868,14 +6906,14 @@ var $author$project$Update$update = F2(
 			case 32:
 				return model;
 			case 33:
-				var _v11 = model.be;
-				if (!_v11.b) {
+				var _v13 = model.be;
+				if (!_v13.b) {
 					return _Utils_update(
 						model,
 						{a0: 'Nothing to undo.'});
 				} else {
-					var snap = _v11.a;
-					var rest = _v11.b;
+					var snap = _v13.a;
+					var rest = _v13.b;
 					return $author$project$CodeSync$syncCodeFromDiagram(
 						A2(
 							$author$project$Update$applySnapshot,
@@ -6895,14 +6933,14 @@ var $author$project$Update$update = F2(
 								})));
 				}
 			case 34:
-				var _v12 = model.aU;
-				if (!_v12.b) {
+				var _v14 = model.aU;
+				if (!_v14.b) {
 					return _Utils_update(
 						model,
 						{a0: 'Nothing to redo.'});
 				} else {
-					var snap = _v12.a;
-					var rest = _v12.b;
+					var snap = _v14.a;
+					var rest = _v14.b;
 					return $author$project$CodeSync$syncCodeFromDiagram(
 						A2(
 							$author$project$Update$applySnapshot,
@@ -7258,6 +7296,7 @@ var $author$project$Types$ClickedCanvas = F2(
 	function (a, b) {
 		return {$: 0, a: a, b: b};
 	});
+var $author$project$Types$DeleteTool = 3;
 var $author$project$Types$MouseMove = F2(
 	function (a, b) {
 		return {$: 4, a: a, b: b};
@@ -7306,6 +7345,11 @@ var $elm$core$List$concatMap = F2(
 	});
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var $elm$svg$Svg$defs = $elm$svg$Svg$trustedNode('defs');
+var $author$project$Types$DeleteTransition = F2(
+	function (a, b) {
+		return {$: 48, a: a, b: b};
+	});
+var $elm$svg$Svg$Attributes$cursor = _VirtualDom_attribute('cursor');
 var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
 var $elm$core$Basics$pow = _Basics_pow;
 var $author$project$Helpers$mySqrt = function (x) {
@@ -7372,37 +7416,153 @@ var $elm$svg$Svg$Attributes$x1 = _VirtualDom_attribute('x1');
 var $elm$svg$Svg$Attributes$x2 = _VirtualDom_attribute('x2');
 var $elm$svg$Svg$Attributes$y1 = _VirtualDom_attribute('y1');
 var $elm$svg$Svg$Attributes$y2 = _VirtualDom_attribute('y2');
-var $author$project$View$Canvas$drawArrow = F7(
-	function (label, p1, p2, rx1, rx2, curved, isActive) {
+var $author$project$View$Canvas$drawArrow = function (label) {
+	return function (p1) {
+		return function (p2) {
+			return function (rx1) {
+				return function (rx2) {
+					return function (curved) {
+						return function (isActive) {
+							return function (drawTool) {
+								return function (from) {
+									return function (to) {
+										var strokeW = isActive ? '2.5' : '2';
+										var ry = $author$project$View$Canvas$stateRy;
+										var markerUrl = isActive ? 'url(#arrow-active)' : 'url(#arrow)';
+										var isDeleteMode = drawTool === 3;
+										var strokeColor = isDeleteMode ? '#ef5350' : (isActive ? '#69f0ae' : '#9fa8da');
+										var dy = p2.bj - p1.bj;
+										var dx = p2.bi - p1.bi;
+										var dist = $author$project$Helpers$mySqrt((dx * dx) + (dy * dy));
+										var deleteClick = function (path_) {
+											return isDeleteMode ? _List_fromArray(
+												[
+													A2(
+													$elm$svg$Svg$path,
+													_List_fromArray(
+														[
+															$elm$svg$Svg$Attributes$d(path_),
+															$elm$svg$Svg$Attributes$stroke('transparent'),
+															$elm$svg$Svg$Attributes$strokeWidth('14'),
+															$elm$svg$Svg$Attributes$fill('none'),
+															$elm$svg$Svg$Attributes$cursor('pointer'),
+															A2(
+															$elm$html$Html$Events$custom,
+															'click',
+															$elm$json$Json$Decode$succeed(
+																{
+																	aG: A2($author$project$Types$DeleteTransition, from, to),
+																	aT: false,
+																	a5: true
+																}))
+														]),
+													_List_Nil)
+												]) : _List_Nil;
+										};
+										if (curved) {
+											var offset = 20;
+											var ny = dx / dist;
+											var nx = -(dy / dist);
+											var _v0 = A5($author$project$View$Canvas$ellipseEdge, p1, dx + (nx * offset), dy + (ny * offset), rx1, ry);
+											var sx = _v0.a;
+											var sy = _v0.b;
+											var _v1 = A5($author$project$View$Canvas$ellipseEdge, p2, -(dx - (nx * offset)), -(dy - (ny * offset)), rx2, ry);
+											var ex = _v1.a;
+											var ey = _v1.b;
+											var cpx = ((sx + ex) / 2) + (nx * 35);
+											var lx = ((sx + (2 * cpx)) + ex) / 4;
+											var cpy = ((sy + ey) / 2) + (ny * 35);
+											var ly = (((sy + (2 * cpy)) + ey) / 4) - 8;
+											var pathStr = 'M ' + ($author$project$Helpers$flt(sx) + (' ' + ($author$project$Helpers$flt(sy) + (' Q ' + ($author$project$Helpers$flt(cpx) + (' ' + ($author$project$Helpers$flt(cpy) + (' ' + ($author$project$Helpers$flt(ex) + (' ' + $author$project$Helpers$flt(ey)))))))))));
+											return _Utils_ap(
+												_List_fromArray(
+													[
+														A2(
+														$elm$svg$Svg$path,
+														_List_fromArray(
+															[
+																$elm$svg$Svg$Attributes$d(pathStr),
+																$elm$svg$Svg$Attributes$stroke(strokeColor),
+																$elm$svg$Svg$Attributes$strokeWidth(strokeW),
+																$elm$svg$Svg$Attributes$fill('none'),
+																$elm$svg$Svg$Attributes$markerEnd(markerUrl),
+																$elm$svg$Svg$Attributes$pointerEvents('none')
+															]),
+														_List_Nil),
+														A4($author$project$View$Canvas$transLabel, lx, ly, label, isActive)
+													]),
+												deleteClick(pathStr));
+										} else {
+											var _v2 = A5($author$project$View$Canvas$ellipseEdge, p1, dx, dy, rx1, ry);
+											var sx = _v2.a;
+											var sy = _v2.b;
+											var _v3 = A5($author$project$View$Canvas$ellipseEdge, p2, -dx, -dy, rx2, ry);
+											var ex = _v3.a;
+											var ey = _v3.b;
+											var mx = (sx + ex) / 2;
+											var my = ((sy + ey) / 2) - 10;
+											var pathStr = 'M ' + ($author$project$Helpers$flt(sx) + (' ' + ($author$project$Helpers$flt(sy) + (' L ' + ($author$project$Helpers$flt(ex) + (' ' + $author$project$Helpers$flt(ey)))))));
+											return _Utils_ap(
+												_List_fromArray(
+													[
+														A2(
+														$elm$svg$Svg$line,
+														_List_fromArray(
+															[
+																$elm$svg$Svg$Attributes$x1(
+																$author$project$Helpers$flt(sx)),
+																$elm$svg$Svg$Attributes$y1(
+																$author$project$Helpers$flt(sy)),
+																$elm$svg$Svg$Attributes$x2(
+																$author$project$Helpers$flt(ex)),
+																$elm$svg$Svg$Attributes$y2(
+																$author$project$Helpers$flt(ey)),
+																$elm$svg$Svg$Attributes$stroke(strokeColor),
+																$elm$svg$Svg$Attributes$strokeWidth(strokeW),
+																$elm$svg$Svg$Attributes$markerEnd(markerUrl),
+																$elm$svg$Svg$Attributes$pointerEvents('none')
+															]),
+														_List_Nil),
+														A4($author$project$View$Canvas$transLabel, mx, my, label, isActive)
+													]),
+												deleteClick(pathStr));
+										}
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+var $author$project$View$Canvas$drawSelfLoop = F7(
+	function (label, pos, rx, isActive, drawTool, from, to) {
 		var strokeW = isActive ? '2.5' : '2';
-		var strokeColor = isActive ? '#69f0ae' : '#9fa8da';
 		var ry = $author$project$View$Canvas$stateRy;
 		var markerUrl = isActive ? 'url(#arrow-active)' : 'url(#arrow)';
-		var dy = p2.bj - p1.bj;
-		var dx = p2.bi - p1.bi;
-		var dist = $author$project$Helpers$mySqrt((dx * dx) + (dy * dy));
-		if (curved) {
-			var offset = 20;
-			var ny = dx / dist;
-			var nx = -(dy / dist);
-			var _v0 = A5($author$project$View$Canvas$ellipseEdge, p1, dx + (nx * offset), dy + (ny * offset), rx1, ry);
-			var sx = _v0.a;
-			var sy = _v0.b;
-			var _v1 = A5($author$project$View$Canvas$ellipseEdge, p2, -(dx - (nx * offset)), -(dy - (ny * offset)), rx2, ry);
-			var ex = _v1.a;
-			var ey = _v1.b;
-			var cpx = ((sx + ex) / 2) + (nx * 35);
-			var lx = ((sx + (2 * cpx)) + ex) / 4;
-			var cpy = ((sy + ey) / 2) + (ny * 35);
-			var ly = (((sy + (2 * cpy)) + ey) / 4) - 8;
-			return _List_fromArray(
+		var loopR = 13.0;
+		var lcy = ((pos.bj - ry) - loopR) - 1.0;
+		var ly = (lcy - loopR) - 5;
+		var sy = lcy + loopR;
+		var lcx = pos.bi;
+		var lx = lcx;
+		var isDeleteMode = drawTool === 3;
+		var strokeColor = isDeleteMode ? '#ef5350' : (isActive ? '#69f0ae' : '#9fa8da');
+		var gap = 4.0;
+		var sx = lcx + gap;
+		var ey = lcy + loopR;
+		var ex = lcx - gap;
+		var pathD = 'M ' + ($author$project$Helpers$flt(sx) + (' ' + ($author$project$Helpers$flt(sy) + (' A ' + ($author$project$Helpers$flt(loopR) + (' ' + ($author$project$Helpers$flt(loopR) + (' 0 1 0 ' + ($author$project$Helpers$flt(ex) + (' ' + $author$project$Helpers$flt(ey)))))))))));
+		return _Utils_ap(
+			_List_fromArray(
 				[
 					A2(
 					$elm$svg$Svg$path,
 					_List_fromArray(
 						[
-							$elm$svg$Svg$Attributes$d(
-							'M ' + ($author$project$Helpers$flt(sx) + (' ' + ($author$project$Helpers$flt(sy) + (' Q ' + ($author$project$Helpers$flt(cpx) + (' ' + ($author$project$Helpers$flt(cpy) + (' ' + ($author$project$Helpers$flt(ex) + (' ' + $author$project$Helpers$flt(ey)))))))))))),
+							$elm$svg$Svg$Attributes$d(pathD),
 							$elm$svg$Svg$Attributes$stroke(strokeColor),
 							$elm$svg$Svg$Attributes$strokeWidth(strokeW),
 							$elm$svg$Svg$Attributes$fill('none'),
@@ -7411,63 +7571,30 @@ var $author$project$View$Canvas$drawArrow = F7(
 						]),
 					_List_Nil),
 					A4($author$project$View$Canvas$transLabel, lx, ly, label, isActive)
-				]);
-		} else {
-			var _v2 = A5($author$project$View$Canvas$ellipseEdge, p1, dx, dy, rx1, ry);
-			var sx = _v2.a;
-			var sy = _v2.b;
-			var _v3 = A5($author$project$View$Canvas$ellipseEdge, p2, -dx, -dy, rx2, ry);
-			var ex = _v3.a;
-			var ey = _v3.b;
-			var mx = (sx + ex) / 2;
-			var my = ((sy + ey) / 2) - 10;
-			return _List_fromArray(
+				]),
+			isDeleteMode ? _List_fromArray(
 				[
 					A2(
-					$elm$svg$Svg$line,
+					$elm$svg$Svg$path,
 					_List_fromArray(
 						[
-							$elm$svg$Svg$Attributes$x1(
-							$author$project$Helpers$flt(sx)),
-							$elm$svg$Svg$Attributes$y1(
-							$author$project$Helpers$flt(sy)),
-							$elm$svg$Svg$Attributes$x2(
-							$author$project$Helpers$flt(ex)),
-							$elm$svg$Svg$Attributes$y2(
-							$author$project$Helpers$flt(ey)),
-							$elm$svg$Svg$Attributes$stroke(strokeColor),
-							$elm$svg$Svg$Attributes$strokeWidth(strokeW),
-							$elm$svg$Svg$Attributes$markerEnd(markerUrl),
-							$elm$svg$Svg$Attributes$pointerEvents('none')
+							$elm$svg$Svg$Attributes$d(pathD),
+							$elm$svg$Svg$Attributes$stroke('transparent'),
+							$elm$svg$Svg$Attributes$strokeWidth('14'),
+							$elm$svg$Svg$Attributes$fill('none'),
+							$elm$svg$Svg$Attributes$cursor('pointer'),
+							A2(
+							$elm$html$Html$Events$custom,
+							'click',
+							$elm$json$Json$Decode$succeed(
+								{
+									aG: A2($author$project$Types$DeleteTransition, from, to),
+									aT: false,
+									a5: true
+								}))
 						]),
-					_List_Nil),
-					A4($author$project$View$Canvas$transLabel, mx, my, label, isActive)
-				]);
-		}
-	});
-var $author$project$View$Canvas$drawSelfLoop = F4(
-	function (label, pos, rx, isActive) {
-		var strokeW = isActive ? '2.5' : '2';
-		var strokeColor = isActive ? '#69f0ae' : '#9fa8da';
-		var ry = $author$project$View$Canvas$stateRy;
-		var pathD = 'M ' + ($author$project$Helpers$flt(pos.bi) + (' ' + ($author$project$Helpers$flt(pos.bj - ry) + (' Q ' + ($author$project$Helpers$flt((pos.bi + rx) + 40) + (' ' + ($author$project$Helpers$flt((pos.bj - ry) - 55) + (' ' + ($author$project$Helpers$flt(pos.bi + 3) + (' ' + $author$project$Helpers$flt(pos.bj - ry)))))))))));
-		var markerUrl = isActive ? 'url(#arrow-active)' : 'url(#arrow)';
-		return _List_fromArray(
-			[
-				A2(
-				$elm$svg$Svg$path,
-				_List_fromArray(
-					[
-						$elm$svg$Svg$Attributes$d(pathD),
-						$elm$svg$Svg$Attributes$stroke(strokeColor),
-						$elm$svg$Svg$Attributes$strokeWidth(strokeW),
-						$elm$svg$Svg$Attributes$fill('none'),
-						$elm$svg$Svg$Attributes$markerEnd(markerUrl),
-						$elm$svg$Svg$Attributes$pointerEvents('none')
-					]),
-				_List_Nil),
-				A4($author$project$View$Canvas$transLabel, (pos.bi + rx) + 18, (pos.bj - ry) - 42, label, isActive)
-			]);
+					_List_Nil)
+				]) : _List_Nil);
 	});
 var $author$project$Types$ClickedState = function (a) {
 	return {$: 1, a: a};
@@ -7479,7 +7606,6 @@ var $author$project$Types$MouseDownOnState = F3(
 var $author$project$Types$StartRename = function (a) {
 	return {$: 6, a: a};
 };
-var $elm$svg$Svg$Attributes$cursor = _VirtualDom_attribute('cursor');
 var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
 var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
 var $elm$svg$Svg$Attributes$dominantBaseline = _VirtualDom_attribute('dominant-baseline');
@@ -7542,7 +7668,7 @@ var $author$project$View$Canvas$drawState = F7(
 					]),
 				_List_Nil)
 			]) : _List_Nil;
-		var fillColor = isCurrent ? '#1b5e20' : (isPending ? 'rgba(255,183,77,0.2)' : (isAccept ? 'rgba(79,195,247,0.15)' : 'rgba(255,255,255,0.07)'));
+		var fillColor = isCurrent ? '#1b5e20' : ((model.az === 3) ? 'rgba(239,83,80,0.15)' : (isPending ? 'rgba(255,183,77,0.2)' : (isAccept ? 'rgba(79,195,247,0.15)' : 'rgba(255,255,255,0.07)')));
 		var cursorStr = function () {
 			var _v0 = model.az;
 			switch (_v0) {
@@ -7556,8 +7682,10 @@ var $author$project$View$Canvas$drawState = F7(
 					}
 				case 2:
 					return 'crosshair';
-				default:
+				case 1:
 					return 'default';
+				default:
+					return 'pointer';
 			}
 		}();
 		return _Utils_ap(
@@ -7749,15 +7877,8 @@ var $author$project$View$Canvas$drawDFA = function (model) {
 									model.aw,
 									$elm$core$Maybe$Just(from));
 								var fromRx = $author$project$View$Canvas$stateRx(from);
-								return _Utils_eq(from, to) ? A4($author$project$View$Canvas$drawSelfLoop, label, fromPos, fromRx, isActive) : A7(
-									$author$project$View$Canvas$drawArrow,
-									label,
-									fromPos,
-									toPos,
-									fromRx,
-									toRx,
-									A2(hasBidirectional, from, to),
-									isActive);
+								return _Utils_eq(from, to) ? A7($author$project$View$Canvas$drawSelfLoop, label, fromPos, fromRx, isActive, model.az, from, to) : $author$project$View$Canvas$drawArrow(label)(fromPos)(toPos)(fromRx)(toRx)(
+									A2(hasBidirectional, from, to))(isActive)(model.az)(from)(to);
 							}),
 						A2($elm$core$Dict$get, from, model.aj),
 						A2($elm$core$Dict$get, to, model.aj));
@@ -8191,13 +8312,15 @@ var $author$project$View$viewDiagramPanel = function (model) {
 												return 'crosshair';
 											case 2:
 												return 'cell';
-											default:
+											case 0:
 												var _v1 = model.ay;
 												if (!_v1.$) {
 													return 'grabbing';
 												} else {
 													return 'grab';
 												}
+											default:
+												return 'pointer';
 										}
 									}
 								}()),
@@ -8285,7 +8408,13 @@ var $author$project$View$viewDiagramPanel = function (model) {
 								'→',
 								model.az === 2,
 								$author$project$Types$SetDrawTool(2),
-								'Add transition')
+								'Add transition'),
+								A4(
+								$author$project$View$Widgets$toolBtn,
+								'X',
+								model.az === 3,
+								$author$project$Types$SetDrawTool(3),
+								'Delete state/transition')
 							])),
 						A2(
 						$author$project$View$Widgets$toolGroup,
@@ -8737,15 +8866,19 @@ var $author$project$View$Panels$viewHelpModal = A2(
 										[
 											$elm$html$Html$text('Deterministic Finite Automaton (DFA)')
 										])),
-									$elm$html$Html$text(' simulator designed for college and university students. The goal is to help learners visually and interactively understand how automata work during theoretical computer science classes — how a DFA processes an input word, when it accepts, and when it rejects. Save and Load features are coming soon.')
+									$elm$html$Html$text(' simulator designed for college and university students. The goal is to help learners visually and interactively understand how automata work during theoretical computer science classes — how a DFA processes an input word, when it accepts, and when it rejects.')
 								]))
 						])),
+					$author$project$View$Panels$helpSectionTitle(' Save and Load'),
+					A2($author$project$View$Widgets$helpLine, 'Save', 'Save the current diagram to future use. You can rename the saved sloth and also delete it.'),
+					A2($author$project$View$Widgets$helpLine, 'Load', 'Choose one sloth from SAVED DIAGRAMS and it will be loaded. You can add the start state through the CODE PANEL or mark it at the STATES list if the start state does not load. The loaded diagram and code can be edited but it needs to be saved again separately after the editing.'),
 					$author$project$View$Panels$helpSectionTitle(' Editing the Diagram'),
 					A2($author$project$View$Widgets$helpLine, '✋ Select', 'Drag states to move them. Double-click a state to rename it.'),
 					A2($author$project$View$Widgets$helpLine, '⊕ Add State', 'Click on the empty canvas to place a new state.'),
 					A2($author$project$View$Widgets$helpLine, '→ Add Transition', 'Click the source state, then the target state. Enter the transition character.'),
+					A2($author$project$View$Widgets$helpLine, 'X Delete state/transition', 'Click on a state or transition to delete it.'),
 					A2($author$project$View$Widgets$helpLine, '✎ Rename', 'Use the button in the state list or double-click directly on the state.'),
-					A2($author$project$View$Widgets$helpLine, 'S / A / ×', 'S = set as start state, A = toggle accept state, × = delete state.'),
+					A2($author$project$View$Widgets$helpLine, 'S / A / X', 'S = set as start state, A = toggle accept state, × = delete state.'),
 					A2($author$project$View$Widgets$helpLine, 'Pan', 'Drag the empty canvas area to move the view.'),
 					A2($author$project$View$Widgets$helpLine, '+ / − / ⌂', 'Zoom in, zoom out, and reset the view.'),
 					$author$project$View$Panels$helpSectionTitle('Undo / Redo / Clear'),
@@ -8790,7 +8923,7 @@ var $author$project$View$Panels$viewHelpModal = A2(
 						]),
 					_List_fromArray(
 						[
-							A5($author$project$View$Widgets$styledBtn, 'Got it! 👍', $author$project$Types$ToggleHelp, $author$project$View$Widgets$purpleGrad, '100%', '9px 0')
+							A5($author$project$View$Widgets$styledBtn, 'Got it!', $author$project$Types$ToggleHelp, $author$project$View$Widgets$purpleGrad, '100%', '9px 0')
 						]))
 				]))
 		]));

@@ -277,30 +277,18 @@
     }
 
     
-    function scrapeDFAState() {
-        const inputs = [...document.querySelectorAll('input[type=text], input:not([type])')];
-        const textareas = [...document.querySelectorAll('textarea')];
-
-        function byPlaceholder(collection, ph) {
-            return collection.find(el => el.placeholder && el.placeholder.startsWith(ph));
-        }
-
-        const statesEl = byPlaceholder(inputs, 'q0, q1');
-        const alphaEl = byPlaceholder(inputs, 'a, b');
-        const startEl = byPlaceholder(inputs, 'q0');
-        const acceptEl = byPlaceholder(inputs, 'q2');
-        const transEl = byPlaceholder(textareas, 'q0,a,q1');
-
+    function getCodePanelFields() {
+        const allInputs = [...document.querySelectorAll('input')];
+        const allTextareas = [...document.querySelectorAll('textarea')];
         return {
-            states: statesEl ? statesEl.value: '',
-            alphabet: alphaEl ? alphaEl.value: '',
-            start: startEl ? startEl.value: '',
-            accept: acceptEl ? acceptEl.value: '',
-            transitions: transEl ? transEl.value: '',
+            states: allInputs.find(el => el.placeholder === 'q0, q1, q2'),
+            alphabet: allInputs.find(el => el.placeholder === 'a, b'),
+            start: allInputs.find(el => el.placeholder === 'q0'),
+            accept: allInputs.find(el => el.placeholder === 'q2'),
+            transitions: allTextareas.find(el => el.placeholder && el.placeholder.startsWith('q0,a,q1')),
         };
     }
 
-    
     function setElmInputValue(el, value) {
         if (!el) return;
         const nativeSetter = Object.getOwnPropertyDescriptor(
@@ -311,35 +299,31 @@
         el.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
+    function scrapeDFAState() {
+        const f = getCodePanelFields();
+        return {
+            states: f.states ? f.states.value : '',
+            alphabet: f.alphabet ? f.alphabet.value : '',
+            start: f.start ? f.start.value : '',
+            accept: f.accept ? f.accept.value : '',
+            transitions: f.transitions ? f.transitions.value : '',
+        };
+    }
+
     function restoreDFAState(saved) {
-        const inputs = [...document.querySelectorAll('input[type=text], input:not([type])')];
-        const textareas = [...document.querySelectorAll('textarea')];
-
-        function byPlaceholder(collection, ph) {
-            return collection.find(el => el.placeholder && el.placeholder.startsWith(ph));
-        }
-
         expandCodePanel();
-
         setTimeout(() => {
-            const statesEl = byPlaceholder([...document.querySelectorAll('input[type=text], input:not([type])')], 'q0, q1');
-            const alphaEl = byPlaceholder([...document.querySelectorAll('input[type=text], input:not([type])')], 'a, b');
-            const startEl= byPlaceholder([...document.querySelectorAll('input[type=text], input:not([type])')], 'q0');
-            const acceptEl = byPlaceholder([...document.querySelectorAll('input[type=text], input:not([type])')], 'q2');
-            const transEl = byPlaceholder([...document.querySelectorAll('textarea')], 'q0,a,q1');
-
-            setElmInputValue(statesEl, saved.states);
-            setElmInputValue(alphaEl, saved.alphabet);
-            setElmInputValue(startEl, saved.start);
-            setElmInputValue(acceptEl, saved.accept);
-            setElmInputValue(transEl, saved.transitions);
-
-           
+            const f = getCodePanelFields();
+            setElmInputValue(f.states,      saved.states);
+            setElmInputValue(f.alphabet,    saved.alphabet);
+            setElmInputValue(f.start,       saved.start);
+            setElmInputValue(f.accept,      saved.accept);
+            setElmInputValue(f.transitions, saved.transitions);
             setTimeout(() => {
-                const btns = [...document.querySelectorAll('button')];
-                const genBtn = btns.find(b => b.textContent.trim().toLowerCase().includes('generate diagram'));
+                const genBtn = [...document.querySelectorAll('button')]
+                    .find(b => b.textContent.trim() === 'Generate diagram');
                 if (genBtn) genBtn.click();
-            }, 80);
+            }, 150);
         }, 120);
     }
 
