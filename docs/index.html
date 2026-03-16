@@ -5,7 +5,8 @@
     <title>DFA Simulator</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { overflow: hidden; }
+        html, body { width: 100%; height: 100%; overflow: hidden; }
+        #app { width: 100%; height: 100%; display: flex; flex-direction: column; }
 
         #dfa-savebar {
             display: flex;
@@ -546,6 +547,24 @@
 
     var app = Elm.Main.init({ node: document.getElementById('app') });
     injectTopBarButtons();
+
+    
+    (function() {
+        function attachFix() {
+            var svg = document.querySelector('svg');
+            if (!svg) { setTimeout(attachFix, 100); return; }
+            ['click', 'mousedown', 'mousemove'].forEach(function(evtName) {
+                svg.addEventListener(evtName, function(e) {
+                    var r = svg.getBoundingClientRect();
+                    var cx = e.clientX - r.left;
+                    var cy = e.clientY - r.top;
+                    Object.defineProperty(e, 'offsetX', {get: function(){ return cx; }, configurable: true});
+                    Object.defineProperty(e, 'offsetY', {get: function(){ return cy; }, configurable: true});
+                }, true); 
+            });
+        }
+        attachFix();
+    })();
     </script>
 </body>
 </html>

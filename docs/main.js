@@ -7610,7 +7610,6 @@ var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
 var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
 var $elm$svg$Svg$Attributes$dominantBaseline = _VirtualDom_attribute('dominant-baseline');
 var $elm$svg$Svg$ellipse = $elm$svg$Svg$trustedNode('ellipse');
-var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $elm$svg$Svg$Attributes$rx = _VirtualDom_attribute('rx');
 var $elm$svg$Svg$Attributes$ry = _VirtualDom_attribute('ry');
 var $author$project$View$Canvas$stateRx = function (name) {
@@ -7730,18 +7729,12 @@ var $author$project$View$Canvas$drawState = F7(
 								A2(
 								$elm$html$Html$Events$custom,
 								'mousedown',
-								A3(
-									$elm$json$Json$Decode$map2,
-									F2(
-										function (ox, oy) {
-											return {
-												aG: A3($author$project$Types$MouseDownOnState, name, (ox - model.a7) / model.a9, (oy - model.a8) / model.a9),
-												aT: false,
-												a5: true
-											};
-										}),
-									A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$float),
-									A2($elm$json$Json$Decode$field, 'offsetY', $elm$json$Json$Decode$float)))
+								$elm$json$Json$Decode$succeed(
+									{
+										aG: A3($author$project$Types$MouseDownOnState, name, 0, 0),
+										aT: false,
+										a5: true
+									}))
 							]),
 						_List_Nil)
 					]),
@@ -7944,6 +7937,7 @@ var $author$project$View$Canvas$drawDFA = function (model) {
 		arrowDef,
 		_Utils_ap(transitionElements, stateElements));
 };
+var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $elm$core$Dict$isEmpty = function (dict) {
@@ -7969,6 +7963,7 @@ var $author$project$View$Widgets$panelTitle = function (t) {
 				$elm$html$Html$text(t)
 			]));
 };
+var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
 var $elm$core$Basics$round = _Basics_round;
 var $elm$svg$Svg$Attributes$style = _VirtualDom_attribute('style');
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
@@ -8077,7 +8072,6 @@ var $author$project$View$Widgets$undoRedoBtn = F4(
 					$elm$html$Html$text(icon)
 				]));
 	});
-var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
 var $author$project$Types$ToggleStateList = {$: 47};
 var $elm$core$Dict$sizeHelp = F2(
 	function (n, dict) {
@@ -8298,7 +8292,6 @@ var $author$project$View$viewDiagramPanel = function (model) {
 						$elm$svg$Svg$svg,
 						_List_fromArray(
 							[
-								$elm$svg$Svg$Attributes$viewBox('0 0 900 520'),
 								$elm$svg$Svg$Attributes$width('100%'),
 								$elm$svg$Svg$Attributes$height('100%'),
 								$elm$svg$Svg$Attributes$style(
@@ -8325,29 +8318,6 @@ var $author$project$View$viewDiagramPanel = function (model) {
 									}
 								}()),
 								A2(
-								$elm$html$Html$Events$custom,
-								'click',
-								A3(
-									$elm$json$Json$Decode$map2,
-									F2(
-										function (ox, oy) {
-											return {
-												aG: A2($author$project$Types$ClickedCanvas, (ox - model.a7) / model.a9, (oy - model.a8) / model.a9),
-												aT: false,
-												a5: false
-											};
-										}),
-									A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$float),
-									A2($elm$json$Json$Decode$field, 'offsetY', $elm$json$Json$Decode$float))),
-								A2(
-								$elm$svg$Svg$Events$on,
-								'mousedown',
-								A3(
-									$elm$json$Json$Decode$map2,
-									$author$project$Types$PanStart,
-									A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$float),
-									A2($elm$json$Json$Decode$field, 'offsetY', $elm$json$Json$Decode$float))),
-								A2(
 								$elm$svg$Svg$Events$on,
 								'mousemove',
 								A3(
@@ -8365,6 +8335,40 @@ var $author$project$View$viewDiagramPanel = function (model) {
 							]),
 						_List_fromArray(
 							[
+								A2(
+								$elm$svg$Svg$rect,
+								_List_fromArray(
+									[
+										$elm$svg$Svg$Attributes$x('0'),
+										$elm$svg$Svg$Attributes$y('0'),
+										$elm$svg$Svg$Attributes$width('100%'),
+										$elm$svg$Svg$Attributes$height('100%'),
+										$elm$svg$Svg$Attributes$fill('transparent'),
+										A2(
+										$elm$html$Html$Events$custom,
+										'click',
+										A3(
+											$elm$json$Json$Decode$map2,
+											F2(
+												function (ox, oy) {
+													return {
+														aG: A2($author$project$Types$ClickedCanvas, (ox - model.a7) / model.a9, (oy - model.a8) / model.a9),
+														aT: false,
+														a5: false
+													};
+												}),
+											A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$float),
+											A2($elm$json$Json$Decode$field, 'offsetY', $elm$json$Json$Decode$float))),
+										A2(
+										$elm$svg$Svg$Events$on,
+										'mousedown',
+										A3(
+											$elm$json$Json$Decode$map2,
+											$author$project$Types$PanStart,
+											A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$float),
+											A2($elm$json$Json$Decode$field, 'offsetY', $elm$json$Json$Decode$float)))
+									]),
+								_List_Nil),
 								A2(
 								$elm$svg$Svg$g,
 								_List_fromArray(

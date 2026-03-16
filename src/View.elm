@@ -137,8 +137,7 @@ viewDiagramPanel model =
             , style "min-height" "0"
             ]
             [ Svg.svg
-                [ SvgAttr.viewBox "0 0 900 520"
-                , SvgAttr.width "100%"
+                [ SvgAttr.width "100%"
                 , SvgAttr.height "100%"
                 , SvgAttr.style
                     ("display:block; cursor: "
@@ -152,24 +151,6 @@ viewDiagramPanel model =
                                         Nothing -> "grab"
                                 DeleteTool -> "pointer"
                            )
-                    )
-                , custom "click"
-                    (Decode.map2
-                        (\ox oy ->
-                            { message = ClickedCanvas
-                                ((ox - model.svgPanX) / model.svgZoom)
-                                ((oy - model.svgPanY) / model.svgZoom)
-                            , stopPropagation = False
-                            , preventDefault = False
-                            }
-                        )
-                        (Decode.field "offsetX" Decode.float)
-                        (Decode.field "offsetY" Decode.float)
-                    )
-                , SvgEvents.on "mousedown"
-                    (Decode.map2 PanStart
-                        (Decode.field "offsetX" Decode.float)
-                        (Decode.field "offsetY" Decode.float)
                     )
                 , SvgEvents.on "mousemove"
                     (Decode.map2
@@ -186,7 +167,33 @@ viewDiagramPanel model =
                     )
                 , SvgEvents.on "mouseup" (Decode.succeed MouseUp)
                 ]
-                [ Svg.g
+                [ Svg.rect
+                    [ SvgAttr.x "0"
+                    , SvgAttr.y "0"
+                    , SvgAttr.width "100%"
+                    , SvgAttr.height "100%"
+                    , SvgAttr.fill "transparent"
+                    , custom "click"
+                        (Decode.map2
+                            (\ox oy ->
+                                { message = ClickedCanvas
+                                    ((ox - model.svgPanX) / model.svgZoom)
+                                    ((oy - model.svgPanY) / model.svgZoom)
+                                , stopPropagation = False
+                                , preventDefault = False
+                                }
+                            )
+                            (Decode.field "offsetX" Decode.float)
+                            (Decode.field "offsetY" Decode.float)
+                        )
+                    , SvgEvents.on "mousedown"
+                        (Decode.map2 PanStart
+                            (Decode.field "offsetX" Decode.float)
+                            (Decode.field "offsetY" Decode.float)
+                        )
+                    ]
+                    []
+                , Svg.g
                     [ SvgAttr.transform
                         ("translate(" ++ flt model.svgPanX ++ "," ++ flt model.svgPanY ++ ") scale(" ++ flt model.svgZoom ++ ")")
                     ]

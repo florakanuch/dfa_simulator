@@ -287,17 +287,11 @@ drawState model name pos isStart isAccept isCurrent isPending =
                         }
                     )
                 , custom "mousedown"
-                    (Decode.map2
-                        (\ox oy ->
-                            { message = MouseDownOnState name
-                                ((ox - model.svgPanX) / model.svgZoom)
-                                ((oy - model.svgPanY) / model.svgZoom)
+                    (Decode.succeed
+                        { message = MouseDownOnState name 0 0
                             , stopPropagation = True
                             , preventDefault = False
                             }
-                        )
-                        (Decode.field "offsetX" Decode.float)
-                        (Decode.field "offsetY" Decode.float)
                     )
                 ]
                 []
