@@ -42,11 +42,13 @@ syncCodeFromDiagram model =
 generateDiagramFromCode : Model -> Model
 generateDiagramFromCode model =
     let
-        stateNames =
+        explicitStates =
             model.codeStates
                 |> String.split ","
                 |> List.map String.trim
                 |> List.filter ((/=) "")
+
+        newStart = String.trim model.codeStart
 
         acceptList =
             model.codeAccept
@@ -54,7 +56,66 @@ generateDiagramFromCode model =
                 |> List.map String.trim
                 |> List.filter ((/=) "")
 
-        newStart = String.trim model.codeStart
+        
+        startStates =
+            if newStart /= "" then [ newStart ] else []
+
+        impliedFromTransitions =
+            model.codeTransitions
+                |> String.lines
+                |> List.filterMap
+                    (\line ->
+                        let
+                            parts = line |> String.split "," |> List.map String.trim
+                        in
+                        case parts of
+                            [ fr, _, to ] ->
+                                if fr /= "" && to /= "" then Just [ fr, to ]
+                                else Nothing
+                            _ ->
+                                Nothing
+                    )
+                |> List.concat
+
+       
+        allMentioned =
+            startStates ++ acceptList ++ impliedFromTransitions
+
+        extraStates =
+            allMentioned
+                |> List.filter (\s -> not (List.member s explicitStates))
+                |> listUnique
+
+        stateNames = explicitStates ++ extraStates
+
+        explicitAlphabet =
+            model.codeAlphabet
+                |> String.split ","
+                |> List.map String.trim
+                |> List.filter ((/=) "")
+
+        impliedAlphabet =
+            model.codeTransitions
+                |> String.lines
+                |> List.filterMap
+                    (\line ->
+                        let
+                            parts = line |> String.split "," |> List.map String.trim
+                        in
+                        case parts of
+                            [ _, ch, _ ] ->
+                                if ch /= "" then Just ch
+                                else Nothing
+                            _ ->
+                                Nothing
+                    )
+
+        extraAlphabet =
+            impliedAlphabet
+                |> List.filter (\s -> not (List.member s explicitAlphabet))
+                |> listUnique
+
+        mergedAlphabet = explicitAlphabet ++ extraAlphabet
 
         n = List.length stateNames
 
@@ -107,6 +168,8 @@ generateDiagramFromCode model =
         , acceptStates = acceptList
         , transitions = parsedTrans
         , stateCounter = List.length stateNames
+        , codeStates = String.join ", " stateNames
+         , codeAlphabet = String.join ", " mergedAlphabet
         , currentState = Nothing
         , simPosition = 0
         , simHistory = []
