@@ -215,7 +215,7 @@ viewDiagramPanel model =
             , toolGroup "Actions"
                 [ undoRedoBtn "↩" Undo (model.undoStack /= []) "Undo"
                 , undoRedoBtn "↪" Redo (model.redoStack /= []) "Redo"
-                , toolBtn "🗑" False ClearAll "Clear all"
+                --, toolBtn "🗑" False ClearAll "Clear all"
                 ]
             , toolGroup "View"
                 [ toolBtn "+" False ZoomIn "Zoom in"
