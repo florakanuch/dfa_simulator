@@ -7370,7 +7370,6 @@ var $author$project$View$Panels$viewCodePanel = function (model) {
 			]));
 };
 var $author$project$Types$AddTransitionTool = 2;
-var $author$project$Types$ClearAll = {$: 31};
 var $author$project$Types$ClickedCanvas = F2(
 	function (a, b) {
 		return {$: 0, a: a, b: b};
@@ -8504,8 +8503,7 @@ var $author$project$View$viewDiagramPanel = function (model) {
 								'↪',
 								$author$project$Types$Redo,
 								!_Utils_eq(model.aU, _List_Nil),
-								'Redo'),
-								A4($author$project$View$Widgets$toolBtn, '🗑', false, $author$project$Types$ClearAll, 'Clear all')
+								'Redo')
 							])),
 						A2(
 						$author$project$View$Widgets$toolGroup,
@@ -9475,6 +9473,7 @@ var $author$project$View$Panels$viewTestStringPanel = function (model) {
 					]))
 			]));
 };
+var $author$project$Types$ClearAll = {$: 31};
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
 var $author$project$View$Widgets$topBarBtn = F2(
 	function (label, msg) {
