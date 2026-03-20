@@ -600,11 +600,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.G.y === region.R.y)
+	if (region.J.y === region.S.y)
 	{
-		return 'on line ' + region.G.y;
+		return 'on line ' + region.J.y;
 	}
-	return 'on lines ' + region.G.y + ' through ' + region.R.y;
+	return 'on lines ' + region.J.y + ' through ' + region.S.y;
 }
 
 
@@ -3991,7 +3991,7 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 		impl.bf,
 		impl.a6,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.F && impl.F(sendToApp)
+			var divertHrefToApp = impl.I && impl.I(sendToApp)
 			var view = impl.bg;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
@@ -4000,7 +4000,7 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.as);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.at);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
@@ -4066,7 +4066,7 @@ function _Browser_application(impl)
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		F: function(sendToApp)
+		I: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4082,9 +4082,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.ad === next.ad
-							&& curr.V === next.V
-							&& curr.aa.a === next.aa.a
+							&& curr.ae === next.ae
+							&& curr.W === next.W
+							&& curr.ab.a === next.ab.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4164,17 +4164,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { aC: 'hidden', at: 'visibilitychange' }
+		? { aC: 'hidden', au: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { aC: 'mozHidden', at: 'mozvisibilitychange' }
+		? { aC: 'mozHidden', au: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { aC: 'msHidden', at: 'msvisibilitychange' }
+		? { aC: 'msHidden', au: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { aC: 'webkitHidden', at: 'webkitvisibilitychange' }
-		: { aC: 'hidden', at: 'visibilitychange' };
+		? { aC: 'webkitHidden', au: 'webkitvisibilitychange' }
+		: { aC: 'hidden', au: 'visibilitychange' };
 }
 
 
@@ -4255,12 +4255,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		ah: _Browser_getScene(),
-		am: {
+		ai: _Browser_getScene(),
+		an: {
 			bi: _Browser_window.pageXOffset,
 			bj: _Browser_window.pageYOffset,
-			an: _Browser_doc.documentElement.clientWidth,
-			U: _Browser_doc.documentElement.clientHeight
+			ao: _Browser_doc.documentElement.clientWidth,
+			V: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4270,8 +4270,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		an: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		U: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		ao: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		V: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4294,15 +4294,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			ah: {
-				an: node.scrollWidth,
-				U: node.scrollHeight
+			ai: {
+				ao: node.scrollWidth,
+				V: node.scrollHeight
 			},
-			am: {
+			an: {
 				bi: node.scrollLeft,
 				bj: node.scrollTop,
-				an: node.clientWidth,
-				U: node.clientHeight
+				ao: node.clientWidth,
+				V: node.clientHeight
 			}
 		};
 	});
@@ -4332,18 +4332,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			ah: _Browser_getScene(),
-			am: {
+			ai: _Browser_getScene(),
+			an: {
 				bi: x,
 				bj: y,
-				an: _Browser_doc.documentElement.clientWidth,
-				U: _Browser_doc.documentElement.clientHeight
+				ao: _Browser_doc.documentElement.clientWidth,
+				V: _Browser_doc.documentElement.clientHeight
 			},
 			aA: {
 				bi: x + rect.left,
 				bj: y + rect.top,
-				an: rect.width,
-				U: rect.height
+				ao: rect.width,
+				V: rect.height
 			}
 		};
 	});
@@ -4928,7 +4928,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {T: fragment, V: host, Z: path, aa: port_, ad: protocol, ae: query};
+		return {U: fragment, W: host, _: path, ab: port_, ae: protocol, af: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5210,7 +5210,7 @@ var $elm$browser$Browser$element = _Browser_element;
 var $author$project$Types$AddStateTool = 1;
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: -2};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
-var $author$project$Update$defaultModel = {J: _List_Nil, aq: false, ar: 800, M: '', au: '', av: false, N: '', O: '', P: '', aw: $elm$core$Maybe$Nothing, ay: $elm$core$Maybe$Nothing, az: 1, aF: false, aN: 0, aO: 0, aP: 0, aQ: 0, aR: '', aS: '', aU: _List_Nil, aV: '', aW: $elm$core$Maybe$Nothing, aY: false, aZ: false, a_: false, a$: _List_Nil, a0: 'Add states by clicking the canvas.', a1: 0, ai: '', a2: 0, a3: false, aj: $elm$core$Dict$empty, a7: 0, a8: 0, a9: 1.0, ba: false, H: '', bc: 'a', bd: $elm$core$Maybe$Nothing, I: $elm$core$Dict$empty, be: _List_Nil};
+var $author$project$Update$defaultModel = {M: _List_Nil, ar: false, as: 800, P: '', E: '', av: false, Q: '', F: '', D: '', aw: $elm$core$Maybe$Nothing, ay: $elm$core$Maybe$Nothing, az: 1, aF: false, aN: 0, aO: 0, aP: 0, aQ: 0, aR: '', aS: '', aU: _List_Nil, aV: '', aW: $elm$core$Maybe$Nothing, aY: false, aZ: false, a_: false, a$: _List_Nil, a0: 'Add states by clicking the canvas.', a1: 0, aj: '', a2: 0, a3: false, ak: $elm$core$Dict$empty, a7: 0, a8: 0, a9: 1.0, ba: false, K: '', bc: 'a', bd: $elm$core$Maybe$Nothing, L: $elm$core$Dict$empty, be: _List_Nil};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
@@ -5225,7 +5225,7 @@ var $elm$time$Time$Every = F2(
 	});
 var $elm$time$Time$State = F2(
 	function (taggers, processes) {
-		return {ac: processes, al: taggers};
+		return {ad: processes, am: taggers};
 	});
 var $elm$time$Time$init = $elm$core$Task$succeed(
 	A2($elm$time$Time$State, $elm$core$Dict$empty, $elm$core$Dict$empty));
@@ -5515,7 +5515,7 @@ var $elm$time$Time$spawnHelp = F3(
 	});
 var $elm$time$Time$onEffects = F3(
 	function (router, subs, _v0) {
-		var processes = _v0.ac;
+		var processes = _v0.ad;
 		var rightStep = F3(
 			function (_v6, id, _v7) {
 				var spawns = _v7.a;
@@ -5584,7 +5584,7 @@ var $elm$time$Time$millisToPosix = $elm$core$Basics$identity;
 var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
 var $elm$time$Time$onSelfMsg = F3(
 	function (router, interval, state) {
-		var _v0 = A2($elm$core$Dict$get, interval, state.al);
+		var _v0 = A2($elm$core$Dict$get, interval, state.am);
 		if (_v0.$ === 1) {
 			return $elm$core$Task$succeed(state);
 		} else {
@@ -5633,14 +5633,14 @@ var $elm$time$Time$every = F2(
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Main$subscriptions = function (model) {
-	return model.aq ? A2($elm$time$Time$every, 2100 - model.ar, $author$project$Types$AutoTick) : $elm$core$Platform$Sub$none;
+	return model.ar ? A2($elm$time$Time$every, 2100 - model.as, $author$project$Types$AutoTick) : $elm$core$Platform$Sub$none;
 };
 var $author$project$Types$SelectTool = 0;
 var $author$project$Update$applySnapshot = F2(
 	function (snap, model) {
 		return _Utils_update(
 			model,
-			{J: snap.J, ai: snap.ai, a2: snap.a2, aj: snap.aj, I: snap.I});
+			{M: snap.M, aj: snap.aj, a2: snap.a2, ak: snap.ak, L: snap.L});
 	});
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
@@ -5678,7 +5678,7 @@ var $author$project$Simulation$checkAcceptance = function (model) {
 		return model;
 	} else {
 		var current = _v0.a;
-		return A2($elm$core$List$member, current, model.J) ? _Utils_update(
+		return A2($elm$core$List$member, current, model.M) ? _Utils_update(
 			model,
 			{a0: '✔ ACCEPTED — in accept state: ' + current}) : _Utils_update(
 			model,
@@ -5724,6 +5724,17 @@ var $elm$core$Dict$fromList = function (assocs) {
 		assocs);
 };
 var $elm$core$Basics$ge = _Utils_ge;
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
 var $elm$core$Basics$cos = _Basics_cos;
 var $elm$core$List$maybeCons = F3(
 	function (f, mx, xs) {
@@ -5744,18 +5755,19 @@ var $elm$core$List$filterMap = F2(
 			xs);
 	});
 var $elm$core$String$lines = _String_lines;
+var $author$project$Helpers$listUnique = A2(
+	$elm$core$List$foldr,
+	F2(
+		function (x, acc) {
+			return A2($elm$core$List$member, x, acc) ? acc : A2($elm$core$List$cons, x, acc);
+		}),
+	_List_Nil);
 var $elm$core$Basics$neq = _Utils_notEqual;
+var $elm$core$Basics$not = _Basics_not;
 var $elm$core$Basics$pi = _Basics_pi;
 var $elm$core$Basics$sin = _Basics_sin;
 var $elm$core$String$trim = _String_trim;
 var $author$project$CodeSync$generateDiagramFromCode = function (model) {
-	var stateNames = A2(
-		$elm$core$List$filter,
-		$elm$core$Basics$neq(''),
-		A2(
-			$elm$core$List$map,
-			$elm$core$String$trim,
-			A2($elm$core$String$split, ',', model.O)));
 	var parsedTrans = $elm$core$Dict$fromList(
 		A2(
 			$elm$core$List$filterMap,
@@ -5766,10 +5778,10 @@ var $author$project$CodeSync$generateDiagramFromCode = function (model) {
 					A2($elm$core$String$split, ',', line));
 				if (((parts.b && parts.b.b) && parts.b.b.b) && (!parts.b.b.b.b)) {
 					var fr = parts.a;
-					var _v1 = parts.b;
-					var ch = _v1.a;
-					var _v2 = _v1.b;
-					var to = _v2.a;
+					var _v7 = parts.b;
+					var ch = _v7.a;
+					var _v8 = _v7.b;
+					var to = _v8.a;
 					return ((fr !== '') && ((ch !== '') && (to !== ''))) ? $elm$core$Maybe$Just(
 						_Utils_Tuple2(
 							_Utils_Tuple2(fr, ch),
@@ -5778,12 +5790,92 @@ var $author$project$CodeSync$generateDiagramFromCode = function (model) {
 					return $elm$core$Maybe$Nothing;
 				}
 			},
-			$elm$core$String$lines(model.P)));
-	var newStart = $elm$core$String$trim(model.N);
-	var n = $elm$core$List$length(stateNames);
-	var radius = (n <= 1) ? 0 : 190;
+			$elm$core$String$lines(model.D)));
+	var newStart = $elm$core$String$trim(model.Q);
+	var startStates = (newStart !== '') ? _List_fromArray(
+		[newStart]) : _List_Nil;
+	var impliedFromTransitions = $elm$core$List$concat(
+		A2(
+			$elm$core$List$filterMap,
+			function (line) {
+				var parts = A2(
+					$elm$core$List$map,
+					$elm$core$String$trim,
+					A2($elm$core$String$split, ',', line));
+				if (((parts.b && parts.b.b) && parts.b.b.b) && (!parts.b.b.b.b)) {
+					var fr = parts.a;
+					var _v4 = parts.b;
+					var _v5 = _v4.b;
+					var to = _v5.a;
+					return ((fr !== '') && (to !== '')) ? $elm$core$Maybe$Just(
+						_List_fromArray(
+							[fr, to])) : $elm$core$Maybe$Nothing;
+				} else {
+					return $elm$core$Maybe$Nothing;
+				}
+			},
+			$elm$core$String$lines(model.D)));
+	var impliedAlphabet = A2(
+		$elm$core$List$filterMap,
+		function (line) {
+			var parts = A2(
+				$elm$core$List$map,
+				$elm$core$String$trim,
+				A2($elm$core$String$split, ',', line));
+			if (((parts.b && parts.b.b) && parts.b.b.b) && (!parts.b.b.b.b)) {
+				var _v1 = parts.b;
+				var ch = _v1.a;
+				var _v2 = _v1.b;
+				return (ch !== '') ? $elm$core$Maybe$Just(ch) : $elm$core$Maybe$Nothing;
+			} else {
+				return $elm$core$Maybe$Nothing;
+			}
+		},
+		$elm$core$String$lines(model.D));
+	var explicitStates = A2(
+		$elm$core$List$filter,
+		$elm$core$Basics$neq(''),
+		A2(
+			$elm$core$List$map,
+			$elm$core$String$trim,
+			A2($elm$core$String$split, ',', model.F)));
+	var explicitAlphabet = A2(
+		$elm$core$List$filter,
+		$elm$core$Basics$neq(''),
+		A2(
+			$elm$core$List$map,
+			$elm$core$String$trim,
+			A2($elm$core$String$split, ',', model.E)));
+	var extraAlphabet = $author$project$Helpers$listUnique(
+		A2(
+			$elm$core$List$filter,
+			function (s) {
+				return !A2($elm$core$List$member, s, explicitAlphabet);
+			},
+			impliedAlphabet));
+	var mergedAlphabet = _Utils_ap(explicitAlphabet, extraAlphabet);
 	var cyC = 260;
 	var cxC = 450;
+	var acceptList = A2(
+		$elm$core$List$filter,
+		$elm$core$Basics$neq(''),
+		A2(
+			$elm$core$List$map,
+			$elm$core$String$trim,
+			A2($elm$core$String$split, ',', model.P)));
+	var allMentioned = _Utils_ap(
+		startStates,
+		_Utils_ap(acceptList, impliedFromTransitions));
+	var extraStates = $author$project$Helpers$listUnique(
+		A2(
+			$elm$core$List$filter,
+			function (s) {
+				return !A2($elm$core$List$member, s, explicitStates);
+			},
+			allMentioned));
+	var stateNames = _Utils_ap(explicitStates, extraStates);
+	var n = $elm$core$List$length(stateNames);
+	var radius = (n <= 1) ? 0 : 190;
 	var positions = $elm$core$Dict$fromList(
 		A2(
 			$elm$core$List$indexedMap,
@@ -5797,25 +5889,20 @@ var $author$project$CodeSync$generateDiagramFromCode = function (model) {
 						{bi: x, bj: y});
 				}),
 			stateNames));
-	var acceptList = A2(
-		$elm$core$List$filter,
-		$elm$core$Basics$neq(''),
-		A2(
-			$elm$core$List$map,
-			$elm$core$String$trim,
-			A2($elm$core$String$split, ',', model.M)));
 	return _Utils_update(
 		model,
 		{
-			J: acceptList,
+			M: acceptList,
+			E: A2($elm$core$String$join, ', ', mergedAlphabet),
+			F: A2($elm$core$String$join, ', ', stateNames),
 			aw: $elm$core$Maybe$Nothing,
 			a$: _List_Nil,
 			a0: 'Diagram generated from code.',
 			a1: 0,
-			ai: newStart,
+			aj: newStart,
 			a2: $elm$core$List$length(stateNames),
-			aj: positions,
-			I: parsedTrans
+			ak: positions,
+			L: parsedTrans
 		});
 };
 var $elm$core$Dict$member = F2(
@@ -5827,7 +5914,6 @@ var $elm$core$Dict$member = F2(
 			return false;
 		}
 	});
-var $elm$core$Basics$not = _Basics_not;
 var $elm$core$Dict$getMin = function (dict) {
 	getMin:
 	while (true) {
@@ -6200,14 +6286,14 @@ var $author$project$Simulation$stepOnce = function (model) {
 		var current = _v0.a;
 		if (_Utils_cmp(
 			model.a1,
-			$elm$core$String$length(model.H)) > -1) {
+			$elm$core$String$length(model.K)) > -1) {
 			return $author$project$Simulation$checkAcceptance(model);
 		} else {
-			var ch = A3($elm$core$String$slice, model.a1, model.a1 + 1, model.H);
+			var ch = A3($elm$core$String$slice, model.a1, model.a1 + 1, model.K);
 			var next = A2(
 				$elm$core$Dict$get,
 				_Utils_Tuple2(current, ch),
-				model.I);
+				model.L);
 			if (!next.$) {
 				var nextState = next.a;
 				return _Utils_update(
@@ -6237,7 +6323,7 @@ var $author$project$Simulation$runToEnd = function (model) {
 		while (true) {
 			if (_Utils_cmp(
 				m.a1,
-				$elm$core$String$length(m.H)) > -1) {
+				$elm$core$String$length(m.K)) > -1) {
 				return $author$project$Simulation$checkAcceptance(m);
 			} else {
 				var _v0 = m.aw;
@@ -6259,7 +6345,7 @@ var $author$project$Simulation$runToEnd = function (model) {
 	return helper(model);
 };
 var $author$project$Update$snapshotDiagram = function (model) {
-	return {J: model.J, ai: model.ai, a2: model.a2, aj: model.aj, I: model.I};
+	return {M: model.M, aj: model.aj, a2: model.a2, ak: model.ak, L: model.L};
 };
 var $elm$core$List$takeReverse = F3(
 	function (n, list, kept) {
@@ -6438,10 +6524,10 @@ var $author$project$Simulation$stepBack = function (model) {
 		return _Utils_update(
 			model,
 			{
-				aw: $elm$core$Maybe$Just(model.ai),
+				aw: $elm$core$Maybe$Just(model.aj),
 				a$: _List_fromArray(
 					[
-						_Utils_Tuple2(model.ai, 0)
+						_Utils_Tuple2(model.aj, 0)
 					]),
 				a0: 'Back to start.',
 				a1: 0
@@ -6450,7 +6536,7 @@ var $author$project$Simulation$stepBack = function (model) {
 		var newHistory = A2($elm$core$List$take, histLen - 1, model.a$);
 		var prev = A2(
 			$elm$core$Maybe$withDefault,
-			_Utils_Tuple2(model.ai, 0),
+			_Utils_Tuple2(model.aj, 0),
 			$author$project$Helpers$listLast(newHistory));
 		return _Utils_update(
 			model,
@@ -6462,13 +6548,6 @@ var $author$project$Simulation$stepBack = function (model) {
 			});
 	}
 };
-var $author$project$Helpers$listUnique = A2(
-	$elm$core$List$foldr,
-	F2(
-		function (x, acc) {
-			return A2($elm$core$List$member, x, acc) ? acc : A2($elm$core$List$cons, x, acc);
-		}),
-	_List_Nil);
 var $author$project$CodeSync$syncCodeFromDiagram = function (model) {
 	var transStr = A2(
 		$elm$core$String$join,
@@ -6482,8 +6561,8 @@ var $author$project$CodeSync$syncCodeFromDiagram = function (model) {
 				var to = _v0.b;
 				return fr + (',' + (ch + (',' + to)));
 			},
-			$elm$core$Dict$toList(model.I)));
-	var stateNames = $elm$core$Dict$keys(model.aj);
+			$elm$core$Dict$toList(model.L)));
+	var stateNames = $elm$core$Dict$keys(model.ak);
 	var alphabet = A2(
 		$elm$core$String$join,
 		', ',
@@ -6491,16 +6570,16 @@ var $author$project$CodeSync$syncCodeFromDiagram = function (model) {
 			A2(
 				$elm$core$List$map,
 				$elm$core$Tuple$second,
-				$elm$core$Dict$keys(model.I))));
-	var acceptStr = A2($elm$core$String$join, ', ', model.J);
+				$elm$core$Dict$keys(model.L))));
+	var acceptStr = A2($elm$core$String$join, ', ', model.M);
 	return _Utils_update(
 		model,
 		{
-			M: acceptStr,
-			au: alphabet,
-			N: model.ai,
-			O: A2($elm$core$String$join, ', ', stateNames),
-			P: transStr
+			P: acceptStr,
+			E: alphabet,
+			Q: model.aj,
+			F: A2($elm$core$String$join, ', ', stateNames),
+			D: transStr
 		});
 };
 var $author$project$Update$update = F2(
@@ -6517,12 +6596,12 @@ var $author$project$Update$update = F2(
 						$elm$core$Dict$insert,
 						name,
 						{bi: x, bj: y},
-						m0.aj);
-					var newStart = (m0.ai === '') ? name : m0.ai;
+						m0.ak);
+					var newStart = (m0.aj === '') ? name : m0.aj;
 					return $author$project$CodeSync$syncCodeFromDiagram(
 						_Utils_update(
 							m0,
-							{a0: 'State added: ' + name, ai: newStart, a2: m0.a2 + 1, aj: newPositions}));
+							{a0: 'State added: ' + name, aj: newStart, a2: m0.a2 + 1, ak: newPositions}));
 				} else {
 					return model;
 				}
@@ -6550,9 +6629,9 @@ var $author$project$Update$update = F2(
 						var newAccept = A2(
 							$elm$core$List$filter,
 							$elm$core$Basics$neq(stateName),
-							m0.J);
-						var newPos = A2($elm$core$Dict$remove, stateName, m0.aj);
-						var newStart = _Utils_eq(m0.ai, stateName) ? '' : m0.ai;
+							m0.M);
+						var newPos = A2($elm$core$Dict$remove, stateName, m0.ak);
+						var newStart = _Utils_eq(m0.aj, stateName) ? '' : m0.aj;
 						var newTrans = A2(
 							$elm$core$Dict$filter,
 							F2(
@@ -6560,11 +6639,11 @@ var $author$project$Update$update = F2(
 									var fr = _v4.a;
 									return (!_Utils_eq(fr, stateName)) && (!_Utils_eq(to, stateName));
 								}),
-							m0.I);
+							m0.L);
 						return $author$project$CodeSync$syncCodeFromDiagram(
 							_Utils_update(
 								m0,
-								{J: newAccept, a0: 'Deleted state: ' + stateName, ai: newStart, aj: newPos, I: newTrans}));
+								{M: newAccept, a0: 'Deleted state: ' + stateName, aj: newStart, ak: newPos, L: newTrans}));
 					case 0:
 						return model;
 					default:
@@ -6596,7 +6675,7 @@ var $author$project$Update$update = F2(
 				var mouseX = msg.b;
 				var mouseY = msg.c;
 				if (!model.az) {
-					var _v6 = A2($elm$core$Dict$get, stateName, model.aj);
+					var _v6 = A2($elm$core$Dict$get, stateName, model.ak);
 					if (!_v6.$) {
 						var pos = _v6.a;
 						var m0 = $author$project$Update$saveUndo(model);
@@ -6623,11 +6702,11 @@ var $author$project$Update$update = F2(
 					return _Utils_update(
 						model,
 						{
-							aj: A3(
+							ak: A3(
 								$elm$core$Dict$insert,
 								drag.a4,
 								{bi: mouseX, bj: mouseY},
-								model.aj)
+								model.ak)
 						});
 				}
 			case 5:
@@ -6695,11 +6774,11 @@ var $author$project$Update$update = F2(
 							var fr = _v8.a;
 							return !(_Utils_eq(fr, from) && _Utils_eq(tgt, to));
 						}),
-					m0.I);
+					m0.L);
 				return $author$project$CodeSync$syncCodeFromDiagram(
 					_Utils_update(
 						m0,
-						{a0: 'Deleted transition: ' + (from + (' → ' + to)), I: newTrans}));
+						{a0: 'Deleted transition: ' + (from + (' → ' + to)), L: newTrans}));
 			case 6:
 				var stateName = msg.a;
 				return _Utils_update(
@@ -6725,7 +6804,7 @@ var $author$project$Update$update = F2(
 							model,
 							{aV: '', aW: $elm$core$Maybe$Nothing});
 					} else {
-						if (A2($elm$core$Dict$member, newName, model.aj)) {
+						if (A2($elm$core$Dict$member, newName, model.ak)) {
 							return _Utils_update(
 								model,
 								{aV: '', aW: $elm$core$Maybe$Nothing});
@@ -6736,8 +6815,8 @@ var $author$project$Update$update = F2(
 								function (s) {
 									return _Utils_eq(s, oldName) ? newName : s;
 								},
-								m0.J);
-							var newStart = _Utils_eq(m0.ai, oldName) ? newName : m0.ai;
+								m0.M);
+							var newStart = _Utils_eq(m0.aj, oldName) ? newName : m0.aj;
 							var newTransitions = $elm$core$Dict$fromList(
 								A2(
 									$elm$core$List$map,
@@ -6752,20 +6831,20 @@ var $author$project$Update$update = F2(
 												ch),
 											_Utils_eq(to, oldName) ? newName : to);
 									},
-									$elm$core$Dict$toList(m0.I)));
+									$elm$core$Dict$toList(m0.L)));
 							var pos = A2(
 								$elm$core$Maybe$withDefault,
 								{bi: 0, bj: 0},
-								A2($elm$core$Dict$get, oldName, m0.aj));
+								A2($elm$core$Dict$get, oldName, m0.ak));
 							var newPositions = A3(
 								$elm$core$Dict$insert,
 								newName,
 								pos,
-								A2($elm$core$Dict$remove, oldName, m0.aj));
+								A2($elm$core$Dict$remove, oldName, m0.ak));
 							return $author$project$CodeSync$syncCodeFromDiagram(
 								_Utils_update(
 									m0,
-									{J: newAccept, aV: '', aW: $elm$core$Maybe$Nothing, a0: 'Renamed: ' + (oldName + (' → ' + newName)), ai: newStart, aj: newPositions, I: newTransitions}));
+									{M: newAccept, aV: '', aW: $elm$core$Maybe$Nothing, a0: 'Renamed: ' + (oldName + (' → ' + newName)), aj: newStart, ak: newPositions, L: newTransitions}));
 						}
 					}
 				}
@@ -6779,29 +6858,29 @@ var $author$project$Update$update = F2(
 					function (m0) {
 						return _Utils_update(
 							m0,
-							{a0: 'Start state set: ' + state, ai: state});
+							{a0: 'Start state set: ' + state, aj: state});
 					}(
 						$author$project$Update$saveUndo(model)));
 			case 11:
 				var state = msg.a;
 				var m0 = $author$project$Update$saveUndo(model);
-				var newAccept = A2($elm$core$List$member, state, m0.J) ? A2(
+				var newAccept = A2($elm$core$List$member, state, m0.M) ? A2(
 					$elm$core$List$filter,
 					$elm$core$Basics$neq(state),
-					m0.J) : A2($elm$core$List$cons, state, m0.J);
+					m0.M) : A2($elm$core$List$cons, state, m0.M);
 				return $author$project$CodeSync$syncCodeFromDiagram(
 					_Utils_update(
 						m0,
-						{J: newAccept}));
+						{M: newAccept}));
 			case 12:
 				var state = msg.a;
 				var m0 = $author$project$Update$saveUndo(model);
 				var newAccept = A2(
 					$elm$core$List$filter,
 					$elm$core$Basics$neq(state),
-					m0.J);
-				var newPos = A2($elm$core$Dict$remove, state, m0.aj);
-				var newStart = _Utils_eq(m0.ai, state) ? '' : m0.ai;
+					m0.M);
+				var newPos = A2($elm$core$Dict$remove, state, m0.ak);
+				var newStart = _Utils_eq(m0.aj, state) ? '' : m0.aj;
 				var newTrans = A2(
 					$elm$core$Dict$filter,
 					F2(
@@ -6809,11 +6888,11 @@ var $author$project$Update$update = F2(
 							var fr = _v12.a;
 							return (!_Utils_eq(fr, state)) && (!_Utils_eq(to, state));
 						}),
-					m0.I);
+					m0.L);
 				return $author$project$CodeSync$syncCodeFromDiagram(
 					_Utils_update(
 						m0,
-						{J: newAccept, a0: 'Deleted state: ' + state, ai: newStart, aj: newPos, I: newTrans}));
+						{M: newAccept, a0: 'Deleted state: ' + state, aj: newStart, ak: newPos, L: newTrans}));
 			case 13:
 				var c = msg.a;
 				return _Utils_update(
@@ -6825,11 +6904,11 @@ var $author$project$Update$update = F2(
 					$elm$core$Dict$insert,
 					_Utils_Tuple2(m0.aR, m0.bc),
 					m0.aS,
-					m0.I);
+					m0.L);
 				return $author$project$CodeSync$syncCodeFromDiagram(
 					_Utils_update(
 						m0,
-						{a_: false, a0: model.aR + (' --[' + (model.bc + (']--> ' + model.aS))), I: newTrans}));
+						{a_: false, a0: model.aR + (' --[' + (model.bc + (']--> ' + model.aS))), L: newTrans}));
 			case 15:
 				return _Utils_update(
 					model,
@@ -6838,17 +6917,17 @@ var $author$project$Update$update = F2(
 				var w = msg.a;
 				return _Utils_update(
 					model,
-					{H: w});
+					{K: w});
 			case 17:
 				return _Utils_update(
 					model,
 					{
-						aw: $elm$core$Maybe$Just(model.ai),
+						aw: $elm$core$Maybe$Just(model.aj),
 						a$: _List_fromArray(
 							[
-								_Utils_Tuple2(model.ai, 0)
+								_Utils_Tuple2(model.aj, 0)
 							]),
-						a0: 'Loaded. Ready to test: \"' + (model.H + '\"'),
+						a0: 'Loaded. Ready to test: \"' + (model.K + '\"'),
 						a1: 0
 					});
 			case 18:
@@ -6860,32 +6939,32 @@ var $author$project$Update$update = F2(
 			case 21:
 				return _Utils_update(
 					model,
-					{aq: false, aw: $elm$core$Maybe$Nothing, a$: _List_Nil, a0: 'Reset. Click \'Load DFA\' to start.', a1: 0});
+					{ar: false, aw: $elm$core$Maybe$Nothing, a$: _List_Nil, a0: 'Reset. Click \'Load DFA\' to start.', a1: 0});
 			case 22:
 				var v = msg.a;
 				return _Utils_update(
 					model,
-					{O: v});
+					{F: v});
 			case 23:
 				var v = msg.a;
 				return _Utils_update(
 					model,
-					{au: v});
+					{E: v});
 			case 24:
 				var v = msg.a;
 				return _Utils_update(
 					model,
-					{N: v});
+					{Q: v});
 			case 25:
 				var v = msg.a;
 				return _Utils_update(
 					model,
-					{M: v});
+					{P: v});
 			case 26:
 				var v = msg.a;
 				return _Utils_update(
 					model,
-					{P: v});
+					{D: v});
 			case 27:
 				return $author$project$CodeSync$generateDiagramFromCode(
 					$author$project$Update$saveUndo(model));
@@ -6963,33 +7042,33 @@ var $author$project$Update$update = F2(
 				return _Utils_eq(model.aw, $elm$core$Maybe$Nothing) ? _Utils_update(
 					model,
 					{
-						aq: true,
-						aw: $elm$core$Maybe$Just(model.ai),
+						ar: true,
+						aw: $elm$core$Maybe$Just(model.aj),
 						a$: _List_fromArray(
 							[
-								_Utils_Tuple2(model.ai, 0)
+								_Utils_Tuple2(model.aj, 0)
 							]),
 						a0: 'Auto run started...',
 						a1: 0
 					}) : _Utils_update(
 					model,
-					{aq: true, a0: 'Auto run resumed...'});
+					{ar: true, a0: 'Auto run resumed...'});
 			case 36:
 				return _Utils_update(
 					model,
-					{aq: false, a0: 'Paused.'});
+					{ar: false, a0: 'Paused.'});
 			case 37:
 				var ms = msg.a;
 				return _Utils_update(
 					model,
-					{ar: ms});
+					{as: ms});
 			default:
-				return (!model.aq) ? model : (((_Utils_cmp(
+				return (!model.ar) ? model : (((_Utils_cmp(
 					model.a1,
-					$elm$core$String$length(model.H)) > -1) || _Utils_eq(model.aw, $elm$core$Maybe$Nothing)) ? $author$project$Simulation$checkAcceptance(
+					$elm$core$String$length(model.K)) > -1) || _Utils_eq(model.aw, $elm$core$Maybe$Nothing)) ? $author$project$Simulation$checkAcceptance(
 					_Utils_update(
 						model,
-						{aq: false})) : $author$project$Simulation$stepOnce(model));
+						{ar: false})) : $author$project$Simulation$stepOnce(model));
 		}
 	});
 var $author$project$Types$MouseUp = {$: 5};
@@ -7249,10 +7328,10 @@ var $author$project$View$Panels$viewCodePanel = function (model) {
 							]),
 						_List_fromArray(
 							[
-								A4($author$project$View$Panels$codeField, 'States', model.O, $author$project$Types$SetCodeStates, 'q0, q1, q2'),
-								A4($author$project$View$Panels$codeField, 'Alphabet', model.au, $author$project$Types$SetCodeAlphabet, 'a, b'),
-								A4($author$project$View$Panels$codeField, 'Start state', model.N, $author$project$Types$SetCodeStart, 'q0'),
-								A4($author$project$View$Panels$codeField, 'Accept states', model.M, $author$project$Types$SetCodeAccept, 'q2'),
+								A4($author$project$View$Panels$codeField, 'States', model.F, $author$project$Types$SetCodeStates, 'q0, q1, q2'),
+								A4($author$project$View$Panels$codeField, 'Alphabet', model.E, $author$project$Types$SetCodeAlphabet, 'a, b'),
+								A4($author$project$View$Panels$codeField, 'Start state', model.Q, $author$project$Types$SetCodeStart, 'q0'),
+								A4($author$project$View$Panels$codeField, 'Accept states', model.P, $author$project$Types$SetCodeAccept, 'q2'),
 								A2(
 								$elm$html$Html$div,
 								_List_fromArray(
@@ -7266,7 +7345,7 @@ var $author$project$View$Panels$viewCodePanel = function (model) {
 										$elm$html$Html$textarea,
 										_List_fromArray(
 											[
-												$elm$html$Html$Attributes$value(model.P),
+												$elm$html$Html$Attributes$value(model.D),
 												$elm$html$Html$Events$onInput($author$project$Types$SetCodeTransitions),
 												$elm$html$Html$Attributes$placeholder('q0,a,q1\nq1,b,q2\nq2,a,q2'),
 												A2($elm$html$Html$Attributes$style, 'width', '100%'),
@@ -7327,17 +7406,6 @@ var $elm$html$Html$Events$custom = F2(
 			event,
 			$elm$virtual_dom$VirtualDom$Custom(decoder));
 	});
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
-};
 var $elm$core$List$concatMap = F2(
 	function (f, list) {
 		return $elm$core$List$concat(
@@ -7790,7 +7858,7 @@ var $elm$svg$Svg$polygon = $elm$svg$Svg$trustedNode('polygon');
 var $elm$svg$Svg$Attributes$refX = _VirtualDom_attribute('refX');
 var $elm$svg$Svg$Attributes$refY = _VirtualDom_attribute('refY');
 var $author$project$View$Canvas$drawDFA = function (model) {
-	var transitionList = $elm$core$Dict$toList(model.I);
+	var transitionList = $elm$core$Dict$toList(model.L);
 	var stateElements = A2(
 		$elm$core$List$concatMap,
 		function (_v6) {
@@ -7801,8 +7869,8 @@ var $author$project$View$Canvas$drawDFA = function (model) {
 				model,
 				name,
 				pos,
-				_Utils_eq(name, model.ai),
-				A2($elm$core$List$member, name, model.J),
+				_Utils_eq(name, model.aj),
+				A2($elm$core$List$member, name, model.M),
 				_Utils_eq(
 					model.aw,
 					$elm$core$Maybe$Just(name)),
@@ -7810,7 +7878,7 @@ var $author$project$View$Canvas$drawDFA = function (model) {
 					model.bd,
 					$elm$core$Maybe$Just(name)));
 		},
-		$elm$core$Dict$toList(model.aj));
+		$elm$core$Dict$toList(model.ak));
 	var hasBidirectional = F2(
 		function (from, to) {
 			return A2(
@@ -7873,8 +7941,8 @@ var $author$project$View$Canvas$drawDFA = function (model) {
 								return _Utils_eq(from, to) ? A7($author$project$View$Canvas$drawSelfLoop, label, fromPos, fromRx, isActive, model.az, from, to) : $author$project$View$Canvas$drawArrow(label)(fromPos)(toPos)(fromRx)(toRx)(
 									A2(hasBidirectional, from, to))(isActive)(model.az)(from)(to);
 							}),
-						A2($elm$core$Dict$get, from, model.aj),
-						A2($elm$core$Dict$get, to, model.aj));
+						A2($elm$core$Dict$get, from, model.ak),
+						A2($elm$core$Dict$get, to, model.ak));
 				} else {
 					return $elm$core$Maybe$Nothing;
 				}
@@ -8144,7 +8212,7 @@ var $author$project$View$Panels$viewStateRow = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'border-left',
-					'3px solid ' + (_Utils_eq(state, model.ai) ? '#ffb74d' : (A2($elm$core$List$member, state, model.J) ? '#4fc3f7' : '#444'))),
+					'3px solid ' + (_Utils_eq(state, model.aj) ? '#ffb74d' : (A2($elm$core$List$member, state, model.M) ? '#4fc3f7' : '#444'))),
 					A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.03)')
 				]),
 			_List_fromArray(
@@ -8179,13 +8247,13 @@ var $author$project$View$Panels$viewStateRow = F2(
 							$author$project$View$Widgets$miniBtn,
 							'S',
 							$author$project$Types$SetStartState(state),
-							_Utils_eq(state, model.ai),
+							_Utils_eq(state, model.aj),
 							'#ffb74d'),
 							A4(
 							$author$project$View$Widgets$miniBtn,
 							'A',
 							$author$project$Types$ToggleAcceptState(state),
-							A2($elm$core$List$member, state, model.J),
+							A2($elm$core$List$member, state, model.M),
 							'#4fc3f7'),
 							A4(
 							$author$project$View$Widgets$miniBtn,
@@ -8212,7 +8280,7 @@ var $author$project$View$Panels$viewStateList = function (model) {
 				A3(
 				$author$project$View$Widgets$collapsibleHeader,
 				'States  (' + ($elm$core$String$fromInt(
-					$elm$core$Dict$size(model.aj)) + ')'),
+					$elm$core$Dict$size(model.ak)) + ')'),
 				model.a3,
 				$author$project$Types$ToggleStateList),
 				model.a3 ? $elm$html$Html$text('') : A2(
@@ -8243,7 +8311,7 @@ var $author$project$View$Panels$viewStateList = function (model) {
 					A2(
 						$elm$core$List$map,
 						$author$project$View$Panels$viewStateRow(model),
-						$elm$core$Dict$keys(model.aj))))
+						$elm$core$Dict$keys(model.ak))))
 			]));
 };
 var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
@@ -8466,7 +8534,7 @@ var $author$project$View$viewDiagramPanel = function (model) {
 									]))
 							]))
 					])),
-				(!$elm$core$Dict$isEmpty(model.aj)) ? $author$project$View$Panels$viewStateList(model) : $elm$html$Html$text('')
+				(!$elm$core$Dict$isEmpty(model.ak)) ? $author$project$View$Panels$viewStateList(model) : $elm$html$Html$text('')
 			]));
 };
 var $author$project$Types$NoOp = {$: 32};
@@ -9045,11 +9113,11 @@ var $author$project$View$Widgets$autoRunBtn = function (model) {
 				A2(
 				$elm$html$Html$Attributes$style,
 				'background',
-				model.aq ? 'linear-gradient(135deg, #388e3c, #66bb6a)' : 'rgba(255,255,255,0.07)'),
+				model.ar ? 'linear-gradient(135deg, #388e3c, #66bb6a)' : 'rgba(255,255,255,0.07)'),
 				A2(
 				$elm$html$Html$Attributes$style,
 				'border',
-				model.aq ? '1px solid #66bb6a' : '1px solid rgba(255,255,255,0.1)'),
+				model.ar ? '1px solid #66bb6a' : '1px solid rgba(255,255,255,0.1)'),
 				A2($elm$html$Html$Attributes$style, 'border-radius', '8px'),
 				A2($elm$html$Html$Attributes$style, 'padding', '7px 10px'),
 				A2($elm$html$Html$Attributes$style, 'font-size', '0.78rem'),
@@ -9058,7 +9126,7 @@ var $author$project$View$Widgets$autoRunBtn = function (model) {
 				A2(
 				$elm$html$Html$Attributes$style,
 				'color',
-				model.aq ? '#fff' : '#9fa8da'),
+				model.ar ? '#fff' : '#9fa8da'),
 				A2($elm$html$Html$Attributes$style, 'font-family', 'inherit')
 			]),
 		_List_fromArray(
@@ -9159,7 +9227,7 @@ var $author$project$View$Panels$viewTestStringPanel = function (model) {
 						$elm$html$Html$input,
 						_List_fromArray(
 							[
-								$elm$html$Html$Attributes$value(model.H),
+								$elm$html$Html$Attributes$value(model.K),
 								$elm$html$Html$Events$onInput($author$project$Types$SetTestWord),
 								$elm$html$Html$Attributes$placeholder('Enter test word…'),
 								A2($elm$html$Html$Attributes$style, 'width', '100%'),
@@ -9231,7 +9299,7 @@ var $author$project$View$Panels$viewTestStringPanel = function (model) {
 											[
 												$elm$html$Html$text(
 												function () {
-													var tenths = $elm$core$Basics$round((2100 - model.ar) / 100);
+													var tenths = $elm$core$Basics$round((2100 - model.as) / 100);
 													var whole = (tenths / 10) | 0;
 													var frac = tenths % 10;
 													return $elm$core$String$fromInt(whole) + ('.' + ($elm$core$String$fromInt(frac) + ' s/step'));
@@ -9267,7 +9335,7 @@ var $author$project$View$Panels$viewTestStringPanel = function (model) {
 												$elm$html$Html$Attributes$max('2000'),
 												$elm$html$Html$Attributes$step('100'),
 												$elm$html$Html$Attributes$value(
-												$elm$core$String$fromInt(model.ar)),
+												$elm$core$String$fromInt(model.as)),
 												$elm$html$Html$Events$onInput(
 												function (v) {
 													return $author$project$Types$SetAutoSpeed(
@@ -9376,7 +9444,7 @@ var $author$project$View$Panels$viewTestStringPanel = function (model) {
 											[
 												$elm$html$Html$text(
 												$elm$core$String$fromInt(model.a1) + (' / ' + $elm$core$String$fromInt(
-													$elm$core$String$length(model.H))))
+													$elm$core$String$length(model.K))))
 											]))
 									])),
 								A2(
