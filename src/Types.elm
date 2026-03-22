@@ -3,6 +3,7 @@ module Types exposing (..)
 
 import Dict exposing (Dict)
 import Time
+import Lang exposing (Language)
 
 
 type DrawTool
@@ -79,6 +80,7 @@ type alias Model =
     , testCollapsed : Bool
     , codeCollapsed : Bool
     , stateListCollapsed : Bool
+    , language : Language
     }
 
 
@@ -132,3 +134,7 @@ type Msg
     | ToggleCodePanel
     | ToggleStateList
     | DeleteTransition String String
+    | ToggleLanguage
+    | LoadDFAFromSave String String String String String
+    | RequestSave
+    | RequestLoad

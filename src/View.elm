@@ -15,6 +15,7 @@ import Helpers exposing (flt)
 import View.Canvas exposing (drawDFA)
 import View.Panels exposing (..)
 import View.Widgets exposing (..)
+import Lang exposing (Language(..), Translations, translations)
 
 
 
@@ -23,6 +24,9 @@ import View.Widgets exposing (..)
 
 view : Model -> Html Msg
 view model =
+    let
+        t = translations model.language
+    in
     div
         [ style "font-family" "'Segoe UI', Arial, sans-serif"
         , style "background" "#1a1a2e"
@@ -33,7 +37,7 @@ view model =
         , style "color" "#e8eaf6"
         , Html.Events.on "mouseup" (Decode.succeed MouseUp)
         ]
-        [ viewTopBar
+        [ viewTopBar t model.language
         , div
             [ style "display" "grid"
             , style "grid-template-columns" "360px 1fr"
@@ -51,27 +55,27 @@ view model =
                 , style "overflow-y" "auto"
                 , style "padding-right" "2px"
                 ]
-                [ viewTestStringPanel model
-                , viewCodePanel model
+                [ viewTestStringPanel t model
+                , viewCodePanel t model
                 ]
-            , viewDiagramPanel model
+            , viewDiagramPanel t model
             ]
         , if model.showTransCharPopup then
-            viewTransCharPopup model
+            viewTransCharPopup t model
           else
             text ""
         , case model.renamingState of
             Just stateName ->
-                viewRenamePopup stateName model.renameValue
+                viewRenamePopup t stateName model.renameValue
 
             Nothing ->
                 text ""
         , if model.showHelp then
-            viewHelpModal
+            viewHelpModal t
           else
             text ""
         , if model.showFeedback then
-            viewFeedbackModal
+            viewFeedbackModal t
           else
             text ""
         ]
@@ -80,8 +84,8 @@ view model =
 
 ---------------------------- TOP BAR ------------------------------------------------
 
-viewTopBar : Html Msg
-viewTopBar =
+viewTopBar : Translations -> Language -> Html Msg
+viewTopBar t lang =
     div
         [ style "background" "linear-gradient(135deg, #4a0080, #6a0dad, #7c4dff)"
         , style "padding" "12px 28px"
@@ -99,9 +103,47 @@ viewTopBar =
             ]
             [ text "DFA Simulator" ]
         , div [ style "display" "flex", style "gap" "10px" ]
-            [ topBarBtn "📖 Guide" ToggleHelp
-            , topBarBtn "💬 Feedback" ToggleFeedback
-            , topBarBtn "🗑 Clear All" ClearAll
+            [ langToggleBtn lang
+            , topBarBtn t.save RequestSave
+            , topBarBtn t.load RequestLoad
+            , topBarBtn t.guide ToggleHelp
+            , topBarBtn t.feedback ToggleFeedback
+            , topBarBtn t.clearAll ClearAll
+            ]
+        ]
+
+
+langToggleBtn : Language -> Html Msg
+langToggleBtn lang =
+    button
+        [ onClick ToggleLanguage
+        , style "background" "rgba(255,255,255,0.12)"
+        , style "border" "1px solid rgba(255,255,255,0.35)"
+        , style "color" "white"
+        , style "padding" "7px 14px"
+        , style "border-radius" "20px"
+        , style "cursor" "pointer"
+        , style "font-family" "inherit"
+        , style "font-size" "0.85rem"
+        , style "font-weight" "600"
+        , style "display" "flex"
+        , style "align-items" "center"
+        , style "gap" "6px"
+        ]
+        [ span [] [ text "🌐" ]
+        , span []
+            [ text
+                (case lang of
+                    EN -> "EN"
+                    SK -> "SK"
+                )
+            ]
+        , span [ style "font-size" "0.7rem", style "opacity" "0.7" ]
+            [ text
+                (case lang of
+                    EN -> "→ SK"
+                    SK -> "→ EN"
+                )
             ]
         ]
 
@@ -110,8 +152,8 @@ viewTopBar =
 
 ------------------------------------- DIAGRAM PANEL -----------------------------------------------------
 
-viewDiagramPanel : Model -> Html Msg
-viewDiagramPanel model =
+viewDiagramPanel : Translations -> Model -> Html Msg
+viewDiagramPanel t model =
     panel
         [ style "grid-column" "2"
         , style "grid-row" "1"
@@ -126,7 +168,7 @@ viewDiagramPanel model =
             , style "margin-bottom" "12px"
             , style "flex-shrink" "0"
             ]
-            [ panelTitle "State Diagram" ]
+            [ panelTitle t.stateDiagram ]
         , div
             [ style "flex" "1"
             , style "position" "relative"
@@ -206,21 +248,21 @@ viewDiagramPanel model =
             , style "margin-top" "12px"
             , style "align-items" "flex-start"
             ]
-            [ toolGroup "Draw"
-                [ toolBtn "✋" (model.drawTool == SelectTool) (SetDrawTool SelectTool) "Select/Move"
-                , toolBtn "⊕" (model.drawTool == AddStateTool) (SetDrawTool AddStateTool) "Add state"
-                , toolBtn "→" (model.drawTool == AddTransitionTool) (SetDrawTool AddTransitionTool) "Add transition"
-                , toolBtn "X" (model.drawTool == DeleteTool) (SetDrawTool DeleteTool) "Delete state/transition"
+            [ toolGroup t.draw
+                [ toolBtn "✋" (model.drawTool == SelectTool) (SetDrawTool SelectTool) t.selectMove
+                , toolBtn "⊕" (model.drawTool == AddStateTool) (SetDrawTool AddStateTool) t.addState
+                , toolBtn "→" (model.drawTool == AddTransitionTool) (SetDrawTool AddTransitionTool) t.addTransition
+                , toolBtn "X" (model.drawTool == DeleteTool) (SetDrawTool DeleteTool) t.deleteStateTrans
                 ]
-            , toolGroup "Actions"
-                [ undoRedoBtn "↩" Undo (model.undoStack /= []) "Undo"
-                , undoRedoBtn "↪" Redo (model.redoStack /= []) "Redo"
-                --, toolBtn "🗑" False ClearAll "Clear all"
+            , toolGroup t.actions
+                [ undoRedoBtn "↩" Undo (model.undoStack /= []) t.undo
+                , undoRedoBtn "↪" Redo (model.redoStack /= []) t.redo
+                --, toolBtn "🗑" False ClearAll t.clearAllShort
                 ]
-            , toolGroup "View"
-                [ toolBtn "+" False ZoomIn "Zoom in"
-                , toolBtn "−" False ZoomOut "Zoom out"
-                , toolBtn "⌂" False ResetView "Reset view"
+            , toolGroup t.view
+                [ toolBtn "+" False ZoomIn t.zoomIn
+                , toolBtn "−" False ZoomOut t.zoomOut
+                , toolBtn "⌂" False ResetView t.resetView
                 , div
                     [ style "font-size" "0.68rem"
                     , style "color" "#9fa8da"
@@ -233,7 +275,7 @@ viewDiagramPanel model =
                 ]
             ]
         , if not (Dict.isEmpty model.statePositions) then
-            viewStateList model
+            viewStateList t model
           else
             text ""
         ]

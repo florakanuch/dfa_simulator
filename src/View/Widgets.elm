@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Types exposing (..)
+import Lang exposing (Translations)
 
 
 
@@ -112,8 +113,8 @@ styledBtn label msg bg w padding =
         [ text label ]
 
 
-autoRunBtn : Model -> Html Msg
-autoRunBtn model =
+autoRunBtn : Translations -> Model -> Html Msg
+autoRunBtn t model =
     button
         [ onClick StartAutoRun
         , style "flex" "1"
@@ -133,11 +134,11 @@ autoRunBtn model =
         , style "color" (if model.autoRunning then "#fff" else "#9fa8da")
         , style "font-family" "inherit"
         ]
-        [ text "▶ Run" ]
+        [ text t.run ]
 
 
-autoStopBtn : Model -> Html Msg
-autoStopBtn model =
+autoStopBtn : Translations -> Model -> Html Msg
+autoStopBtn t model =
     button
         [ onClick StopAutoRun
         , style "flex" "1"
@@ -151,7 +152,7 @@ autoStopBtn model =
         , style "color" "#9fa8da"
         , style "font-family" "inherit"
         ]
-        [ text "⏹ Stop" ]
+        [ text t.stop ]
 
 
 

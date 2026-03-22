@@ -77,7 +77,7 @@ generateDiagramFromCode model =
                     )
                 |> List.concat
 
-       
+        
         allMentioned =
             startStates ++ acceptList ++ impliedFromTransitions
 
@@ -88,12 +88,14 @@ generateDiagramFromCode model =
 
         stateNames = explicitStates ++ extraStates
 
+        
         explicitAlphabet =
             model.codeAlphabet
                 |> String.split ","
                 |> List.map String.trim
                 |> List.filter ((/=) "")
 
+        
         impliedAlphabet =
             model.codeTransitions
                 |> String.lines
@@ -169,7 +171,7 @@ generateDiagramFromCode model =
         , transitions = parsedTrans
         , stateCounter = List.length stateNames
         , codeStates = String.join ", " stateNames
-         , codeAlphabet = String.join ", " mergedAlphabet
+        , codeAlphabet = String.join ", " mergedAlphabet
         , currentState = Nothing
         , simPosition = 0
         , simHistory = []

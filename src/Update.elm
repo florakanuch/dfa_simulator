@@ -4,6 +4,7 @@ import Dict
 import Types exposing (..)
 import Simulation exposing (stepOnce, stepBack, runToEnd, checkAcceptance)
 import CodeSync exposing (syncCodeFromDiagram, generateDiagramFromCode)
+import Lang exposing (Language(..), translations)
 
 
 
@@ -28,7 +29,7 @@ defaultModel =
     , currentState = Nothing
     , simPosition = 0
     , simHistory = []
-    , simMessage = "Add states by clicking the canvas."
+    , simMessage = (translations EN).simInitial
     , codeStates = ""
     , codeAlphabet = ""
     , codeStart = ""
@@ -53,6 +54,7 @@ defaultModel =
     , testCollapsed = False
     , codeCollapsed = False
     , stateListCollapsed = False
+    , language = EN
     }
 
 
@@ -91,7 +93,30 @@ applySnapshot snap model =
 
 update : Msg -> Model -> Model
 update msg model =
+    let
+        t = translations model.language
+    in
     case msg of
+        ToggleLanguage ->
+            let
+                newLang = case model.language of
+                    EN -> SK
+                    SK -> EN
+            in
+            { model | language = newLang }
+
+        LoadDFAFromSave states alphabet start accept trans ->
+            let
+                loaded = { model
+                    | codeStates = states
+                    , codeAlphabet = alphabet
+                    , codeStart = start
+                    , codeAccept = accept
+                    , codeTransitions = trans
+                    }
+            in
+            generateDiagramFromCode (saveUndo loaded)
+
         ClickedCanvas x y ->
             case model.drawTool of
                 AddStateTool ->
@@ -108,7 +133,7 @@ update msg model =
                         | statePositions = newPositions
                         , stateCounter = m0.stateCounter + 1
                         , startState = newStart
-                        , simMessage = "State added: " ++ name
+                        , simMessage = t.simAdded name
                     }
                         |> syncCodeFromDiagram
 
@@ -122,7 +147,9 @@ update msg model =
                         Nothing ->
                             { model
                                 | transitionFrom = Just stateName
-                                , simMessage = "Now click the target state (from: " ++ stateName ++ ")"
+                                , simMessage = (case model.language of
+                                    EN -> "Now click the target state (from: "
+                                    SK -> "Klikni na cieľový stav (od: ") ++ stateName ++ ")"
                             }
 
                         Just fromState ->
@@ -146,7 +173,7 @@ update msg model =
                         , transitions = newTrans
                         , acceptStates = newAccept
                         , startState = newStart
-                        , simMessage = "Deleted state: " ++ stateName
+                        , simMessage = t.simDeleted stateName
                     }
                         |> syncCodeFromDiagram
 
@@ -161,13 +188,10 @@ update msg model =
                 , dragging = Nothing
                 , simMessage =
                     case tool of
-                        AddStateTool -> "Click canvas to add a state."
-
-                        AddTransitionTool ->  "Click source state to start a transition."
-
-                        SelectTool -> "Drag states to move. Double-click to rename."
-
-                        DeleteTool -> "Click a state or transition to delete it."
+                        AddStateTool -> t.addState
+                        AddTransitionTool -> t.addTransition
+                        SelectTool -> t.selectMove
+                        DeleteTool -> t.deleteStateTrans
             }
 
         MouseDownOnState stateName mouseX mouseY ->
@@ -270,7 +294,7 @@ update msg model =
             in
             { m0
                 | transitions = newTrans
-                , simMessage = "Deleted transition: " ++ from ++ " → " ++ to
+                , simMessage = t.simDeletedTrans from to
             }
                 |> syncCodeFromDiagram
 
@@ -334,7 +358,7 @@ update msg model =
                             , startState = newStart
                             , renamingState = Nothing
                             , renameValue = ""
-                            , simMessage = "Renamed: " ++ oldName ++ " → " ++ newName
+                            , simMessage = t.simRenamed oldName newName
                         }
                             |> syncCodeFromDiagram
 
@@ -343,7 +367,7 @@ update msg model =
 
         SetStartState state ->
             saveUndo model
-                |> (\m0 -> { m0 | startState = state, simMessage = "Start state set: " ++ state })
+                |> (\m0 -> { m0 | startState = state, simMessage = t.simSetStart state })
                 |> syncCodeFromDiagram
 
         ToggleAcceptState state ->
@@ -377,7 +401,7 @@ update msg model =
                 , transitions = newTrans
                 , acceptStates = newAccept
                 , startState = newStart
-                , simMessage = "Deleted state: " ++ state
+                , simMessage = t.simDeleted state
             }
                 |> syncCodeFromDiagram
 
@@ -397,12 +421,7 @@ update msg model =
             { m0
                 | transitions = newTrans
                 , showTransCharPopup = False
-                , simMessage =
-                    model.pendingTransFrom
-                        ++ " --["
-                        ++ model.transitionChar
-                        ++ "]--> "
-                        ++ model.pendingTransTo
+                , simMessage = t.simTransAdded model.pendingTransFrom model.transitionChar model.pendingTransTo
             }
                 |> syncCodeFromDiagram
 
@@ -417,7 +436,7 @@ update msg model =
                 | currentState = Just model.startState
                 , simPosition = 0
                 , simHistory = [ ( model.startState, 0 ) ]
-                , simMessage = "Loaded. Ready to test: \"" ++ model.testWord ++ "\""
+                , simMessage = t.simLoaded model.testWord
             }
 
         StepForward -> stepOnce model
@@ -431,7 +450,7 @@ update msg model =
                 | currentState = Nothing
                 , simPosition = 0
                 , simHistory = []
-                , simMessage = "Reset. Click 'Load DFA' to start."
+                , simMessage = t.simReset
                 , autoRunning = False
             }
 
@@ -463,7 +482,7 @@ update msg model =
             { model | showFeedback = not model.showFeedback }
 
         ClearAll ->
-            { defaultModel | simMessage = "Cleared everything." }
+            { defaultModel | simMessage = (translations model.language).simCleared, language = model.language }
 
         NoOp ->
             model
@@ -471,28 +490,28 @@ update msg model =
         Undo ->
             case model.undoStack of
                 [] ->
-                    { model | simMessage = "Nothing to undo." }
+                    { model | simMessage = t.simNothingUndo }
 
                 snap :: rest ->
                     applySnapshot snap
                         { model
                             | undoStack = rest
                             , redoStack = List.take 50 (snapshotDiagram model :: model.redoStack)
-                            , simMessage = "Undone."
+                            , simMessage = t.simUndone
                         }
                         |> syncCodeFromDiagram
 
         Redo ->
             case model.redoStack of
                 [] ->
-                    { model | simMessage = "Nothing to redo." }
+                    { model | simMessage = t.simNothingRedo }
 
                 snap :: rest ->
                     applySnapshot snap
                         { model
                             | redoStack = rest
                             , undoStack = List.take 50 (snapshotDiagram model :: model.undoStack)
-                            , simMessage = "Redone."
+                            , simMessage = t.simRedone
                         }
                         |> syncCodeFromDiagram
 
@@ -503,16 +522,22 @@ update msg model =
                     , simPosition = 0
                     , simHistory = [ ( model.startState, 0 ) ]
                     , autoRunning = True
-                    , simMessage = "Auto run started..."
+                    , simMessage = t.simAutoStarted
                 }
             else
-                { model | autoRunning = True, simMessage = "Auto run resumed..." }
+                { model | autoRunning = True, simMessage = t.simAutoResumed }
 
         StopAutoRun ->
-            { model | autoRunning = False, simMessage = "Paused." }
+            { model | autoRunning = False, simMessage = t.simPaused }
 
         SetAutoSpeed ms ->
             { model | autoSpeed = ms }
+
+        RequestSave ->
+            model
+
+        RequestLoad ->
+            model
 
         AutoTick _ ->
             if not model.autoRunning then
