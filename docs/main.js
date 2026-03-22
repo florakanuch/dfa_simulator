@@ -80,6 +80,190 @@ function A9(fun, a, b, c, d, e, f, g, h, i) {
 
 
 
+// EQUALITY
+
+function _Utils_eq(x, y)
+{
+	for (
+		var pair, stack = [], isEqual = _Utils_eqHelp(x, y, 0, stack);
+		isEqual && (pair = stack.pop());
+		isEqual = _Utils_eqHelp(pair.a, pair.b, 0, stack)
+		)
+	{}
+
+	return isEqual;
+}
+
+function _Utils_eqHelp(x, y, depth, stack)
+{
+	if (x === y)
+	{
+		return true;
+	}
+
+	if (typeof x !== 'object' || x === null || y === null)
+	{
+		typeof x === 'function' && _Debug_crash(5);
+		return false;
+	}
+
+	if (depth > 100)
+	{
+		stack.push(_Utils_Tuple2(x,y));
+		return true;
+	}
+
+	/**_UNUSED/
+	if (x.$ === 'Set_elm_builtin')
+	{
+		x = $elm$core$Set$toList(x);
+		y = $elm$core$Set$toList(y);
+	}
+	if (x.$ === 'RBNode_elm_builtin' || x.$ === 'RBEmpty_elm_builtin')
+	{
+		x = $elm$core$Dict$toList(x);
+		y = $elm$core$Dict$toList(y);
+	}
+	//*/
+
+	/**/
+	if (x.$ < 0)
+	{
+		x = $elm$core$Dict$toList(x);
+		y = $elm$core$Dict$toList(y);
+	}
+	//*/
+
+	for (var key in x)
+	{
+		if (!_Utils_eqHelp(x[key], y[key], depth + 1, stack))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+var _Utils_equal = F2(_Utils_eq);
+var _Utils_notEqual = F2(function(a, b) { return !_Utils_eq(a,b); });
+
+
+
+// COMPARISONS
+
+// Code in Generate/JavaScript.hs, Basics.js, and List.js depends on
+// the particular integer values assigned to LT, EQ, and GT.
+
+function _Utils_cmp(x, y, ord)
+{
+	if (typeof x !== 'object')
+	{
+		return x === y ? /*EQ*/ 0 : x < y ? /*LT*/ -1 : /*GT*/ 1;
+	}
+
+	/**_UNUSED/
+	if (x instanceof String)
+	{
+		var a = x.valueOf();
+		var b = y.valueOf();
+		return a === b ? 0 : a < b ? -1 : 1;
+	}
+	//*/
+
+	/**/
+	if (typeof x.$ === 'undefined')
+	//*/
+	/**_UNUSED/
+	if (x.$[0] === '#')
+	//*/
+	{
+		return (ord = _Utils_cmp(x.a, y.a))
+			? ord
+			: (ord = _Utils_cmp(x.b, y.b))
+				? ord
+				: _Utils_cmp(x.c, y.c);
+	}
+
+	// traverse conses until end of a list or a mismatch
+	for (; x.b && y.b && !(ord = _Utils_cmp(x.a, y.a)); x = x.b, y = y.b) {} // WHILE_CONSES
+	return ord || (x.b ? /*GT*/ 1 : y.b ? /*LT*/ -1 : /*EQ*/ 0);
+}
+
+var _Utils_lt = F2(function(a, b) { return _Utils_cmp(a, b) < 0; });
+var _Utils_le = F2(function(a, b) { return _Utils_cmp(a, b) < 1; });
+var _Utils_gt = F2(function(a, b) { return _Utils_cmp(a, b) > 0; });
+var _Utils_ge = F2(function(a, b) { return _Utils_cmp(a, b) >= 0; });
+
+var _Utils_compare = F2(function(x, y)
+{
+	var n = _Utils_cmp(x, y);
+	return n < 0 ? $elm$core$Basics$LT : n ? $elm$core$Basics$GT : $elm$core$Basics$EQ;
+});
+
+
+// COMMON VALUES
+
+var _Utils_Tuple0 = 0;
+var _Utils_Tuple0_UNUSED = { $: '#0' };
+
+function _Utils_Tuple2(a, b) { return { a: a, b: b }; }
+function _Utils_Tuple2_UNUSED(a, b) { return { $: '#2', a: a, b: b }; }
+
+function _Utils_Tuple3(a, b, c) { return { a: a, b: b, c: c }; }
+function _Utils_Tuple3_UNUSED(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
+
+function _Utils_chr(c) { return c; }
+function _Utils_chr_UNUSED(c) { return new String(c); }
+
+
+// RECORDS
+
+function _Utils_update(oldRecord, updatedFields)
+{
+	var newRecord = {};
+
+	for (var key in oldRecord)
+	{
+		newRecord[key] = oldRecord[key];
+	}
+
+	for (var key in updatedFields)
+	{
+		newRecord[key] = updatedFields[key];
+	}
+
+	return newRecord;
+}
+
+
+// APPEND
+
+var _Utils_append = F2(_Utils_ap);
+
+function _Utils_ap(xs, ys)
+{
+	// append Strings
+	if (typeof xs === 'string')
+	{
+		return xs + ys;
+	}
+
+	// append Lists
+	if (!xs.b)
+	{
+		return ys;
+	}
+	var root = _List_Cons(xs.a, ys);
+	xs = xs.b
+	for (var curr = root; xs.b; xs = xs.b) // WHILE_CONS
+	{
+		curr = curr.b = _List_Cons(xs.a, ys);
+	}
+	return root;
+}
+
+
+
 var _List_Nil = { $: 0 };
 var _List_Nil_UNUSED = { $: '[]' };
 
@@ -600,195 +784,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.J.y === region.S.y)
+	if (region.G.y === region.cl.y)
 	{
-		return 'on line ' + region.J.y;
+		return 'on line ' + region.G.y;
 	}
-	return 'on lines ' + region.J.y + ' through ' + region.S.y;
-}
-
-
-
-// EQUALITY
-
-function _Utils_eq(x, y)
-{
-	for (
-		var pair, stack = [], isEqual = _Utils_eqHelp(x, y, 0, stack);
-		isEqual && (pair = stack.pop());
-		isEqual = _Utils_eqHelp(pair.a, pair.b, 0, stack)
-		)
-	{}
-
-	return isEqual;
-}
-
-function _Utils_eqHelp(x, y, depth, stack)
-{
-	if (x === y)
-	{
-		return true;
-	}
-
-	if (typeof x !== 'object' || x === null || y === null)
-	{
-		typeof x === 'function' && _Debug_crash(5);
-		return false;
-	}
-
-	if (depth > 100)
-	{
-		stack.push(_Utils_Tuple2(x,y));
-		return true;
-	}
-
-	/**_UNUSED/
-	if (x.$ === 'Set_elm_builtin')
-	{
-		x = $elm$core$Set$toList(x);
-		y = $elm$core$Set$toList(y);
-	}
-	if (x.$ === 'RBNode_elm_builtin' || x.$ === 'RBEmpty_elm_builtin')
-	{
-		x = $elm$core$Dict$toList(x);
-		y = $elm$core$Dict$toList(y);
-	}
-	//*/
-
-	/**/
-	if (x.$ < 0)
-	{
-		x = $elm$core$Dict$toList(x);
-		y = $elm$core$Dict$toList(y);
-	}
-	//*/
-
-	for (var key in x)
-	{
-		if (!_Utils_eqHelp(x[key], y[key], depth + 1, stack))
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
-var _Utils_equal = F2(_Utils_eq);
-var _Utils_notEqual = F2(function(a, b) { return !_Utils_eq(a,b); });
-
-
-
-// COMPARISONS
-
-// Code in Generate/JavaScript.hs, Basics.js, and List.js depends on
-// the particular integer values assigned to LT, EQ, and GT.
-
-function _Utils_cmp(x, y, ord)
-{
-	if (typeof x !== 'object')
-	{
-		return x === y ? /*EQ*/ 0 : x < y ? /*LT*/ -1 : /*GT*/ 1;
-	}
-
-	/**_UNUSED/
-	if (x instanceof String)
-	{
-		var a = x.valueOf();
-		var b = y.valueOf();
-		return a === b ? 0 : a < b ? -1 : 1;
-	}
-	//*/
-
-	/**/
-	if (typeof x.$ === 'undefined')
-	//*/
-	/**_UNUSED/
-	if (x.$[0] === '#')
-	//*/
-	{
-		return (ord = _Utils_cmp(x.a, y.a))
-			? ord
-			: (ord = _Utils_cmp(x.b, y.b))
-				? ord
-				: _Utils_cmp(x.c, y.c);
-	}
-
-	// traverse conses until end of a list or a mismatch
-	for (; x.b && y.b && !(ord = _Utils_cmp(x.a, y.a)); x = x.b, y = y.b) {} // WHILE_CONSES
-	return ord || (x.b ? /*GT*/ 1 : y.b ? /*LT*/ -1 : /*EQ*/ 0);
-}
-
-var _Utils_lt = F2(function(a, b) { return _Utils_cmp(a, b) < 0; });
-var _Utils_le = F2(function(a, b) { return _Utils_cmp(a, b) < 1; });
-var _Utils_gt = F2(function(a, b) { return _Utils_cmp(a, b) > 0; });
-var _Utils_ge = F2(function(a, b) { return _Utils_cmp(a, b) >= 0; });
-
-var _Utils_compare = F2(function(x, y)
-{
-	var n = _Utils_cmp(x, y);
-	return n < 0 ? $elm$core$Basics$LT : n ? $elm$core$Basics$GT : $elm$core$Basics$EQ;
-});
-
-
-// COMMON VALUES
-
-var _Utils_Tuple0 = 0;
-var _Utils_Tuple0_UNUSED = { $: '#0' };
-
-function _Utils_Tuple2(a, b) { return { a: a, b: b }; }
-function _Utils_Tuple2_UNUSED(a, b) { return { $: '#2', a: a, b: b }; }
-
-function _Utils_Tuple3(a, b, c) { return { a: a, b: b, c: c }; }
-function _Utils_Tuple3_UNUSED(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
-
-function _Utils_chr(c) { return c; }
-function _Utils_chr_UNUSED(c) { return new String(c); }
-
-
-// RECORDS
-
-function _Utils_update(oldRecord, updatedFields)
-{
-	var newRecord = {};
-
-	for (var key in oldRecord)
-	{
-		newRecord[key] = oldRecord[key];
-	}
-
-	for (var key in updatedFields)
-	{
-		newRecord[key] = updatedFields[key];
-	}
-
-	return newRecord;
-}
-
-
-// APPEND
-
-var _Utils_append = F2(_Utils_ap);
-
-function _Utils_ap(xs, ys)
-{
-	// append Strings
-	if (typeof xs === 'string')
-	{
-		return xs + ys;
-	}
-
-	// append Lists
-	if (!xs.b)
-	{
-		return ys;
-	}
-	var root = _List_Cons(xs.a, ys);
-	xs = xs.b
-	for (var curr = root; xs.b; xs = xs.b) // WHILE_CONS
-	{
-		curr = curr.b = _List_Cons(xs.a, ys);
-	}
-	return root;
+	return 'on lines ' + region.G.y + ' through ' + region.cl.y;
 }
 
 
@@ -1861,9 +1861,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aE,
-		impl.bf,
-		impl.a6,
+		impl.cY,
+		impl.dA,
+		impl.dr,
 		function() { return function() {} }
 	);
 });
@@ -2727,9 +2727,9 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		aG: func(record.aG),
-		a5: record.a5,
-		aT: record.aT
+		c$: func(record.c$),
+		dq: record.dq,
+		dc: record.dc
 	}
 });
 
@@ -2997,11 +2997,11 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.aG;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.a5;
+		var message = !tag ? value : tag < 3 ? value.a : value.c$;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.dq;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.aT) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.dc) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3951,11 +3951,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aE,
-		impl.bf,
-		impl.a6,
+		impl.cY,
+		impl.dA,
+		impl.dr,
 		function(sendToApp, initialModel) {
-			var view = impl.bg;
+			var view = impl.ca;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3987,12 +3987,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.aE,
-		impl.bf,
-		impl.a6,
+		impl.cY,
+		impl.dA,
+		impl.dr,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.I && impl.I(sendToApp)
-			var view = impl.bg;
+			var divertHrefToApp = impl.bz && impl.bz(sendToApp)
+			var view = impl.ca;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -4000,12 +4000,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.at);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.cN);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.bb) && (_VirtualDom_doc.title = title = doc.bb);
+				(title !== doc.dw) && (_VirtualDom_doc.title = title = doc.dw);
 			});
 		}
 	);
@@ -4061,12 +4061,12 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.aK;
-	var onUrlRequest = impl.aL;
+	var onUrlChange = impl.c3;
+	var onUrlRequest = impl.c4;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		I: function(sendToApp)
+		bz: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4082,9 +4082,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.ae === next.ae
-							&& curr.W === next.W
-							&& curr.ab.a === next.ab.a
+							&& curr.cy === next.cy
+							&& curr.cp === next.cp
+							&& curr.cv.a === next.cv.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4092,13 +4092,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		aE: function(flags)
+		cY: function(flags)
 		{
-			return A3(impl.aE, flags, _Browser_getUrl(), key);
+			return A3(impl.cY, flags, _Browser_getUrl(), key);
 		},
-		bg: impl.bg,
-		bf: impl.bf,
-		a6: impl.a6
+		ca: impl.ca,
+		dA: impl.dA,
+		dr: impl.dr
 	});
 }
 
@@ -4164,17 +4164,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { aC: 'hidden', au: 'visibilitychange' }
+		? { cW: 'hidden', cO: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { aC: 'mozHidden', au: 'mozvisibilitychange' }
+		? { cW: 'mozHidden', cO: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { aC: 'msHidden', au: 'msvisibilitychange' }
+		? { cW: 'msHidden', cO: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { aC: 'webkitHidden', au: 'webkitvisibilitychange' }
-		: { aC: 'hidden', au: 'visibilitychange' };
+		? { cW: 'webkitHidden', cO: 'webkitvisibilitychange' }
+		: { cW: 'hidden', cO: 'visibilitychange' };
 }
 
 
@@ -4255,12 +4255,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		ai: _Browser_getScene(),
-		an: {
-			bi: _Browser_window.pageXOffset,
-			bj: _Browser_window.pageYOffset,
-			ao: _Browser_doc.documentElement.clientWidth,
-			V: _Browser_doc.documentElement.clientHeight
+		cC: _Browser_getScene(),
+		cH: {
+			dC: _Browser_window.pageXOffset,
+			dD: _Browser_window.pageYOffset,
+			cI: _Browser_doc.documentElement.clientWidth,
+			co: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4270,8 +4270,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		ao: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		V: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		cI: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		co: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4294,15 +4294,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			ai: {
-				ao: node.scrollWidth,
-				V: node.scrollHeight
+			cC: {
+				cI: node.scrollWidth,
+				co: node.scrollHeight
 			},
-			an: {
-				bi: node.scrollLeft,
-				bj: node.scrollTop,
-				ao: node.clientWidth,
-				V: node.clientHeight
+			cH: {
+				dC: node.scrollLeft,
+				dD: node.scrollTop,
+				cI: node.clientWidth,
+				co: node.clientHeight
 			}
 		};
 	});
@@ -4332,18 +4332,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			ai: _Browser_getScene(),
-			an: {
-				bi: x,
-				bj: y,
-				ao: _Browser_doc.documentElement.clientWidth,
-				V: _Browser_doc.documentElement.clientHeight
+			cC: _Browser_getScene(),
+			cH: {
+				dC: x,
+				dD: y,
+				cI: _Browser_doc.documentElement.clientWidth,
+				co: _Browser_doc.documentElement.clientHeight
 			},
-			aA: {
-				bi: x + rect.left,
-				bj: y + rect.top,
-				ao: rect.width,
-				V: rect.height
+			cU: {
+				dC: x + rect.left,
+				dD: y + rect.top,
+				cI: rect.width,
+				co: rect.height
 			}
 		};
 	});
@@ -4425,32 +4425,9 @@ function _Time_getZoneName()
 	});
 }
 var $elm$core$Basics$EQ = 1;
+var $elm$core$Basics$GT = 2;
 var $elm$core$Basics$LT = 0;
 var $elm$core$List$cons = _List_cons;
-var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
-var $elm$core$Array$foldr = F3(
-	function (func, baseCase, _v0) {
-		var tree = _v0.c;
-		var tail = _v0.d;
-		var helper = F2(
-			function (node, acc) {
-				if (!node.$) {
-					var subTree = node.a;
-					return A3($elm$core$Elm$JsArray$foldr, helper, acc, subTree);
-				} else {
-					var values = node.a;
-					return A3($elm$core$Elm$JsArray$foldr, func, acc, values);
-				}
-			});
-		return A3(
-			$elm$core$Elm$JsArray$foldr,
-			helper,
-			A3($elm$core$Elm$JsArray$foldr, func, baseCase, tail),
-			tree);
-	});
-var $elm$core$Array$toList = function (array) {
-	return A3($elm$core$Array$foldr, $elm$core$List$cons, _List_Nil, array);
-};
 var $elm$core$Dict$foldr = F3(
 	function (func, acc, t) {
 		foldr:
@@ -4503,7 +4480,30 @@ var $elm$core$Set$toList = function (_v0) {
 	var dict = _v0;
 	return $elm$core$Dict$keys(dict);
 };
-var $elm$core$Basics$GT = 2;
+var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
+var $elm$core$Array$foldr = F3(
+	function (func, baseCase, _v0) {
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var helper = F2(
+			function (node, acc) {
+				if (!node.$) {
+					var subTree = node.a;
+					return A3($elm$core$Elm$JsArray$foldr, helper, acc, subTree);
+				} else {
+					var values = node.a;
+					return A3($elm$core$Elm$JsArray$foldr, func, acc, values);
+				}
+			});
+		return A3(
+			$elm$core$Elm$JsArray$foldr,
+			helper,
+			A3($elm$core$Elm$JsArray$foldr, func, baseCase, tail),
+			tree);
+	});
+var $elm$core$Array$toList = function (array) {
+	return A3($elm$core$Array$foldr, $elm$core$List$cons, _List_Nil, array);
+};
 var $elm$core$Result$Err = function (a) {
 	return {$: 1, a: a};
 };
@@ -4928,7 +4928,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {U: fragment, W: host, _: path, ab: port_, ae: protocol, af: query};
+		return {cn: fragment, cp: host, ct: path, cv: port_, cy: protocol, cz: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5208,9 +5208,390 @@ var $elm$core$Task$perform = F2(
 	});
 var $elm$browser$Browser$element = _Browser_element;
 var $author$project$Types$AddStateTool = 1;
+var $author$project$Lang$EN = 0;
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: -2};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
-var $author$project$Update$defaultModel = {M: _List_Nil, ar: false, as: 800, P: '', E: '', av: false, Q: '', F: '', D: '', aw: $elm$core$Maybe$Nothing, ay: $elm$core$Maybe$Nothing, az: 1, aF: false, aN: 0, aO: 0, aP: 0, aQ: 0, aR: '', aS: '', aU: _List_Nil, aV: '', aW: $elm$core$Maybe$Nothing, aY: false, aZ: false, a_: false, a$: _List_Nil, a0: 'Add states by clicking the canvas.', a1: 0, aj: '', a2: 0, a3: false, ak: $elm$core$Dict$empty, a7: 0, a8: 0, a9: 1.0, ba: false, K: '', bc: 'a', bd: $elm$core$Maybe$Nothing, L: $elm$core$Dict$empty, be: _List_Nil};
+var $author$project$Lang$translations = function (lang) {
+	if (!lang) {
+		return {
+			I: 'Accept states',
+			J: 'Actions',
+			K: 'Add',
+			L: 'Add state',
+			M: 'Add transition',
+			N: 'Alphabet',
+			O: 'Auto run',
+			P: '< Back',
+			Q: 'Cancel',
+			R: '🗑 Clear All',
+			S: 'Clear all',
+			T: 'Close',
+			U: 'Code',
+			X: 'Current State: ',
+			Y: 'Delete state/transition',
+			Z: 'Draw',
+			_: 'Enter test word…',
+			aa: '💬 Feedback',
+			ab: 'I\'d love to hear your thoughts! Fill out my quick form or send me an email.',
+			ac: '💬 Feedback',
+			ad: 'Generate diagram',
+			ae: 'Got it!',
+			af: '📖 Guide',
+			ag: '⊕ Add State',
+			ah: 'Click on the empty canvas to place a new state.',
+			ai: '→ Add Transition',
+			aj: 'Click the source state, then the target state. Enter the transition character.',
+			ak: '< Back / > Step',
+			al: 'Manually step through the simulation: go back or forward one character at a time.',
+			am: 'Deletes all states, transitions and simulation data. This action CANNOT be undone.',
+			an: '🗑 Clear All',
+			ao: 'Code Panel',
+			ap: 'The start state field in the Code panel determines the initial Current State.',
+			aq: 'The state with the green border and dark green fill on the diagram is the current state.',
+			ar: 'Current State',
+			as: 'The state the DFA is currently in. If shown as — (Nothing), the DFA has no valid transition and is stuck.',
+			at: 'Starts from the start state when Load DFA is pressed, then changes step by step.',
+			au: 'X Delete state/transition',
+			av: 'Click on a state or transition to delete it.',
+			aw: ' Editing the Diagram',
+			ax: 'States / Alphabet / Start / Accept',
+			ay: 'Fill in these fields for a formal DFA description. They update automatically when editing the diagram.',
+			az: 'Format',
+			aA: 'One transition per line: from,character,to — e.g. q0,a,q1',
+			aB: 'Generate diagram',
+			aC: 'Automatically builds the diagram from the typed code, arranging states in a circle.',
+			aD: 'The transitions rows determine whether a valid transition exists at each index position.',
+			aE: 'The active arrow on the diagram shows which character was just read.',
+			aF: 'Index',
+			aG: 'Shows which character position in the input word the simulation is currently at (e.g. 2 / 4).',
+			aH: 'Counts the characters of the word entered in the Test String field.',
+			aI: 'Load',
+			aJ: 'Choose one sloth from SAVED DIAGRAMS and it will be loaded. You can add the start state through the CODE PANEL or mark it at the STATES list if the start state does not load. The loaded diagram and code can be edited but it needs to be saved again separately after the editing.',
+			aK: '⚙ Load DFA',
+			aL: 'Loads the DFA and sets the simulation to the start state. Press this first.',
+			aM: 'Pan',
+			aN: 'Drag the empty canvas area to move the view.',
+			aO: '>> Read all',
+			aP: 'Processes the entire word at once and shows the final result.',
+			aQ: 'Redo a previously undone action.',
+			aR: '↪ Redo',
+			aS: '✎ Rename',
+			aT: 'Use the button in the state list or double-click directly on the state.',
+			aU: '<< Reset',
+			aV: 'Resets the simulation back to the beginning.',
+			aW: '▶ Run / ⏹ Stop',
+			aX: 'Run: automatically plays through the simulation at the set speed. Stop: pauses it.',
+			aY: 'S / A / X',
+			aZ: 'S = set as start state, A = toggle accept state, × = delete state.',
+			a_: 'Save',
+			a$: 'Save the current diagram to future use. You can rename the saved sloth and also delete it.',
+			a0: ' Save and Load',
+			a1: '✋ Select',
+			a2: 'Drag states to move them. Double-click a state to rename it.',
+			a3: 'Simulation',
+			a4: '🐌 Speed slider 🐎',
+			a5: 'Adjust the speed of the automatic playback (slower ↔ faster).',
+			a6: 'Determined by whether a valid transition exists in the transitions field for the current input character.',
+			a7: 'The highlighted state on the canvas (green or red border) shows where the simulation currently is.',
+			a8: 'Status',
+			a9: 'A text description of the current event. Green = ACCEPTED, Red = REJECTED, Purple = in progress.',
+			ba: 'Shown in the Test String panel and updates continuously as the simulation runs.',
+			bb: 'What do the status indicators mean?',
+			bc: 'Test word',
+			bd: 'Type the word you want to test (e.g. \"aab\").',
+			be: '📖 Help & Controls',
+			bf: 'Undo the last diagram change (up to 50 steps).',
+			bg: '↩ Undo',
+			bh: 'Undo / Redo / Clear',
+			bi: '+ / − / ⌂',
+			bj: 'Zoom in, zoom out, and reset the view.',
+			bk: 'Index: ',
+			bl: 'Load',
+			bm: '⚙ Load DFA',
+			bp: '📋 Open Feedback Form',
+			bq: '>> Read all',
+			br: 'Redo',
+			bs: 'Rename',
+			bt: 'Rename state: ',
+			bu: '<< Reset',
+			bv: 'Reset view',
+			bw: '▶ Run',
+			bx: 'Save',
+			by: 'Select/Move',
+			bA: function (n) {
+				return 'State added: ' + n;
+			},
+			bB: 'Auto run resumed...',
+			bC: 'Auto run started...',
+			bD: 'Cleared everything.',
+			bE: function (n) {
+				return 'Deleted state: ' + n;
+			},
+			bF: F2(
+				function (fr, to) {
+					return 'Deleted transition: ' + (fr + (' → ' + to));
+				}),
+			bG: 'Diagram generated from code.',
+			bH: 'Add states by clicking the canvas.',
+			bI: function (w) {
+				return 'Loaded. Ready to test: \"' + (w + '\"');
+			},
+			bJ: 'Nothing to redo.',
+			bK: 'Nothing to undo.',
+			bL: 'Paused.',
+			bM: 'Redone.',
+			bN: F2(
+				function (o, nw) {
+					return 'Renamed: ' + (o + (' → ' + nw));
+				}),
+			bO: 'Reset. Click \'Load DFA\' to start.',
+			bP: function (n) {
+				return 'Start state set: ' + n;
+			},
+			bQ: F3(
+				function (fr, ch, to) {
+					return fr + (' --[' + (ch + (']--> ' + to)));
+				}),
+			bR: 'Undone.',
+			bS: 'Speed',
+			bT: 'Start state',
+			bU: 'State Diagram',
+			bV: '✎ rename · S start · A accept · X delete',
+			bW: function (n) {
+				return 'States  (' + ($elm$core$String$fromInt(n) + ')');
+			},
+			bX: 'States',
+			bY: 'Code panel: ',
+			bZ: 'State Diagram: ',
+			b_: 'Status: ',
+			b$: 'Test String: ',
+			b0: '> Step',
+			b1: 'Step-by-step',
+			b2: '⏹ Stop',
+			b3: 'Test String',
+			b5: 'Character for this transition:',
+			b6: 'Transition: ',
+			b8: 'Transitions',
+			b9: 'Undo',
+			ca: 'View',
+			cb: 'What is this app?',
+			cc: 'This tool is an interactive Deterministic Finite Automaton (DFA) simulator designed for college and university students. The goal is to help learners visually and interactively understand how automata work during theoretical computer science classes — how a DFA processes an input word, when it accepts, and when it rejects.',
+			cd: 'Zoom in',
+			ce: 'Zoom out'
+		};
+	} else {
+		return {
+			I: 'Akceptačné stavy',
+			J: 'Akcie',
+			K: 'Pridať',
+			L: 'Pridať stav',
+			M: 'Pridať prechod',
+			N: 'Abeceda',
+			O: 'Automatický beh',
+			P: '< Späť',
+			Q: 'Zrušiť',
+			R: '🗑 Vymazať všetko',
+			S: 'Vymazať všetko',
+			T: 'Zavrieť',
+			U: 'Kód',
+			X: 'Aktuálny stav: ',
+			Y: 'Odstrániť stav/prechod',
+			Z: 'Kresliť',
+			_: 'Zadaj testové slovo…',
+			aa: '💬 Spätná väzba',
+			ab: 'Rád/a si vypočujem vaše názory! Vyplňte môj krátky formulár alebo mi napíšte e-mail.',
+			ac: '💬 Spätná väzba',
+			ad: 'Generovať diagram',
+			ae: 'Rozumiem!',
+			af: '📖 Návod',
+			ag: '⊕ Pridať stav',
+			ah: 'Klikni na prázdne plátno pre umiestnenie nového stavu.',
+			ai: '→ Pridať prechod',
+			aj: 'Klikni na zdrojový stav, potom na cieľový stav. Zadaj znak prechodu.',
+			ak: '< Späť / > Krok',
+			al: 'Manuálne prechádzaj simuláciou: jeden znak dozadu alebo dopredu.',
+			am: 'Odstráni všetky stavy, prechody a simulačné dáta. Túto akciu NEMOŽNO vrátiť.',
+			an: '🗑 Vymazať všetko',
+			ao: 'Panel kódu',
+			ap: 'Pole začiatočného stavu v paneli Kódu určuje počiatočný Aktuálny stav.',
+			aq: 'Stav so zeleným okrajom a tmavozelenou výplňou na diagrame je aktuálny stav.',
+			ar: 'Aktuálny stav',
+			as: 'Stav, v ktorom sa DKA aktuálne nachádza. Ak je zobrazené — (Nothing), DKA nemá platný prechod a je zaseknutý.',
+			at: 'Začína zo začiatočného stavu po stlačení Načítať DKA, potom sa mení krok po kroku.',
+			au: 'X Odstrániť stav/prechod',
+			av: 'Klikni na stav alebo prechod pre jeho odstránenie.',
+			aw: ' Úprava diagramu',
+			ax: 'Stavy / Abeceda / Začiatok / Akceptačné',
+			ay: 'Vyplň tieto polia pre formálny popis DKA. Automaticky sa aktualizujú pri úprave diagramu.',
+			az: 'Formát',
+			aA: 'Jeden prechod na riadok: odkiaľ,znak,kam — napr. q0,a,q1',
+			aB: 'Generovať diagram',
+			aC: 'Automaticky zostaví diagram z napísaného kódu, stavy rozmiestnení do kruhu.',
+			aD: 'Riadky prechodov určujú, či na každej pozícii existuje platný prechod.',
+			aE: 'Aktívna šípka na diagrame ukazuje, ktorý znak bol práve prečítaný.',
+			aF: 'Index',
+			aG: 'Ukazuje, na ktorej pozícii vstupného slova sa simulácia nachádza (napr. 2 / 4).',
+			aH: 'Počíta znaky slova zadaného v poli Testovacieho reťazca.',
+			aI: 'Načítať',
+			aJ: 'Vyber diagram zo ULOŽENÝCH DIAGRAMOV a bude načítaný. Ak sa začiatočný stav nenačíta, môžeš ho nastaviť cez PANEL KÓDU alebo v zozname STAVOV. Načítaný diagram a kód možno upravovať, ale treba ich znova uložiť.',
+			aK: '⚙ Načítať DKA',
+			aL: 'Načíta DKA a nastaví simuláciu na začiatočný stav. Stlač toto tlačidlo ako prvé.',
+			aM: 'Posun',
+			aN: 'Ťahaj prázdnu plochu plátna na posun pohľadu.',
+			aO: '>> Prečítať všetko',
+			aP: 'Spracuje celé slovo naraz a zobrazí výsledok.',
+			aQ: 'Zopakuje predtým vratenú akciu.',
+			aR: '↪ Znova',
+			aS: '✎ Premenovať',
+			aT: 'Použi tlačidlo v zozname stavov alebo dvojklikni priamo na stav.',
+			aU: '<< Reset',
+			aV: 'Resetuje simuláciu na začiatok.',
+			aW: '▶ Spustiť / ⏹ Zastaviť',
+			aX: 'Spustiť: automaticky prehráva simuláciu nastavenou rýchlosťou. Zastaviť: pozastaví ju.',
+			aY: 'S / A / X',
+			aZ: 'S = nastaviť ako začiatočný stav, A = prepnúť akceptačný stav, × = odstrániť stav.',
+			a_: 'Uložiť',
+			a$: 'Uloží aktuálny diagram na neskoršie použitie. Môžeš ho premenovať alebo odstrániť.',
+			a0: ' Uložiť a načítať',
+			a1: '✋ Vybrať',
+			a2: 'Ťahaj stavy na presun. Dvojklikom na stav ho premenuj.',
+			a3: 'Simulácia',
+			a4: '🐌 Posuvník rýchlosti 🐎',
+			a5: 'Nastav rýchlosť automatického prehrávania (pomalšie ↔ rýchlejšie).',
+			a6: 'Závisí od toho, či v poli prechodov existuje platný prechod pre aktuálny vstupný znak.',
+			a7: 'Zvýraznený stav na plátne (zelený alebo červený okraj) ukazuje, kde sa simulácia aktuálne nachádza.',
+			a8: 'Stav',
+			a9: 'Textový popis aktuálnej udalosti. Zelená = PRIJATÝ, Červená = ODMIETNUTÝ, Fialová = prebieha.',
+			ba: 'Zobrazený v paneli Testovacieho reťazca, priebežne sa aktualizuje počas simulácie.',
+			bb: 'Čo znamenajú stavové ukazovatele?',
+			bc: 'Testové slovo',
+			bd: 'Zadaj slovo, ktoré chceš otestovať (napr. \"aab\").',
+			be: '📖 Návod a ovládanie',
+			bf: 'Vráti poslednú zmenu diagramu (až 50 krokov).',
+			bg: '↩ Späť',
+			bh: 'Späť / Znova / Vymazať',
+			bi: '+ / − / ⌂',
+			bj: 'Priblížiť, oddialiť a resetovať pohľad.',
+			bk: 'Index: ',
+			bl: 'Načítať',
+			bm: '⚙ Načítať DKA',
+			bp: '📋 Otvoriť formulár',
+			bq: '>> Prečítať všetko',
+			br: 'Znova',
+			bs: 'Premenovať',
+			bt: 'Premenovať stav: ',
+			bu: '<< Reset',
+			bv: 'Resetovať pohľad',
+			bw: '▶ Spustiť',
+			bx: 'Uložiť',
+			by: 'Vybrať/Presunúť',
+			bA: function (n) {
+				return 'Stav pridaný: ' + n;
+			},
+			bB: 'Automatický beh obnovený...',
+			bC: 'Automatický beh spustený...',
+			bD: 'Všetko vymazané.',
+			bE: function (n) {
+				return 'Stav odstránený: ' + n;
+			},
+			bF: F2(
+				function (fr, to) {
+					return 'Prechod odstránený: ' + (fr + (' → ' + to));
+				}),
+			bG: 'Diagram vygenerovaný z kódu.',
+			bH: 'Pridaj stavy kliknutím na plátno.',
+			bI: function (w) {
+				return 'Načítané. Pripravené na test: \"' + (w + '\"');
+			},
+			bJ: 'Nie je čo zopakovať.',
+			bK: 'Nie je čo vrátiť.',
+			bL: 'Pozastavené.',
+			bM: 'Zopakované.',
+			bN: F2(
+				function (o, nw) {
+					return 'Premenovaný: ' + (o + (' → ' + nw));
+				}),
+			bO: 'Reset. Stlač \'Načítať DKA\' pre začiatok.',
+			bP: function (n) {
+				return 'Začiatočný stav nastavený: ' + n;
+			},
+			bQ: F3(
+				function (fr, ch, to) {
+					return fr + (' --[' + (ch + (']--> ' + to)));
+				}),
+			bR: 'Vrátené.',
+			bS: 'Rýchlosť',
+			bT: 'Začiatočný stav',
+			bU: 'Stavový diagram',
+			bV: '✎ premenovať · S začiatočný · A akceptačný · X odstrániť',
+			bW: function (n) {
+				return 'Stavy  (' + ($elm$core$String$fromInt(n) + ')');
+			},
+			bX: 'Stavy',
+			bY: 'Panel kódu: ',
+			bZ: 'Stavový diagram: ',
+			b_: 'Stav: ',
+			b$: 'Testovací reťazec: ',
+			b0: '> Krok',
+			b1: 'Krok po kroku',
+			b2: '⏹ Zastaviť',
+			b3: 'Testovací reťazec',
+			b5: 'Znak pre tento prechod:',
+			b6: 'Prechod: ',
+			b8: 'Prechody',
+			b9: 'Späť',
+			ca: 'Zobrazenie',
+			cb: 'Čo je táto aplikácia?',
+			cc: 'Tento nástroj je interaktívny simulátor Deterministického Konečného Automatu (DKA) určený pre študentov vysokých škôl. Cieľom je pomôcť študentom vizuálne a interaktívne pochopiť, ako automaty fungujú v rámci predmetov teoretickej informatiky — ako DKA spracúva vstupné slovo, kedy ho prijme a kedy odmietne.',
+			cd: 'Priblížiť',
+			ce: 'Oddialiť'
+		};
+	}
+};
+var $author$project$Update$defaultModel = {
+	cf: _List_Nil,
+	cL: false,
+	cM: 800,
+	ci: '',
+	V: '',
+	cP: false,
+	cj: '',
+	W: '',
+	F: '',
+	cQ: $elm$core$Maybe$Nothing,
+	cS: $elm$core$Maybe$Nothing,
+	cT: 1,
+	cZ: false,
+	c_: 0,
+	c6: 0,
+	c7: 0,
+	c8: 0,
+	c9: 0,
+	da: '',
+	db: '',
+	dd: _List_Nil,
+	de: '',
+	df: $elm$core$Maybe$Nothing,
+	dh: false,
+	di: false,
+	dj: false,
+	dk: _List_Nil,
+	dl: $author$project$Lang$translations(0).bH,
+	dm: 0,
+	cD: '',
+	dn: 0,
+	$7: false,
+	cE: $elm$core$Dict$empty,
+	ds: 0,
+	dt: 0,
+	du: 1.0,
+	dv: false,
+	b4: '',
+	dx: 'a',
+	dy: $elm$core$Maybe$Nothing,
+	b7: $elm$core$Dict$empty,
+	dz: _List_Nil
+};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
@@ -5219,13 +5600,19 @@ var $author$project$Main$init = function (_v0) {
 var $author$project$Types$AutoTick = function (a) {
 	return {$: 38, a: a};
 };
+var $author$project$Types$GenerateCodeFromDiagram = {$: 28};
+var $author$project$Types$LoadDFAFromSave = F5(
+	function (a, b, c, d, e) {
+		return {$: 50, a: a, b: b, c: c, d: d, e: e};
+	});
+var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$time$Time$Every = F2(
 	function (a, b) {
 		return {$: 0, a: a, b: b};
 	});
 var $elm$time$Time$State = F2(
 	function (taggers, processes) {
-		return {ad: processes, am: taggers};
+		return {cx: processes, cG: taggers};
 	});
 var $elm$time$Time$init = $elm$core$Task$succeed(
 	A2($elm$time$Time$State, $elm$core$Dict$empty, $elm$core$Dict$empty));
@@ -5515,7 +5902,7 @@ var $elm$time$Time$spawnHelp = F3(
 	});
 var $elm$time$Time$onEffects = F3(
 	function (router, subs, _v0) {
-		var processes = _v0.ad;
+		var processes = _v0.cx;
 		var rightStep = F3(
 			function (_v6, id, _v7) {
 				var spawns = _v7.a;
@@ -5584,7 +5971,7 @@ var $elm$time$Time$millisToPosix = $elm$core$Basics$identity;
 var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
 var $elm$time$Time$onSelfMsg = F3(
 	function (router, interval, state) {
-		var _v0 = A2($elm$core$Dict$get, interval, state.am);
+		var _v0 = A2($elm$core$Dict$get, interval, state.cG);
 		if (_v0.$ === 1) {
 			return $elm$core$Task$succeed(state);
 		} else {
@@ -5630,17 +6017,113 @@ var $elm$time$Time$every = F2(
 		return $elm$time$Time$subscription(
 			A2($elm$time$Time$Every, interval, tagger));
 	});
-var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Main$importDFA = _Platform_incomingPort(
+	'importDFA',
+	A2(
+		$elm$json$Json$Decode$andThen,
+		function (transitions) {
+			return A2(
+				$elm$json$Json$Decode$andThen,
+				function (states) {
+					return A2(
+						$elm$json$Json$Decode$andThen,
+						function (start) {
+							return A2(
+								$elm$json$Json$Decode$andThen,
+								function (alphabet) {
+									return A2(
+										$elm$json$Json$Decode$andThen,
+										function (accept) {
+											return $elm$json$Json$Decode$succeed(
+												{D: accept, E: alphabet, G: start, H: states, b7: transitions});
+										},
+										A2($elm$json$Json$Decode$field, 'accept', $elm$json$Json$Decode$string));
+								},
+								A2($elm$json$Json$Decode$field, 'alphabet', $elm$json$Json$Decode$string));
+						},
+						A2($elm$json$Json$Decode$field, 'start', $elm$json$Json$Decode$string));
+				},
+				A2($elm$json$Json$Decode$field, 'states', $elm$json$Json$Decode$string));
+		},
+		A2($elm$json$Json$Decode$field, 'transitions', $elm$json$Json$Decode$string)));
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
+var $elm$json$Json$Decode$null = _Json_decodeNull;
+var $author$project$Main$requestExport = _Platform_incomingPort(
+	'requestExport',
+	$elm$json$Json$Decode$null(0));
 var $author$project$Main$subscriptions = function (model) {
-	return model.ar ? A2($elm$time$Time$every, 2100 - model.as, $author$project$Types$AutoTick) : $elm$core$Platform$Sub$none;
+	return $elm$core$Platform$Sub$batch(
+		_List_fromArray(
+			[
+				model.cL ? A2($elm$time$Time$every, 2100 - model.cM, $author$project$Types$AutoTick) : $elm$core$Platform$Sub$none,
+				$author$project$Main$importDFA(
+				function (d) {
+					return A5($author$project$Types$LoadDFAFromSave, d.H, d.E, d.G, d.D, d.b7);
+				}),
+				$author$project$Main$requestExport(
+				function (_v0) {
+					return $author$project$Types$GenerateCodeFromDiagram;
+				})
+			]));
 };
+var $elm$json$Json$Encode$object = function (pairs) {
+	return _Json_wrap(
+		A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v0, obj) {
+					var k = _v0.a;
+					var v = _v0.b;
+					return A3(_Json_addField, k, v, obj);
+				}),
+			_Json_emptyObject(0),
+			pairs));
+};
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Main$exportDFA = _Platform_outgoingPort(
+	'exportDFA',
+	function ($) {
+		return $elm$json$Json$Encode$object(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'accept',
+					$elm$json$Json$Encode$string($.D)),
+					_Utils_Tuple2(
+					'alphabet',
+					$elm$json$Json$Encode$string($.E)),
+					_Utils_Tuple2(
+					'start',
+					$elm$json$Json$Encode$string($.G)),
+					_Utils_Tuple2(
+					'states',
+					$elm$json$Json$Encode$string($.H)),
+					_Utils_Tuple2(
+					'transitions',
+					$elm$json$Json$Encode$string($.b7))
+				]));
+	});
+var $elm$json$Json$Encode$null = _Json_encodeNull;
+var $author$project$Main$openLoadModal = _Platform_outgoingPort(
+	'openLoadModal',
+	function ($) {
+		return $elm$json$Json$Encode$null;
+	});
+var $author$project$Main$openSaveModal = _Platform_outgoingPort(
+	'openSaveModal',
+	function ($) {
+		return $elm$json$Json$Encode$null;
+	});
+var $author$project$Lang$SK = 1;
 var $author$project$Types$SelectTool = 0;
 var $author$project$Update$applySnapshot = F2(
 	function (snap, model) {
 		return _Utils_update(
 			model,
-			{M: snap.M, aj: snap.aj, a2: snap.a2, ak: snap.ak, L: snap.L});
+			{cf: snap.cf, cD: snap.cD, dn: snap.dn, cE: snap.cE, b7: snap.b7});
 	});
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
@@ -5673,16 +6156,16 @@ var $elm$core$List$member = F2(
 			xs);
 	});
 var $author$project$Simulation$checkAcceptance = function (model) {
-	var _v0 = model.aw;
+	var _v0 = model.cQ;
 	if (_v0.$ === 1) {
 		return model;
 	} else {
 		var current = _v0.a;
-		return A2($elm$core$List$member, current, model.M) ? _Utils_update(
+		return A2($elm$core$List$member, current, model.cf) ? _Utils_update(
 			model,
-			{a0: '✔ ACCEPTED — in accept state: ' + current}) : _Utils_update(
+			{dl: '✔ ACCEPTED — in accept state: ' + current}) : _Utils_update(
 			model,
-			{a0: '✘ REJECTED — not in accept state (current: ' + (current + ')')});
+			{dl: '✘ REJECTED — not in accept state (current: ' + (current + ')')});
 	}
 };
 var $elm$core$Basics$clamp = F3(
@@ -5790,8 +6273,8 @@ var $author$project$CodeSync$generateDiagramFromCode = function (model) {
 					return $elm$core$Maybe$Nothing;
 				}
 			},
-			$elm$core$String$lines(model.D)));
-	var newStart = $elm$core$String$trim(model.Q);
+			$elm$core$String$lines(model.F)));
+	var newStart = $elm$core$String$trim(model.cj);
 	var startStates = (newStart !== '') ? _List_fromArray(
 		[newStart]) : _List_Nil;
 	var impliedFromTransitions = $elm$core$List$concat(
@@ -5814,7 +6297,7 @@ var $author$project$CodeSync$generateDiagramFromCode = function (model) {
 					return $elm$core$Maybe$Nothing;
 				}
 			},
-			$elm$core$String$lines(model.D)));
+			$elm$core$String$lines(model.F)));
 	var impliedAlphabet = A2(
 		$elm$core$List$filterMap,
 		function (line) {
@@ -5831,21 +6314,21 @@ var $author$project$CodeSync$generateDiagramFromCode = function (model) {
 				return $elm$core$Maybe$Nothing;
 			}
 		},
-		$elm$core$String$lines(model.D));
+		$elm$core$String$lines(model.F));
 	var explicitStates = A2(
 		$elm$core$List$filter,
 		$elm$core$Basics$neq(''),
 		A2(
 			$elm$core$List$map,
 			$elm$core$String$trim,
-			A2($elm$core$String$split, ',', model.F)));
+			A2($elm$core$String$split, ',', model.W)));
 	var explicitAlphabet = A2(
 		$elm$core$List$filter,
 		$elm$core$Basics$neq(''),
 		A2(
 			$elm$core$List$map,
 			$elm$core$String$trim,
-			A2($elm$core$String$split, ',', model.E)));
+			A2($elm$core$String$split, ',', model.V)));
 	var extraAlphabet = $author$project$Helpers$listUnique(
 		A2(
 			$elm$core$List$filter,
@@ -5862,7 +6345,7 @@ var $author$project$CodeSync$generateDiagramFromCode = function (model) {
 		A2(
 			$elm$core$List$map,
 			$elm$core$String$trim,
-			A2($elm$core$String$split, ',', model.P)));
+			A2($elm$core$String$split, ',', model.ci)));
 	var allMentioned = _Utils_ap(
 		startStates,
 		_Utils_ap(acceptList, impliedFromTransitions));
@@ -5886,23 +6369,23 @@ var $author$project$CodeSync$generateDiagramFromCode = function (model) {
 					var y = cyC + (radius * $elm$core$Basics$sin(angle));
 					return _Utils_Tuple2(
 						name,
-						{bi: x, bj: y});
+						{dC: x, dD: y});
 				}),
 			stateNames));
 	return _Utils_update(
 		model,
 		{
-			M: acceptList,
-			E: A2($elm$core$String$join, ', ', mergedAlphabet),
-			F: A2($elm$core$String$join, ', ', stateNames),
-			aw: $elm$core$Maybe$Nothing,
-			a$: _List_Nil,
-			a0: 'Diagram generated from code.',
-			a1: 0,
-			aj: newStart,
-			a2: $elm$core$List$length(stateNames),
-			ak: positions,
-			L: parsedTrans
+			cf: acceptList,
+			V: A2($elm$core$String$join, ', ', mergedAlphabet),
+			W: A2($elm$core$String$join, ', ', stateNames),
+			cQ: $elm$core$Maybe$Nothing,
+			dk: _List_Nil,
+			dl: 'Diagram generated from code.',
+			dm: 0,
+			cD: newStart,
+			dn: $elm$core$List$length(stateNames),
+			cE: positions,
+			b7: parsedTrans
 		});
 };
 var $elm$core$Dict$member = F2(
@@ -6277,42 +6760,42 @@ var $elm$core$Dict$remove = F2(
 		}
 	});
 var $author$project$Simulation$stepOnce = function (model) {
-	var _v0 = model.aw;
+	var _v0 = model.cQ;
 	if (_v0.$ === 1) {
 		return _Utils_update(
 			model,
-			{a0: 'Load DFA first!'});
+			{dl: 'Load DFA first!'});
 	} else {
 		var current = _v0.a;
 		if (_Utils_cmp(
-			model.a1,
-			$elm$core$String$length(model.K)) > -1) {
+			model.dm,
+			$elm$core$String$length(model.b4)) > -1) {
 			return $author$project$Simulation$checkAcceptance(model);
 		} else {
-			var ch = A3($elm$core$String$slice, model.a1, model.a1 + 1, model.K);
+			var ch = A3($elm$core$String$slice, model.dm, model.dm + 1, model.b4);
 			var next = A2(
 				$elm$core$Dict$get,
 				_Utils_Tuple2(current, ch),
-				model.L);
+				model.b7);
 			if (!next.$) {
 				var nextState = next.a;
 				return _Utils_update(
 					model,
 					{
-						aw: $elm$core$Maybe$Just(nextState),
-						a$: _Utils_ap(
-							model.a$,
+						cQ: $elm$core$Maybe$Just(nextState),
+						dk: _Utils_ap(
+							model.dk,
 							_List_fromArray(
 								[
-									_Utils_Tuple2(nextState, model.a1 + 1)
+									_Utils_Tuple2(nextState, model.dm + 1)
 								])),
-						a0: 'Read \'' + (ch + ('\' → moved to ' + nextState)),
-						a1: model.a1 + 1
+						dl: 'Read \'' + (ch + ('\' → moved to ' + nextState)),
+						dm: model.dm + 1
 					});
 			} else {
 				return _Utils_update(
 					model,
-					{aw: $elm$core$Maybe$Nothing, a0: '✘ REJECTED: no transition from ' + (current + (' on \'' + (ch + '\'')))});
+					{cQ: $elm$core$Maybe$Nothing, dl: '✘ REJECTED: no transition from ' + (current + (' on \'' + (ch + '\'')))});
 			}
 		}
 	}
@@ -6322,16 +6805,16 @@ var $author$project$Simulation$runToEnd = function (model) {
 		helper:
 		while (true) {
 			if (_Utils_cmp(
-				m.a1,
-				$elm$core$String$length(m.K)) > -1) {
+				m.dm,
+				$elm$core$String$length(m.b4)) > -1) {
 				return $author$project$Simulation$checkAcceptance(m);
 			} else {
-				var _v0 = m.aw;
+				var _v0 = m.cQ;
 				if (_v0.$ === 1) {
 					return m;
 				} else {
 					var stepped = $author$project$Simulation$stepOnce(m);
-					if (_Utils_eq(stepped.aw, $elm$core$Maybe$Nothing)) {
+					if (_Utils_eq(stepped.cQ, $elm$core$Maybe$Nothing)) {
 						return stepped;
 					} else {
 						var $temp$m = stepped;
@@ -6345,7 +6828,7 @@ var $author$project$Simulation$runToEnd = function (model) {
 	return helper(model);
 };
 var $author$project$Update$snapshotDiagram = function (model) {
-	return {M: model.M, aj: model.aj, a2: model.a2, ak: model.ak, L: model.L};
+	return {cf: model.cf, cD: model.cD, dn: model.dn, cE: model.cE, b7: model.b7};
 };
 var $elm$core$List$takeReverse = F3(
 	function (n, list, kept) {
@@ -6477,14 +6960,14 @@ var $author$project$Update$saveUndo = function (model) {
 	return _Utils_update(
 		model,
 		{
-			aU: _List_Nil,
-			be: A2(
+			dd: _List_Nil,
+			dz: A2(
 				$elm$core$List$take,
 				50,
 				A2(
 					$elm$core$List$cons,
 					$author$project$Update$snapshotDiagram(model),
-					model.be))
+					model.dz))
 		});
 };
 var $author$project$Helpers$listLast = function (list) {
@@ -6519,32 +7002,32 @@ var $elm$core$Maybe$withDefault = F2(
 		}
 	});
 var $author$project$Simulation$stepBack = function (model) {
-	var histLen = $elm$core$List$length(model.a$);
+	var histLen = $elm$core$List$length(model.dk);
 	if (histLen <= 1) {
 		return _Utils_update(
 			model,
 			{
-				aw: $elm$core$Maybe$Just(model.aj),
-				a$: _List_fromArray(
+				cQ: $elm$core$Maybe$Just(model.cD),
+				dk: _List_fromArray(
 					[
-						_Utils_Tuple2(model.aj, 0)
+						_Utils_Tuple2(model.cD, 0)
 					]),
-				a0: 'Back to start.',
-				a1: 0
+				dl: 'Back to start.',
+				dm: 0
 			});
 	} else {
-		var newHistory = A2($elm$core$List$take, histLen - 1, model.a$);
+		var newHistory = A2($elm$core$List$take, histLen - 1, model.dk);
 		var prev = A2(
 			$elm$core$Maybe$withDefault,
-			_Utils_Tuple2(model.aj, 0),
+			_Utils_Tuple2(model.cD, 0),
 			$author$project$Helpers$listLast(newHistory));
 		return _Utils_update(
 			model,
 			{
-				aw: $elm$core$Maybe$Just(prev.a),
-				a$: newHistory,
-				a0: 'Stepped back to ' + prev.a,
-				a1: prev.b
+				cQ: $elm$core$Maybe$Just(prev.a),
+				dk: newHistory,
+				dl: 'Stepped back to ' + prev.a,
+				dm: prev.b
 			});
 	}
 };
@@ -6561,8 +7044,8 @@ var $author$project$CodeSync$syncCodeFromDiagram = function (model) {
 				var to = _v0.b;
 				return fr + (',' + (ch + (',' + to)));
 			},
-			$elm$core$Dict$toList(model.L)));
-	var stateNames = $elm$core$Dict$keys(model.ak);
+			$elm$core$Dict$toList(model.b7)));
+	var stateNames = $elm$core$Dict$keys(model.cE);
 	var alphabet = A2(
 		$elm$core$String$join,
 		', ',
@@ -6570,80 +7053,122 @@ var $author$project$CodeSync$syncCodeFromDiagram = function (model) {
 			A2(
 				$elm$core$List$map,
 				$elm$core$Tuple$second,
-				$elm$core$Dict$keys(model.L))));
-	var acceptStr = A2($elm$core$String$join, ', ', model.M);
+				$elm$core$Dict$keys(model.b7))));
+	var acceptStr = A2($elm$core$String$join, ', ', model.cf);
 	return _Utils_update(
 		model,
 		{
-			P: acceptStr,
-			E: alphabet,
-			Q: model.aj,
-			F: A2($elm$core$String$join, ', ', stateNames),
-			D: transStr
+			ci: acceptStr,
+			V: alphabet,
+			cj: model.cD,
+			W: A2($elm$core$String$join, ', ', stateNames),
+			F: transStr
 		});
 };
 var $author$project$Update$update = F2(
 	function (msg, model) {
+		var t = $author$project$Lang$translations(model.c_);
 		switch (msg.$) {
+			case 49:
+				var newLang = function () {
+					var _v1 = model.c_;
+					if (!_v1) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}();
+				return _Utils_update(
+					model,
+					{c_: newLang});
+			case 50:
+				var states = msg.a;
+				var alphabet = msg.b;
+				var start = msg.c;
+				var accept = msg.d;
+				var trans = msg.e;
+				var loaded = _Utils_update(
+					model,
+					{ci: accept, V: alphabet, cj: start, W: states, F: trans});
+				return $author$project$CodeSync$generateDiagramFromCode(
+					$author$project$Update$saveUndo(loaded));
 			case 0:
 				var x = msg.a;
 				var y = msg.b;
-				var _v1 = model.az;
-				if (_v1 === 1) {
+				var _v2 = model.cT;
+				if (_v2 === 1) {
 					var m0 = $author$project$Update$saveUndo(model);
-					var name = 'q' + $elm$core$String$fromInt(m0.a2);
+					var name = 'q' + $elm$core$String$fromInt(m0.dn);
 					var newPositions = A3(
 						$elm$core$Dict$insert,
 						name,
-						{bi: x, bj: y},
-						m0.ak);
-					var newStart = (m0.aj === '') ? name : m0.aj;
+						{dC: x, dD: y},
+						m0.cE);
+					var newStart = (m0.cD === '') ? name : m0.cD;
 					return $author$project$CodeSync$syncCodeFromDiagram(
 						_Utils_update(
 							m0,
-							{a0: 'State added: ' + name, aj: newStart, a2: m0.a2 + 1, ak: newPositions}));
+							{
+								dl: t.bA(name),
+								cD: newStart,
+								dn: m0.dn + 1,
+								cE: newPositions
+							}));
 				} else {
 					return model;
 				}
 			case 1:
 				var stateName = msg.a;
-				var _v2 = model.az;
-				switch (_v2) {
+				var _v3 = model.cT;
+				switch (_v3) {
 					case 2:
-						var _v3 = model.bd;
-						if (_v3.$ === 1) {
+						var _v4 = model.dy;
+						if (_v4.$ === 1) {
 							return _Utils_update(
 								model,
 								{
-									a0: 'Now click the target state (from: ' + (stateName + ')'),
-									bd: $elm$core$Maybe$Just(stateName)
+									dl: function () {
+										var _v5 = model.c_;
+										if (!_v5) {
+											return 'Now click the target state (from: ';
+										} else {
+											return 'Klikni na cieľový stav (od: ';
+										}
+									}() + (stateName + ')'),
+									dy: $elm$core$Maybe$Just(stateName)
 								});
 						} else {
-							var fromState = _v3.a;
+							var fromState = _v4.a;
 							return _Utils_update(
 								model,
-								{aR: fromState, aS: stateName, a_: true, bd: $elm$core$Maybe$Nothing});
+								{da: fromState, db: stateName, dj: true, dy: $elm$core$Maybe$Nothing});
 						}
 					case 3:
 						var m0 = $author$project$Update$saveUndo(model);
 						var newAccept = A2(
 							$elm$core$List$filter,
 							$elm$core$Basics$neq(stateName),
-							m0.M);
-						var newPos = A2($elm$core$Dict$remove, stateName, m0.ak);
-						var newStart = _Utils_eq(m0.aj, stateName) ? '' : m0.aj;
+							m0.cf);
+						var newPos = A2($elm$core$Dict$remove, stateName, m0.cE);
+						var newStart = _Utils_eq(m0.cD, stateName) ? '' : m0.cD;
 						var newTrans = A2(
 							$elm$core$Dict$filter,
 							F2(
-								function (_v4, to) {
-									var fr = _v4.a;
+								function (_v6, to) {
+									var fr = _v6.a;
 									return (!_Utils_eq(fr, stateName)) && (!_Utils_eq(to, stateName));
 								}),
-							m0.L);
+							m0.b7);
 						return $author$project$CodeSync$syncCodeFromDiagram(
 							_Utils_update(
 								m0,
-								{M: newAccept, a0: 'Deleted state: ' + stateName, aj: newStart, ak: newPos, L: newTrans}));
+								{
+									cf: newAccept,
+									dl: t.bE(stateName),
+									cD: newStart,
+									cE: newPos,
+									b7: newTrans
+								}));
 					case 0:
 						return model;
 					default:
@@ -6654,36 +7179,36 @@ var $author$project$Update$update = F2(
 				return _Utils_update(
 					model,
 					{
-						ay: $elm$core$Maybe$Nothing,
-						az: tool,
-						a0: function () {
+						cS: $elm$core$Maybe$Nothing,
+						cT: tool,
+						dl: function () {
 							switch (tool) {
 								case 1:
-									return 'Click canvas to add a state.';
+									return t.L;
 								case 2:
-									return 'Click source state to start a transition.';
+									return t.M;
 								case 0:
-									return 'Drag states to move. Double-click to rename.';
+									return t.by;
 								default:
-									return 'Click a state or transition to delete it.';
+									return t.Y;
 							}
 						}(),
-						bd: $elm$core$Maybe$Nothing
+						dy: $elm$core$Maybe$Nothing
 					});
 			case 3:
 				var stateName = msg.a;
 				var mouseX = msg.b;
 				var mouseY = msg.c;
-				if (!model.az) {
-					var _v6 = A2($elm$core$Dict$get, stateName, model.ak);
-					if (!_v6.$) {
-						var pos = _v6.a;
+				if (!model.cT) {
+					var _v8 = A2($elm$core$Dict$get, stateName, model.cE);
+					if (!_v8.$) {
+						var pos = _v8.a;
 						var m0 = $author$project$Update$saveUndo(model);
 						return _Utils_update(
 							m0,
 							{
-								ay: $elm$core$Maybe$Just(
-									{aI: 0, aJ: 0, a4: stateName})
+								cS: $elm$core$Maybe$Just(
+									{c1: 0, c2: 0, dp: stateName})
 							});
 					} else {
 						return model;
@@ -6694,75 +7219,75 @@ var $author$project$Update$update = F2(
 			case 4:
 				var mouseX = msg.a;
 				var mouseY = msg.b;
-				var _v7 = model.ay;
-				if (_v7.$ === 1) {
+				var _v9 = model.cS;
+				if (_v9.$ === 1) {
 					return model;
 				} else {
-					var drag = _v7.a;
+					var drag = _v9.a;
 					return _Utils_update(
 						model,
 						{
-							ak: A3(
+							cE: A3(
 								$elm$core$Dict$insert,
-								drag.a4,
-								{bi: mouseX, bj: mouseY},
-								model.ak)
+								drag.dp,
+								{dC: mouseX, dD: mouseY},
+								model.cE)
 						});
 				}
 			case 5:
 				return _Utils_update(
 					model,
-					{ay: $elm$core$Maybe$Nothing, aF: false});
+					{cS: $elm$core$Maybe$Nothing, cZ: false});
 			case 39:
 				var mx = msg.a;
 				var my = msg.b;
 				return _Utils_update(
 					model,
-					{aF: true, aN: model.a7, aO: model.a8, aP: mx, aQ: my});
+					{cZ: true, c6: model.ds, c7: model.dt, c8: mx, c9: my});
 			case 40:
 				var mx = msg.a;
 				var my = msg.b;
-				return model.aF ? _Utils_update(
+				return model.cZ ? _Utils_update(
 					model,
-					{a7: model.aN + (mx - model.aP), a8: model.aO + (my - model.aQ)}) : model;
+					{ds: model.c6 + (mx - model.c8), dt: model.c7 + (my - model.c9)}) : model;
 			case 41:
 				return _Utils_update(
 					model,
-					{aF: false});
+					{cZ: false});
 			case 42:
-				var newZoom = A3($elm$core$Basics$clamp, 0.15, 8.0, model.a9 * 1.25);
+				var newZoom = A3($elm$core$Basics$clamp, 0.15, 8.0, model.du * 1.25);
 				var cy = 260.0;
-				var newPanY = cy - ((cy - model.a8) * (newZoom / model.a9));
+				var newPanY = cy - ((cy - model.dt) * (newZoom / model.du));
 				var cx = 450.0;
-				var newPanX = cx - ((cx - model.a7) * (newZoom / model.a9));
+				var newPanX = cx - ((cx - model.ds) * (newZoom / model.du));
 				return _Utils_update(
 					model,
-					{a7: newPanX, a8: newPanY, a9: newZoom});
+					{ds: newPanX, dt: newPanY, du: newZoom});
 			case 43:
-				var newZoom = A3($elm$core$Basics$clamp, 0.15, 8.0, model.a9 * 0.8);
+				var newZoom = A3($elm$core$Basics$clamp, 0.15, 8.0, model.du * 0.8);
 				var cy = 260.0;
-				var newPanY = cy - ((cy - model.a8) * (newZoom / model.a9));
+				var newPanY = cy - ((cy - model.dt) * (newZoom / model.du));
 				var cx = 450.0;
-				var newPanX = cx - ((cx - model.a7) * (newZoom / model.a9));
+				var newPanX = cx - ((cx - model.ds) * (newZoom / model.du));
 				return _Utils_update(
 					model,
-					{a7: newPanX, a8: newPanY, a9: newZoom});
+					{ds: newPanX, dt: newPanY, du: newZoom});
 			case 44:
 				return _Utils_update(
 					model,
-					{a7: 0, a8: 0, a9: 1.0});
+					{ds: 0, dt: 0, du: 1.0});
 			case 45:
 				return _Utils_update(
 					model,
-					{ba: !model.ba});
+					{dv: !model.dv});
 			case 46:
 				return _Utils_update(
 					model,
-					{av: !model.av});
+					{cP: !model.cP});
 			case 47:
 				return _Utils_update(
 					model,
-					{a3: !model.a3});
+					{$7: !model.$7});
 			case 48:
 				var from = msg.a;
 				var to = msg.b;
@@ -6770,44 +7295,47 @@ var $author$project$Update$update = F2(
 				var newTrans = A2(
 					$elm$core$Dict$filter,
 					F2(
-						function (_v8, tgt) {
-							var fr = _v8.a;
+						function (_v10, tgt) {
+							var fr = _v10.a;
 							return !(_Utils_eq(fr, from) && _Utils_eq(tgt, to));
 						}),
-					m0.L);
+					m0.b7);
 				return $author$project$CodeSync$syncCodeFromDiagram(
 					_Utils_update(
 						m0,
-						{a0: 'Deleted transition: ' + (from + (' → ' + to)), L: newTrans}));
+						{
+							dl: A2(t.bF, from, to),
+							b7: newTrans
+						}));
 			case 6:
 				var stateName = msg.a;
 				return _Utils_update(
 					model,
 					{
-						aV: stateName,
-						aW: $elm$core$Maybe$Just(stateName)
+						de: stateName,
+						df: $elm$core$Maybe$Just(stateName)
 					});
 			case 7:
 				var v = msg.a;
 				return _Utils_update(
 					model,
-					{aV: v});
+					{de: v});
 			case 8:
-				var _v9 = model.aW;
-				if (_v9.$ === 1) {
+				var _v11 = model.df;
+				if (_v11.$ === 1) {
 					return model;
 				} else {
-					var oldName = _v9.a;
-					var newName = $elm$core$String$trim(model.aV);
+					var oldName = _v11.a;
+					var newName = $elm$core$String$trim(model.de);
 					if ((newName === '') || _Utils_eq(newName, oldName)) {
 						return _Utils_update(
 							model,
-							{aV: '', aW: $elm$core$Maybe$Nothing});
+							{de: '', df: $elm$core$Maybe$Nothing});
 					} else {
-						if (A2($elm$core$Dict$member, newName, model.ak)) {
+						if (A2($elm$core$Dict$member, newName, model.cE)) {
 							return _Utils_update(
 								model,
-								{aV: '', aW: $elm$core$Maybe$Nothing});
+								{de: '', df: $elm$core$Maybe$Nothing});
 						} else {
 							var m0 = $author$project$Update$saveUndo(model);
 							var newAccept = A2(
@@ -6815,120 +7343,141 @@ var $author$project$Update$update = F2(
 								function (s) {
 									return _Utils_eq(s, oldName) ? newName : s;
 								},
-								m0.M);
-							var newStart = _Utils_eq(m0.aj, oldName) ? newName : m0.aj;
+								m0.cf);
+							var newStart = _Utils_eq(m0.cD, oldName) ? newName : m0.cD;
 							var newTransitions = $elm$core$Dict$fromList(
 								A2(
 									$elm$core$List$map,
-									function (_v10) {
-										var _v11 = _v10.a;
-										var fr = _v11.a;
-										var ch = _v11.b;
-										var to = _v10.b;
+									function (_v12) {
+										var _v13 = _v12.a;
+										var fr = _v13.a;
+										var ch = _v13.b;
+										var to = _v12.b;
 										return _Utils_Tuple2(
 											_Utils_Tuple2(
 												_Utils_eq(fr, oldName) ? newName : fr,
 												ch),
 											_Utils_eq(to, oldName) ? newName : to);
 									},
-									$elm$core$Dict$toList(m0.L)));
+									$elm$core$Dict$toList(m0.b7)));
 							var pos = A2(
 								$elm$core$Maybe$withDefault,
-								{bi: 0, bj: 0},
-								A2($elm$core$Dict$get, oldName, m0.ak));
+								{dC: 0, dD: 0},
+								A2($elm$core$Dict$get, oldName, m0.cE));
 							var newPositions = A3(
 								$elm$core$Dict$insert,
 								newName,
 								pos,
-								A2($elm$core$Dict$remove, oldName, m0.ak));
+								A2($elm$core$Dict$remove, oldName, m0.cE));
 							return $author$project$CodeSync$syncCodeFromDiagram(
 								_Utils_update(
 									m0,
-									{M: newAccept, aV: '', aW: $elm$core$Maybe$Nothing, a0: 'Renamed: ' + (oldName + (' → ' + newName)), aj: newStart, ak: newPositions, L: newTransitions}));
+									{
+										cf: newAccept,
+										de: '',
+										df: $elm$core$Maybe$Nothing,
+										dl: A2(t.bN, oldName, newName),
+										cD: newStart,
+										cE: newPositions,
+										b7: newTransitions
+									}));
 						}
 					}
 				}
 			case 9:
 				return _Utils_update(
 					model,
-					{aV: '', aW: $elm$core$Maybe$Nothing});
+					{de: '', df: $elm$core$Maybe$Nothing});
 			case 10:
 				var state = msg.a;
 				return $author$project$CodeSync$syncCodeFromDiagram(
 					function (m0) {
 						return _Utils_update(
 							m0,
-							{a0: 'Start state set: ' + state, aj: state});
+							{
+								dl: t.bP(state),
+								cD: state
+							});
 					}(
 						$author$project$Update$saveUndo(model)));
 			case 11:
 				var state = msg.a;
 				var m0 = $author$project$Update$saveUndo(model);
-				var newAccept = A2($elm$core$List$member, state, m0.M) ? A2(
+				var newAccept = A2($elm$core$List$member, state, m0.cf) ? A2(
 					$elm$core$List$filter,
 					$elm$core$Basics$neq(state),
-					m0.M) : A2($elm$core$List$cons, state, m0.M);
+					m0.cf) : A2($elm$core$List$cons, state, m0.cf);
 				return $author$project$CodeSync$syncCodeFromDiagram(
 					_Utils_update(
 						m0,
-						{M: newAccept}));
+						{cf: newAccept}));
 			case 12:
 				var state = msg.a;
 				var m0 = $author$project$Update$saveUndo(model);
 				var newAccept = A2(
 					$elm$core$List$filter,
 					$elm$core$Basics$neq(state),
-					m0.M);
-				var newPos = A2($elm$core$Dict$remove, state, m0.ak);
-				var newStart = _Utils_eq(m0.aj, state) ? '' : m0.aj;
+					m0.cf);
+				var newPos = A2($elm$core$Dict$remove, state, m0.cE);
+				var newStart = _Utils_eq(m0.cD, state) ? '' : m0.cD;
 				var newTrans = A2(
 					$elm$core$Dict$filter,
 					F2(
-						function (_v12, to) {
-							var fr = _v12.a;
+						function (_v14, to) {
+							var fr = _v14.a;
 							return (!_Utils_eq(fr, state)) && (!_Utils_eq(to, state));
 						}),
-					m0.L);
+					m0.b7);
 				return $author$project$CodeSync$syncCodeFromDiagram(
 					_Utils_update(
 						m0,
-						{M: newAccept, a0: 'Deleted state: ' + state, aj: newStart, ak: newPos, L: newTrans}));
+						{
+							cf: newAccept,
+							dl: t.bE(state),
+							cD: newStart,
+							cE: newPos,
+							b7: newTrans
+						}));
 			case 13:
 				var c = msg.a;
 				return _Utils_update(
 					model,
-					{bc: c});
+					{dx: c});
 			case 14:
 				var m0 = $author$project$Update$saveUndo(model);
 				var newTrans = A3(
 					$elm$core$Dict$insert,
-					_Utils_Tuple2(m0.aR, m0.bc),
-					m0.aS,
-					m0.L);
+					_Utils_Tuple2(m0.da, m0.dx),
+					m0.db,
+					m0.b7);
 				return $author$project$CodeSync$syncCodeFromDiagram(
 					_Utils_update(
 						m0,
-						{a_: false, a0: model.aR + (' --[' + (model.bc + (']--> ' + model.aS))), L: newTrans}));
+						{
+							dj: false,
+							dl: A3(t.bQ, model.da, model.dx, model.db),
+							b7: newTrans
+						}));
 			case 15:
 				return _Utils_update(
 					model,
-					{a_: false, bd: $elm$core$Maybe$Nothing});
+					{dj: false, dy: $elm$core$Maybe$Nothing});
 			case 16:
 				var w = msg.a;
 				return _Utils_update(
 					model,
-					{K: w});
+					{b4: w});
 			case 17:
 				return _Utils_update(
 					model,
 					{
-						aw: $elm$core$Maybe$Just(model.aj),
-						a$: _List_fromArray(
+						cQ: $elm$core$Maybe$Just(model.cD),
+						dk: _List_fromArray(
 							[
-								_Utils_Tuple2(model.aj, 0)
+								_Utils_Tuple2(model.cD, 0)
 							]),
-						a0: 'Loaded. Ready to test: \"' + (model.K + '\"'),
-						a1: 0
+						dl: t.bI(model.b4),
+						dm: 0
 					});
 			case 18:
 				return $author$project$Simulation$stepOnce(model);
@@ -6939,32 +7488,32 @@ var $author$project$Update$update = F2(
 			case 21:
 				return _Utils_update(
 					model,
-					{ar: false, aw: $elm$core$Maybe$Nothing, a$: _List_Nil, a0: 'Reset. Click \'Load DFA\' to start.', a1: 0});
+					{cL: false, cQ: $elm$core$Maybe$Nothing, dk: _List_Nil, dl: t.bO, dm: 0});
 			case 22:
 				var v = msg.a;
 				return _Utils_update(
 					model,
-					{F: v});
+					{W: v});
 			case 23:
 				var v = msg.a;
 				return _Utils_update(
 					model,
-					{E: v});
+					{V: v});
 			case 24:
 				var v = msg.a;
 				return _Utils_update(
 					model,
-					{Q: v});
+					{cj: v});
 			case 25:
 				var v = msg.a;
 				return _Utils_update(
 					model,
-					{P: v});
+					{ci: v});
 			case 26:
 				var v = msg.a;
 				return _Utils_update(
 					model,
-					{D: v});
+					{F: v});
 			case 27:
 				return $author$project$CodeSync$generateDiagramFromCode(
 					$author$project$Update$saveUndo(model));
@@ -6973,26 +7522,29 @@ var $author$project$Update$update = F2(
 			case 29:
 				return _Utils_update(
 					model,
-					{aZ: !model.aZ});
+					{di: !model.di});
 			case 30:
 				return _Utils_update(
 					model,
-					{aY: !model.aY});
+					{dh: !model.dh});
 			case 31:
 				return _Utils_update(
 					$author$project$Update$defaultModel,
-					{a0: 'Cleared everything.'});
+					{
+						c_: model.c_,
+						dl: $author$project$Lang$translations(model.c_).bD
+					});
 			case 32:
 				return model;
 			case 33:
-				var _v13 = model.be;
-				if (!_v13.b) {
+				var _v15 = model.dz;
+				if (!_v15.b) {
 					return _Utils_update(
 						model,
-						{a0: 'Nothing to undo.'});
+						{dl: t.bK});
 				} else {
-					var snap = _v13.a;
-					var rest = _v13.b;
+					var snap = _v15.a;
+					var rest = _v15.b;
 					return $author$project$CodeSync$syncCodeFromDiagram(
 						A2(
 							$author$project$Update$applySnapshot,
@@ -7000,26 +7552,26 @@ var $author$project$Update$update = F2(
 							_Utils_update(
 								model,
 								{
-									aU: A2(
+									dd: A2(
 										$elm$core$List$take,
 										50,
 										A2(
 											$elm$core$List$cons,
 											$author$project$Update$snapshotDiagram(model),
-											model.aU)),
-									a0: 'Undone.',
-									be: rest
+											model.dd)),
+									dl: t.bR,
+									dz: rest
 								})));
 				}
 			case 34:
-				var _v14 = model.aU;
-				if (!_v14.b) {
+				var _v16 = model.dd;
+				if (!_v16.b) {
 					return _Utils_update(
 						model,
-						{a0: 'Nothing to redo.'});
+						{dl: t.bJ});
 				} else {
-					var snap = _v14.a;
-					var rest = _v14.b;
+					var snap = _v16.a;
+					var rest = _v16.b;
 					return $author$project$CodeSync$syncCodeFromDiagram(
 						A2(
 							$author$project$Update$applySnapshot,
@@ -7027,48 +7579,75 @@ var $author$project$Update$update = F2(
 							_Utils_update(
 								model,
 								{
-									aU: rest,
-									a0: 'Redone.',
-									be: A2(
+									dd: rest,
+									dl: t.bM,
+									dz: A2(
 										$elm$core$List$take,
 										50,
 										A2(
 											$elm$core$List$cons,
 											$author$project$Update$snapshotDiagram(model),
-											model.be))
+											model.dz))
 								})));
 				}
 			case 35:
-				return _Utils_eq(model.aw, $elm$core$Maybe$Nothing) ? _Utils_update(
+				return _Utils_eq(model.cQ, $elm$core$Maybe$Nothing) ? _Utils_update(
 					model,
 					{
-						ar: true,
-						aw: $elm$core$Maybe$Just(model.aj),
-						a$: _List_fromArray(
+						cL: true,
+						cQ: $elm$core$Maybe$Just(model.cD),
+						dk: _List_fromArray(
 							[
-								_Utils_Tuple2(model.aj, 0)
+								_Utils_Tuple2(model.cD, 0)
 							]),
-						a0: 'Auto run started...',
-						a1: 0
+						dl: t.bC,
+						dm: 0
 					}) : _Utils_update(
 					model,
-					{ar: true, a0: 'Auto run resumed...'});
+					{cL: true, dl: t.bB});
 			case 36:
 				return _Utils_update(
 					model,
-					{ar: false, a0: 'Paused.'});
+					{cL: false, dl: t.bL});
 			case 37:
 				var ms = msg.a;
 				return _Utils_update(
 					model,
-					{as: ms});
+					{cM: ms});
+			case 51:
+				return model;
+			case 52:
+				return model;
 			default:
-				return (!model.ar) ? model : (((_Utils_cmp(
-					model.a1,
-					$elm$core$String$length(model.K)) > -1) || _Utils_eq(model.aw, $elm$core$Maybe$Nothing)) ? $author$project$Simulation$checkAcceptance(
+				return (!model.cL) ? model : (((_Utils_cmp(
+					model.dm,
+					$elm$core$String$length(model.b4)) > -1) || _Utils_eq(model.cQ, $elm$core$Maybe$Nothing)) ? $author$project$Simulation$checkAcceptance(
 					_Utils_update(
 						model,
-						{ar: false})) : $author$project$Simulation$stepOnce(model));
+						{cL: false})) : $author$project$Simulation$stepOnce(model));
+		}
+	});
+var $author$project$Main$updateWithPorts = F2(
+	function (msg, model) {
+		switch (msg.$) {
+			case 28:
+				var newModel = A2($author$project$Update$update, msg, model);
+				return _Utils_Tuple2(
+					newModel,
+					$author$project$Main$exportDFA(
+						{D: newModel.ci, E: newModel.V, G: newModel.cj, H: newModel.W, b7: newModel.F}));
+			case 51:
+				return _Utils_Tuple2(
+					model,
+					$author$project$Main$openSaveModal(0));
+			case 52:
+				return _Utils_Tuple2(
+					model,
+					$author$project$Main$openLoadModal(0));
+			default:
+				return _Utils_Tuple2(
+					A2($author$project$Update$update, msg, model),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
 var $author$project$Types$MouseUp = {$: 5};
@@ -7142,12 +7721,10 @@ var $elm$html$Html$Events$stopPropagationOn = F2(
 			event,
 			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
 	});
-var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
 		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
 	});
-var $elm$json$Json$Decode$string = _Json_decodeString;
 var $elm$html$Html$Events$targetValue = A2(
 	$elm$json$Json$Decode$at,
 	_List_fromArray(
@@ -7162,7 +7739,6 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 			$elm$html$Html$Events$alwaysStop,
 			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
 };
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
 		return A2(
@@ -7303,72 +7879,73 @@ var $author$project$View$Widgets$styledBtn = F5(
 				]));
 	});
 var $elm$html$Html$textarea = _VirtualDom_node('textarea');
-var $author$project$View$Panels$viewCodePanel = function (model) {
-	return A2(
-		$author$project$View$Widgets$panel,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A3($author$project$View$Widgets$collapsibleHeader, 'Code', model.av, $author$project$Types$ToggleCodePanel),
-				model.av ? $elm$html$Html$text('') : A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						A2($elm$html$Html$Attributes$style, 'margin-top', '10px')
-					]),
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-								A2($elm$html$Html$Attributes$style, 'flex-direction', 'column'),
-								A2($elm$html$Html$Attributes$style, 'gap', '12px')
-							]),
-						_List_fromArray(
-							[
-								A4($author$project$View$Panels$codeField, 'States', model.F, $author$project$Types$SetCodeStates, 'q0, q1, q2'),
-								A4($author$project$View$Panels$codeField, 'Alphabet', model.E, $author$project$Types$SetCodeAlphabet, 'a, b'),
-								A4($author$project$View$Panels$codeField, 'Start state', model.Q, $author$project$Types$SetCodeStart, 'q0'),
-								A4($author$project$View$Panels$codeField, 'Accept states', model.P, $author$project$Types$SetCodeAccept, 'q2'),
-								A2(
-								$elm$html$Html$div,
-								_List_fromArray(
-									[
-										A2($elm$html$Html$Attributes$style, 'position', 'relative')
-									]),
-								_List_fromArray(
-									[
-										$author$project$View$Panels$codeFieldLabel('Transitions'),
-										A2(
-										$elm$html$Html$textarea,
-										_List_fromArray(
-											[
-												$elm$html$Html$Attributes$value(model.D),
-												$elm$html$Html$Events$onInput($author$project$Types$SetCodeTransitions),
-												$elm$html$Html$Attributes$placeholder('q0,a,q1\nq1,b,q2\nq2,a,q2'),
-												A2($elm$html$Html$Attributes$style, 'width', '100%'),
-												A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.04)'),
-												A2($elm$html$Html$Attributes$style, 'border', '1.5px solid rgba(124,77,255,0.4)'),
-												A2($elm$html$Html$Attributes$style, 'border-radius', '8px'),
-												A2($elm$html$Html$Attributes$style, 'padding', '14px 12px 10px'),
-												A2($elm$html$Html$Attributes$style, 'color', '#e8eaf6'),
-												A2($elm$html$Html$Attributes$style, 'font-family', 'monospace'),
-												A2($elm$html$Html$Attributes$style, 'font-size', '0.82rem'),
-												A2($elm$html$Html$Attributes$style, 'outline', 'none'),
-												A2($elm$html$Html$Attributes$style, 'resize', 'vertical'),
-												A2($elm$html$Html$Attributes$style, 'min-height', '90px'),
-												A2($elm$html$Html$Attributes$style, 'line-height', '1.6'),
-												A2($elm$html$Html$Attributes$style, 'box-sizing', 'border-box')
-											]),
-										_List_Nil)
-									]))
-							])),
-						A5($author$project$View$Widgets$styledBtn, 'Generate diagram', $author$project$Types$GenerateDiagramFromCode, $author$project$View$Widgets$pinkGrad, '100%', '9px 0')
-					]))
-			]));
-};
+var $author$project$View$Panels$viewCodePanel = F2(
+	function (t, model) {
+		return A2(
+			$author$project$View$Widgets$panel,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A3($author$project$View$Widgets$collapsibleHeader, t.U, model.cP, $author$project$Types$ToggleCodePanel),
+					model.cP ? $elm$html$Html$text('') : A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'margin-top', '10px')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+									A2($elm$html$Html$Attributes$style, 'flex-direction', 'column'),
+									A2($elm$html$Html$Attributes$style, 'gap', '12px')
+								]),
+							_List_fromArray(
+								[
+									A4($author$project$View$Panels$codeField, t.bX, model.W, $author$project$Types$SetCodeStates, 'q0, q1, q2'),
+									A4($author$project$View$Panels$codeField, t.N, model.V, $author$project$Types$SetCodeAlphabet, 'a, b'),
+									A4($author$project$View$Panels$codeField, t.bT, model.cj, $author$project$Types$SetCodeStart, 'q0'),
+									A4($author$project$View$Panels$codeField, t.I, model.ci, $author$project$Types$SetCodeAccept, 'q2'),
+									A2(
+									$elm$html$Html$div,
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'position', 'relative')
+										]),
+									_List_fromArray(
+										[
+											$author$project$View$Panels$codeFieldLabel(t.b8),
+											A2(
+											$elm$html$Html$textarea,
+											_List_fromArray(
+												[
+													$elm$html$Html$Attributes$value(model.F),
+													$elm$html$Html$Events$onInput($author$project$Types$SetCodeTransitions),
+													$elm$html$Html$Attributes$placeholder('q0,a,q1\nq1,b,q2\nq2,a,q2'),
+													A2($elm$html$Html$Attributes$style, 'width', '100%'),
+													A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.04)'),
+													A2($elm$html$Html$Attributes$style, 'border', '1.5px solid rgba(124,77,255,0.4)'),
+													A2($elm$html$Html$Attributes$style, 'border-radius', '8px'),
+													A2($elm$html$Html$Attributes$style, 'padding', '14px 12px 10px'),
+													A2($elm$html$Html$Attributes$style, 'color', '#e8eaf6'),
+													A2($elm$html$Html$Attributes$style, 'font-family', 'monospace'),
+													A2($elm$html$Html$Attributes$style, 'font-size', '0.82rem'),
+													A2($elm$html$Html$Attributes$style, 'outline', 'none'),
+													A2($elm$html$Html$Attributes$style, 'resize', 'vertical'),
+													A2($elm$html$Html$Attributes$style, 'min-height', '90px'),
+													A2($elm$html$Html$Attributes$style, 'line-height', '1.6'),
+													A2($elm$html$Html$Attributes$style, 'box-sizing', 'border-box')
+												]),
+											_List_Nil)
+										]))
+								])),
+							A5($author$project$View$Widgets$styledBtn, t.ad, $author$project$Types$GenerateDiagramFromCode, $author$project$View$Widgets$pinkGrad, '100%', '9px 0')
+						]))
+				]));
+	});
 var $author$project$Types$AddTransitionTool = 2;
 var $author$project$Types$ClickedCanvas = F2(
 	function (a, b) {
@@ -7426,13 +8003,13 @@ var $author$project$View$Canvas$ellipseEdge = F5(
 	function (pos, dx, dy, rx, ry) {
 		var dist = $author$project$Helpers$mySqrt((dx * dx) + (dy * dy));
 		if (dist < 0.001) {
-			return _Utils_Tuple2(pos.bi, pos.bj);
+			return _Utils_Tuple2(pos.dC, pos.dD);
 		} else {
 			var uy = dy / dist;
 			var ux = dx / dist;
 			var denom = $author$project$Helpers$mySqrt(((ux * ux) / (rx * rx)) + ((uy * uy) / (ry * ry)));
 			var scale = 1 / denom;
-			return _Utils_Tuple2(pos.bi + (ux * scale), pos.bj + (uy * scale));
+			return _Utils_Tuple2(pos.dC + (ux * scale), pos.dD + (uy * scale));
 		}
 	});
 var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
@@ -7498,8 +8075,8 @@ var $author$project$View$Canvas$drawArrow = function (label) {
 										var markerUrl = isActive ? 'url(#arrow-active)' : 'url(#arrow)';
 										var isDeleteMode = drawTool === 3;
 										var strokeColor = isDeleteMode ? '#ef5350' : (isActive ? '#69f0ae' : '#9fa8da');
-										var dy = p2.bj - p1.bj;
-										var dx = p2.bi - p1.bi;
+										var dy = p2.dD - p1.dD;
+										var dx = p2.dC - p1.dC;
 										var dist = $author$project$Helpers$mySqrt((dx * dx) + (dy * dy));
 										var deleteClick = function (path_) {
 											return isDeleteMode ? _List_fromArray(
@@ -7518,9 +8095,9 @@ var $author$project$View$Canvas$drawArrow = function (label) {
 															'click',
 															$elm$json$Json$Decode$succeed(
 																{
-																	aG: A2($author$project$Types$DeleteTransition, from, to),
-																	aT: false,
-																	a5: true
+																	c$: A2($author$project$Types$DeleteTransition, from, to),
+																	dc: false,
+																	dq: true
 																}))
 														]),
 													_List_Nil)
@@ -7610,10 +8187,10 @@ var $author$project$View$Canvas$drawSelfLoop = F7(
 		var ry = $author$project$View$Canvas$stateRy;
 		var markerUrl = isActive ? 'url(#arrow-active)' : 'url(#arrow)';
 		var loopR = 13.0;
-		var lcy = ((pos.bj - ry) - loopR) - 1.0;
+		var lcy = ((pos.dD - ry) - loopR) - 1.0;
 		var ly = (lcy - loopR) - 5;
 		var sy = lcy + loopR;
-		var lcx = pos.bi;
+		var lcx = pos.dC;
 		var lx = lcx;
 		var isDeleteMode = drawTool === 3;
 		var strokeColor = isDeleteMode ? '#ef5350' : (isActive ? '#69f0ae' : '#9fa8da');
@@ -7655,9 +8232,9 @@ var $author$project$View$Canvas$drawSelfLoop = F7(
 							'click',
 							$elm$json$Json$Decode$succeed(
 								{
-									aG: A2($author$project$Types$DeleteTransition, from, to),
-									aT: false,
-									a5: true
+									c$: A2($author$project$Types$DeleteTransition, from, to),
+									dc: false,
+									dq: true
 								}))
 						]),
 					_List_Nil)
@@ -7699,13 +8276,13 @@ var $author$project$View$Canvas$drawState = F7(
 				_List_fromArray(
 					[
 						$elm$svg$Svg$Attributes$x1(
-						$author$project$Helpers$flt((pos.bi - rx) - 30)),
+						$author$project$Helpers$flt((pos.dC - rx) - 30)),
 						$elm$svg$Svg$Attributes$y1(
-						$author$project$Helpers$flt(pos.bj)),
+						$author$project$Helpers$flt(pos.dD)),
 						$elm$svg$Svg$Attributes$x2(
-						$author$project$Helpers$flt((pos.bi - rx) - 4)),
+						$author$project$Helpers$flt((pos.dC - rx) - 4)),
 						$elm$svg$Svg$Attributes$y2(
-						$author$project$Helpers$flt(pos.bj)),
+						$author$project$Helpers$flt(pos.dD)),
 						$elm$svg$Svg$Attributes$stroke('#ffb74d'),
 						$elm$svg$Svg$Attributes$strokeWidth('2.5'),
 						$elm$svg$Svg$Attributes$markerEnd('url(#arrow)'),
@@ -7720,9 +8297,9 @@ var $author$project$View$Canvas$drawState = F7(
 				_List_fromArray(
 					[
 						$elm$svg$Svg$Attributes$cx(
-						$author$project$Helpers$flt(pos.bi)),
+						$author$project$Helpers$flt(pos.dC)),
 						$elm$svg$Svg$Attributes$cy(
-						$author$project$Helpers$flt(pos.bj)),
+						$author$project$Helpers$flt(pos.dD)),
 						$elm$svg$Svg$Attributes$rx(
 						$author$project$Helpers$flt(rx - 5)),
 						$elm$svg$Svg$Attributes$ry(
@@ -7734,15 +8311,15 @@ var $author$project$View$Canvas$drawState = F7(
 					]),
 				_List_Nil)
 			]) : _List_Nil;
-		var fillColor = isCurrent ? '#1b5e20' : ((model.az === 3) ? 'rgba(239,83,80,0.15)' : (isPending ? 'rgba(255,183,77,0.2)' : (isAccept ? 'rgba(79,195,247,0.15)' : 'rgba(255,255,255,0.07)')));
+		var fillColor = isCurrent ? '#1b5e20' : ((model.cT === 3) ? 'rgba(239,83,80,0.15)' : (isPending ? 'rgba(255,183,77,0.2)' : (isAccept ? 'rgba(79,195,247,0.15)' : 'rgba(255,255,255,0.07)')));
 		var cursorStr = function () {
-			var _v0 = model.az;
+			var _v0 = model.cT;
 			switch (_v0) {
 				case 0:
-					var _v1 = model.ay;
+					var _v1 = model.cS;
 					if (!_v1.$) {
 						var d = _v1.a;
-						return _Utils_eq(d.a4, name) ? 'grabbing' : 'grab';
+						return _Utils_eq(d.dp, name) ? 'grabbing' : 'grab';
 					} else {
 						return 'grab';
 					}
@@ -7764,9 +8341,9 @@ var $author$project$View$Canvas$drawState = F7(
 						_List_fromArray(
 							[
 								$elm$svg$Svg$Attributes$cx(
-								$author$project$Helpers$flt(pos.bi)),
+								$author$project$Helpers$flt(pos.dC)),
 								$elm$svg$Svg$Attributes$cy(
-								$author$project$Helpers$flt(pos.bj)),
+								$author$project$Helpers$flt(pos.dD)),
 								$elm$svg$Svg$Attributes$rx(
 								$author$project$Helpers$flt(rx)),
 								$elm$svg$Svg$Attributes$ry(
@@ -7780,27 +8357,27 @@ var $author$project$View$Canvas$drawState = F7(
 								'click',
 								$elm$json$Json$Decode$succeed(
 									{
-										aG: $author$project$Types$ClickedState(name),
-										aT: false,
-										a5: true
+										c$: $author$project$Types$ClickedState(name),
+										dc: false,
+										dq: true
 									})),
 								A2(
 								$elm$html$Html$Events$custom,
 								'dblclick',
 								$elm$json$Json$Decode$succeed(
 									{
-										aG: $author$project$Types$StartRename(name),
-										aT: false,
-										a5: true
+										c$: $author$project$Types$StartRename(name),
+										dc: false,
+										dq: true
 									})),
 								A2(
 								$elm$html$Html$Events$custom,
 								'mousedown',
 								$elm$json$Json$Decode$succeed(
 									{
-										aG: A3($author$project$Types$MouseDownOnState, name, 0, 0),
-										aT: false,
-										a5: true
+										c$: A3($author$project$Types$MouseDownOnState, name, 0, 0),
+										dc: false,
+										dq: true
 									}))
 							]),
 						_List_Nil)
@@ -7814,9 +8391,9 @@ var $author$project$View$Canvas$drawState = F7(
 							_List_fromArray(
 								[
 									$elm$svg$Svg$Attributes$x(
-									$author$project$Helpers$flt(pos.bi)),
+									$author$project$Helpers$flt(pos.dC)),
 									$elm$svg$Svg$Attributes$y(
-									$author$project$Helpers$flt(pos.bj)),
+									$author$project$Helpers$flt(pos.dD)),
 									$elm$svg$Svg$Attributes$textAnchor('middle'),
 									$elm$svg$Svg$Attributes$dominantBaseline('middle'),
 									$elm$svg$Svg$Attributes$fontSize('13'),
@@ -7857,7 +8434,7 @@ var $elm$svg$Svg$polygon = $elm$svg$Svg$trustedNode('polygon');
 var $elm$svg$Svg$Attributes$refX = _VirtualDom_attribute('refX');
 var $elm$svg$Svg$Attributes$refY = _VirtualDom_attribute('refY');
 var $author$project$View$Canvas$drawDFA = function (model) {
-	var transitionList = $elm$core$Dict$toList(model.L);
+	var transitionList = $elm$core$Dict$toList(model.b7);
 	var stateElements = A2(
 		$elm$core$List$concatMap,
 		function (_v6) {
@@ -7868,16 +8445,16 @@ var $author$project$View$Canvas$drawDFA = function (model) {
 				model,
 				name,
 				pos,
-				_Utils_eq(name, model.aj),
-				A2($elm$core$List$member, name, model.M),
+				_Utils_eq(name, model.cD),
+				A2($elm$core$List$member, name, model.cf),
 				_Utils_eq(
-					model.aw,
+					model.cQ,
 					$elm$core$Maybe$Just(name)),
 				_Utils_eq(
-					model.bd,
+					model.dy,
 					$elm$core$Maybe$Just(name)));
 		},
-		$elm$core$Dict$toList(model.ak));
+		$elm$core$Dict$toList(model.cE));
 	var hasBidirectional = F2(
 		function (from, to) {
 			return A2(
@@ -7934,14 +8511,14 @@ var $author$project$View$Canvas$drawDFA = function (model) {
 							function (fromPos, toPos) {
 								var toRx = $author$project$View$Canvas$stateRx(to);
 								var isActive = _Utils_eq(
-									model.aw,
+									model.cQ,
 									$elm$core$Maybe$Just(from));
 								var fromRx = $author$project$View$Canvas$stateRx(from);
-								return _Utils_eq(from, to) ? A7($author$project$View$Canvas$drawSelfLoop, label, fromPos, fromRx, isActive, model.az, from, to) : $author$project$View$Canvas$drawArrow(label)(fromPos)(toPos)(fromRx)(toRx)(
-									A2(hasBidirectional, from, to))(isActive)(model.az)(from)(to);
+								return _Utils_eq(from, to) ? A7($author$project$View$Canvas$drawSelfLoop, label, fromPos, fromRx, isActive, model.cT, from, to) : $author$project$View$Canvas$drawArrow(label)(fromPos)(toPos)(fromRx)(toRx)(
+									A2(hasBidirectional, from, to))(isActive)(model.cT)(from)(to);
 							}),
-						A2($elm$core$Dict$get, from, model.ak),
-						A2($elm$core$Dict$get, to, model.ak));
+						A2($elm$core$Dict$get, from, model.cE),
+						A2($elm$core$Dict$get, to, model.cE));
 				} else {
 					return $elm$core$Maybe$Nothing;
 				}
@@ -8196,8 +8773,8 @@ var $author$project$View$Widgets$miniBtn = F4(
 					$elm$html$Html$text(label)
 				]));
 	});
-var $author$project$View$Panels$viewStateRow = F2(
-	function (model, state) {
+var $author$project$View$Panels$viewStateRow = F3(
+	function (t, model, state) {
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -8211,7 +8788,7 @@ var $author$project$View$Panels$viewStateRow = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'border-left',
-					'3px solid ' + (_Utils_eq(state, model.aj) ? '#ffb74d' : (A2($elm$core$List$member, state, model.M) ? '#4fc3f7' : '#444'))),
+					'3px solid ' + (_Utils_eq(state, model.cD) ? '#ffb74d' : (A2($elm$core$List$member, state, model.cf) ? '#4fc3f7' : '#444'))),
 					A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.03)')
 				]),
 			_List_fromArray(
@@ -8246,13 +8823,13 @@ var $author$project$View$Panels$viewStateRow = F2(
 							$author$project$View$Widgets$miniBtn,
 							'S',
 							$author$project$Types$SetStartState(state),
-							_Utils_eq(state, model.aj),
+							_Utils_eq(state, model.cD),
 							'#ffb74d'),
 							A4(
 							$author$project$View$Widgets$miniBtn,
 							'A',
 							$author$project$Types$ToggleAcceptState(state),
-							A2($elm$core$List$member, state, model.M),
+							A2($elm$core$List$member, state, model.cf),
 							'#4fc3f7'),
 							A4(
 							$author$project$View$Widgets$miniBtn,
@@ -8263,278 +8840,280 @@ var $author$project$View$Panels$viewStateRow = F2(
 						]))
 				]));
 	});
-var $author$project$View$Panels$viewStateList = function (model) {
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				A2($elm$html$Html$Attributes$style, 'margin-top', '12px'),
-				A2($elm$html$Html$Attributes$style, 'flex-shrink', '0'),
-				A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.04)'),
-				A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
-				A2($elm$html$Html$Attributes$style, 'padding', '10px 12px')
-			]),
-		_List_fromArray(
-			[
-				A3(
-				$author$project$View$Widgets$collapsibleHeader,
-				'States  (' + ($elm$core$String$fromInt(
-					$elm$core$Dict$size(model.ak)) + ')'),
-				model.a3,
-				$author$project$Types$ToggleStateList),
-				model.a3 ? $elm$html$Html$text('') : A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						A2($elm$html$Html$Attributes$style, 'margin-top', '8px'),
-						A2($elm$html$Html$Attributes$style, 'max-height', '160px'),
-						A2($elm$html$Html$Attributes$style, 'overflow-y', 'auto')
-					]),
-				_Utils_ap(
+var $author$project$View$Panels$viewStateList = F2(
+	function (t, model) {
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'margin-top', '12px'),
+					A2($elm$html$Html$Attributes$style, 'flex-shrink', '0'),
+					A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.04)'),
+					A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
+					A2($elm$html$Html$Attributes$style, 'padding', '10px 12px')
+				]),
+			_List_fromArray(
+				[
+					A3(
+					$author$project$View$Widgets$collapsibleHeader,
+					t.bW(
+						$elm$core$Dict$size(model.cE)),
+					model.$7,
+					$author$project$Types$ToggleStateList),
+					model.$7 ? $elm$html$Html$text('') : A2(
+					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							A2(
-							$elm$html$Html$div,
-							_List_fromArray(
-								[
-									A2($elm$html$Html$Attributes$style, 'font-size', '0.68rem'),
-									A2($elm$html$Html$Attributes$style, 'color', '#9fa8da'),
-									A2($elm$html$Html$Attributes$style, 'margin-bottom', '6px'),
-									A2($elm$html$Html$Attributes$style, 'letter-spacing', '0.3px')
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text('✎ rename · S start · A accept · X delete')
-								]))
+							A2($elm$html$Html$Attributes$style, 'margin-top', '8px'),
+							A2($elm$html$Html$Attributes$style, 'max-height', '160px'),
+							A2($elm$html$Html$Attributes$style, 'overflow-y', 'auto')
 						]),
-					A2(
-						$elm$core$List$map,
-						$author$project$View$Panels$viewStateRow(model),
-						$elm$core$Dict$keys(model.ak))))
-			]));
-};
-var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
-var $author$project$View$viewDiagramPanel = function (model) {
-	return A2(
-		$author$project$View$Widgets$panel,
-		_List_fromArray(
-			[
-				A2($elm$html$Html$Attributes$style, 'grid-column', '2'),
-				A2($elm$html$Html$Attributes$style, 'grid-row', '1'),
-				A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-				A2($elm$html$Html$Attributes$style, 'flex-direction', 'column'),
-				A2($elm$html$Html$Attributes$style, 'min-height', '0')
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-						A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
-						A2($elm$html$Html$Attributes$style, 'justify-content', 'space-between'),
-						A2($elm$html$Html$Attributes$style, 'margin-bottom', '12px'),
-						A2($elm$html$Html$Attributes$style, 'flex-shrink', '0')
-					]),
-				_List_fromArray(
-					[
-						$author$project$View$Widgets$panelTitle('State Diagram')
-					])),
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						A2($elm$html$Html$Attributes$style, 'flex', '1'),
-						A2($elm$html$Html$Attributes$style, 'position', 'relative'),
-						A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.025)'),
-						A2($elm$html$Html$Attributes$style, 'border', '1px dashed rgba(255,255,255,0.12)'),
-						A2($elm$html$Html$Attributes$style, 'border-radius', '12px'),
-						A2($elm$html$Html$Attributes$style, 'overflow', 'hidden'),
-						A2($elm$html$Html$Attributes$style, 'min-height', '0')
-					]),
-				_List_fromArray(
-					[
-						A2(
-						$elm$svg$Svg$svg,
+					_Utils_ap(
 						_List_fromArray(
 							[
-								$elm$svg$Svg$Attributes$width('100%'),
-								$elm$svg$Svg$Attributes$height('100%'),
-								$elm$svg$Svg$Attributes$style(
-								'display:block; cursor: ' + function () {
-									if (model.aF) {
-										return 'grabbing';
-									} else {
-										var _v0 = model.az;
-										switch (_v0) {
-											case 1:
-												return 'crosshair';
-											case 2:
-												return 'cell';
-											case 0:
-												var _v1 = model.ay;
-												if (!_v1.$) {
-													return 'grabbing';
-												} else {
-													return 'grab';
-												}
-											default:
-												return 'pointer';
-										}
-									}
-								}()),
-								A2(
-								$elm$svg$Svg$Events$on,
-								'mousemove',
-								A3(
-									$elm$json$Json$Decode$map2,
-									F2(
-										function (ox, oy) {
-											return model.aF ? A2($author$project$Types$PanMove, ox, oy) : A2($author$project$Types$MouseMove, (ox - model.a7) / model.a9, (oy - model.a8) / model.a9);
-										}),
-									A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$float),
-									A2($elm$json$Json$Decode$field, 'offsetY', $elm$json$Json$Decode$float))),
-								A2(
-								$elm$svg$Svg$Events$on,
-								'mouseup',
-								$elm$json$Json$Decode$succeed($author$project$Types$MouseUp))
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$svg$Svg$rect,
-								_List_fromArray(
-									[
-										$elm$svg$Svg$Attributes$x('0'),
-										$elm$svg$Svg$Attributes$y('0'),
-										$elm$svg$Svg$Attributes$width('100%'),
-										$elm$svg$Svg$Attributes$height('100%'),
-										$elm$svg$Svg$Attributes$fill('transparent'),
-										A2(
-										$elm$html$Html$Events$custom,
-										'click',
-										A3(
-											$elm$json$Json$Decode$map2,
-											F2(
-												function (ox, oy) {
-													return {
-														aG: A2($author$project$Types$ClickedCanvas, (ox - model.a7) / model.a9, (oy - model.a8) / model.a9),
-														aT: false,
-														a5: false
-													};
-												}),
-											A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$float),
-											A2($elm$json$Json$Decode$field, 'offsetY', $elm$json$Json$Decode$float))),
-										A2(
-										$elm$svg$Svg$Events$on,
-										'mousedown',
-										A3(
-											$elm$json$Json$Decode$map2,
-											$author$project$Types$PanStart,
-											A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$float),
-											A2($elm$json$Json$Decode$field, 'offsetY', $elm$json$Json$Decode$float)))
-									]),
-								_List_Nil),
-								A2(
-								$elm$svg$Svg$g,
-								_List_fromArray(
-									[
-										$elm$svg$Svg$Attributes$transform(
-										'translate(' + ($author$project$Helpers$flt(model.a7) + (',' + ($author$project$Helpers$flt(model.a8) + (') scale(' + ($author$project$Helpers$flt(model.a9) + ')'))))))
-									]),
-								$author$project$View$Canvas$drawDFA(model))
-							]))
-					])),
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-						A2($elm$html$Html$Attributes$style, 'gap', '24px'),
-						A2($elm$html$Html$Attributes$style, 'margin-top', '12px'),
-						A2($elm$html$Html$Attributes$style, 'align-items', 'flex-start')
-					]),
-				_List_fromArray(
-					[
-						A2(
-						$author$project$View$Widgets$toolGroup,
-						'Draw',
-						_List_fromArray(
-							[
-								A4(
-								$author$project$View$Widgets$toolBtn,
-								'✋',
-								!model.az,
-								$author$project$Types$SetDrawTool(0),
-								'Select/Move'),
-								A4(
-								$author$project$View$Widgets$toolBtn,
-								'⊕',
-								model.az === 1,
-								$author$project$Types$SetDrawTool(1),
-								'Add state'),
-								A4(
-								$author$project$View$Widgets$toolBtn,
-								'→',
-								model.az === 2,
-								$author$project$Types$SetDrawTool(2),
-								'Add transition'),
-								A4(
-								$author$project$View$Widgets$toolBtn,
-								'X',
-								model.az === 3,
-								$author$project$Types$SetDrawTool(3),
-								'Delete state/transition')
-							])),
-						A2(
-						$author$project$View$Widgets$toolGroup,
-						'Actions',
-						_List_fromArray(
-							[
-								A4(
-								$author$project$View$Widgets$undoRedoBtn,
-								'↩',
-								$author$project$Types$Undo,
-								!_Utils_eq(model.be, _List_Nil),
-								'Undo'),
-								A4(
-								$author$project$View$Widgets$undoRedoBtn,
-								'↪',
-								$author$project$Types$Redo,
-								!_Utils_eq(model.aU, _List_Nil),
-								'Redo')
-							])),
-						A2(
-						$author$project$View$Widgets$toolGroup,
-						'View',
-						_List_fromArray(
-							[
-								A4($author$project$View$Widgets$toolBtn, '+', false, $author$project$Types$ZoomIn, 'Zoom in'),
-								A4($author$project$View$Widgets$toolBtn, '−', false, $author$project$Types$ZoomOut, 'Zoom out'),
-								A4($author$project$View$Widgets$toolBtn, '⌂', false, $author$project$Types$ResetView, 'Reset view'),
 								A2(
 								$elm$html$Html$div,
 								_List_fromArray(
 									[
 										A2($elm$html$Html$Attributes$style, 'font-size', '0.68rem'),
 										A2($elm$html$Html$Attributes$style, 'color', '#9fa8da'),
-										A2($elm$html$Html$Attributes$style, 'font-family', 'monospace'),
-										A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
-										A2($elm$html$Html$Attributes$style, 'min-width', '36px'),
-										A2($elm$html$Html$Attributes$style, 'line-height', '40px')
+										A2($elm$html$Html$Attributes$style, 'margin-bottom', '6px'),
+										A2($elm$html$Html$Attributes$style, 'letter-spacing', '0.3px')
 									]),
 								_List_fromArray(
 									[
-										$elm$html$Html$text(
-										$elm$core$String$fromInt(
-											$elm$core$Basics$round(model.a9 * 100)) + '%')
+										$elm$html$Html$text(t.bV)
 									]))
-							]))
-					])),
-				(!$elm$core$Dict$isEmpty(model.ak)) ? $author$project$View$Panels$viewStateList(model) : $elm$html$Html$text('')
-			]));
-};
+							]),
+						A2(
+							$elm$core$List$map,
+							A2($author$project$View$Panels$viewStateRow, t, model),
+							$elm$core$Dict$keys(model.cE))))
+				]));
+	});
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $author$project$View$viewDiagramPanel = F2(
+	function (t, model) {
+		return A2(
+			$author$project$View$Widgets$panel,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'grid-column', '2'),
+					A2($elm$html$Html$Attributes$style, 'grid-row', '1'),
+					A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+					A2($elm$html$Html$Attributes$style, 'flex-direction', 'column'),
+					A2($elm$html$Html$Attributes$style, 'min-height', '0')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+							A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
+							A2($elm$html$Html$Attributes$style, 'justify-content', 'space-between'),
+							A2($elm$html$Html$Attributes$style, 'margin-bottom', '12px'),
+							A2($elm$html$Html$Attributes$style, 'flex-shrink', '0')
+						]),
+					_List_fromArray(
+						[
+							$author$project$View$Widgets$panelTitle(t.bU)
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'flex', '1'),
+							A2($elm$html$Html$Attributes$style, 'position', 'relative'),
+							A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.025)'),
+							A2($elm$html$Html$Attributes$style, 'border', '1px dashed rgba(255,255,255,0.12)'),
+							A2($elm$html$Html$Attributes$style, 'border-radius', '12px'),
+							A2($elm$html$Html$Attributes$style, 'overflow', 'hidden'),
+							A2($elm$html$Html$Attributes$style, 'min-height', '0')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$svg$Svg$svg,
+							_List_fromArray(
+								[
+									$elm$svg$Svg$Attributes$width('100%'),
+									$elm$svg$Svg$Attributes$height('100%'),
+									$elm$svg$Svg$Attributes$style(
+									'display:block; cursor: ' + function () {
+										if (model.cZ) {
+											return 'grabbing';
+										} else {
+											var _v0 = model.cT;
+											switch (_v0) {
+												case 1:
+													return 'crosshair';
+												case 2:
+													return 'cell';
+												case 0:
+													var _v1 = model.cS;
+													if (!_v1.$) {
+														return 'grabbing';
+													} else {
+														return 'grab';
+													}
+												default:
+													return 'pointer';
+											}
+										}
+									}()),
+									A2(
+									$elm$svg$Svg$Events$on,
+									'mousemove',
+									A3(
+										$elm$json$Json$Decode$map2,
+										F2(
+											function (ox, oy) {
+												return model.cZ ? A2($author$project$Types$PanMove, ox, oy) : A2($author$project$Types$MouseMove, (ox - model.ds) / model.du, (oy - model.dt) / model.du);
+											}),
+										A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$float),
+										A2($elm$json$Json$Decode$field, 'offsetY', $elm$json$Json$Decode$float))),
+									A2(
+									$elm$svg$Svg$Events$on,
+									'mouseup',
+									$elm$json$Json$Decode$succeed($author$project$Types$MouseUp))
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$svg$Svg$rect,
+									_List_fromArray(
+										[
+											$elm$svg$Svg$Attributes$x('0'),
+											$elm$svg$Svg$Attributes$y('0'),
+											$elm$svg$Svg$Attributes$width('100%'),
+											$elm$svg$Svg$Attributes$height('100%'),
+											$elm$svg$Svg$Attributes$fill('transparent'),
+											A2(
+											$elm$html$Html$Events$custom,
+											'click',
+											A3(
+												$elm$json$Json$Decode$map2,
+												F2(
+													function (ox, oy) {
+														return {
+															c$: A2($author$project$Types$ClickedCanvas, (ox - model.ds) / model.du, (oy - model.dt) / model.du),
+															dc: false,
+															dq: false
+														};
+													}),
+												A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$float),
+												A2($elm$json$Json$Decode$field, 'offsetY', $elm$json$Json$Decode$float))),
+											A2(
+											$elm$svg$Svg$Events$on,
+											'mousedown',
+											A3(
+												$elm$json$Json$Decode$map2,
+												$author$project$Types$PanStart,
+												A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$float),
+												A2($elm$json$Json$Decode$field, 'offsetY', $elm$json$Json$Decode$float)))
+										]),
+									_List_Nil),
+									A2(
+									$elm$svg$Svg$g,
+									_List_fromArray(
+										[
+											$elm$svg$Svg$Attributes$transform(
+											'translate(' + ($author$project$Helpers$flt(model.ds) + (',' + ($author$project$Helpers$flt(model.dt) + (') scale(' + ($author$project$Helpers$flt(model.du) + ')'))))))
+										]),
+									$author$project$View$Canvas$drawDFA(model))
+								]))
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+							A2($elm$html$Html$Attributes$style, 'gap', '24px'),
+							A2($elm$html$Html$Attributes$style, 'margin-top', '12px'),
+							A2($elm$html$Html$Attributes$style, 'align-items', 'flex-start')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$author$project$View$Widgets$toolGroup,
+							t.Z,
+							_List_fromArray(
+								[
+									A4(
+									$author$project$View$Widgets$toolBtn,
+									'✋',
+									!model.cT,
+									$author$project$Types$SetDrawTool(0),
+									t.by),
+									A4(
+									$author$project$View$Widgets$toolBtn,
+									'⊕',
+									model.cT === 1,
+									$author$project$Types$SetDrawTool(1),
+									t.L),
+									A4(
+									$author$project$View$Widgets$toolBtn,
+									'→',
+									model.cT === 2,
+									$author$project$Types$SetDrawTool(2),
+									t.M),
+									A4(
+									$author$project$View$Widgets$toolBtn,
+									'X',
+									model.cT === 3,
+									$author$project$Types$SetDrawTool(3),
+									t.Y)
+								])),
+							A2(
+							$author$project$View$Widgets$toolGroup,
+							t.J,
+							_List_fromArray(
+								[
+									A4(
+									$author$project$View$Widgets$undoRedoBtn,
+									'↩',
+									$author$project$Types$Undo,
+									!_Utils_eq(model.dz, _List_Nil),
+									t.b9),
+									A4(
+									$author$project$View$Widgets$undoRedoBtn,
+									'↪',
+									$author$project$Types$Redo,
+									!_Utils_eq(model.dd, _List_Nil),
+									t.br)
+								])),
+							A2(
+							$author$project$View$Widgets$toolGroup,
+							t.ca,
+							_List_fromArray(
+								[
+									A4($author$project$View$Widgets$toolBtn, '+', false, $author$project$Types$ZoomIn, t.cd),
+									A4($author$project$View$Widgets$toolBtn, '−', false, $author$project$Types$ZoomOut, t.ce),
+									A4($author$project$View$Widgets$toolBtn, '⌂', false, $author$project$Types$ResetView, t.bv),
+									A2(
+									$elm$html$Html$div,
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'font-size', '0.68rem'),
+											A2($elm$html$Html$Attributes$style, 'color', '#9fa8da'),
+											A2($elm$html$Html$Attributes$style, 'font-family', 'monospace'),
+											A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
+											A2($elm$html$Html$Attributes$style, 'min-width', '36px'),
+											A2($elm$html$Html$Attributes$style, 'line-height', '40px')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text(
+											$elm$core$String$fromInt(
+												$elm$core$Basics$round(model.du * 100)) + '%')
+										]))
+								]))
+						])),
+					(!$elm$core$Dict$isEmpty(model.cE)) ? A2($author$project$View$Panels$viewStateList, t, model) : $elm$html$Html$text('')
+				]));
+	});
 var $author$project$Types$NoOp = {$: 32};
 var $author$project$Types$ToggleFeedback = {$: 30};
 var $elm$html$Html$a = _VirtualDom_node('a');
@@ -8547,110 +9126,112 @@ var $elm$html$Html$Attributes$href = function (url) {
 };
 var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$html$Html$Attributes$target = $elm$html$Html$Attributes$stringProperty('target');
-var $author$project$View$Panels$viewFeedbackModal = A2(
-	$elm$html$Html$div,
-	_List_fromArray(
-		[
-			A2($elm$html$Html$Attributes$style, 'position', 'fixed'),
-			A2($elm$html$Html$Attributes$style, 'inset', '0'),
-			A2($elm$html$Html$Attributes$style, 'background', 'rgba(0,0,0,0.7)'),
-			A2($elm$html$Html$Attributes$style, 'z-index', '300'),
-			A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-			A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
-			A2($elm$html$Html$Attributes$style, 'justify-content', 'center'),
-			$elm$html$Html$Events$onClick($author$project$Types$ToggleFeedback)
-		]),
-	_List_fromArray(
-		[
-			A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					A2($elm$html$Html$Attributes$style, 'background', '#1e1e3a'),
-					A2($elm$html$Html$Attributes$style, 'border', '1px solid rgba(224,64,251,0.4)'),
-					A2($elm$html$Html$Attributes$style, 'border-radius', '16px'),
-					A2($elm$html$Html$Attributes$style, 'padding', '26px 28px'),
-					A2($elm$html$Html$Attributes$style, 'max-width', '400px'),
-					A2($elm$html$Html$Attributes$style, 'width', '90%'),
-					A2($elm$html$Html$Attributes$style, 'box-shadow', '0 8px 32px rgba(0,0,0,0.5)'),
-					A2(
-					$elm$html$Html$Events$custom,
-					'click',
-					$elm$json$Json$Decode$succeed(
-						{aG: $author$project$Types$NoOp, aT: false, a5: true}))
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$h3,
-					_List_fromArray(
-						[
-							A2($elm$html$Html$Attributes$style, 'margin-top', '0'),
-							A2($elm$html$Html$Attributes$style, 'margin-bottom', '6px'),
-							A2($elm$html$Html$Attributes$style, 'font-size', '1.1rem')
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('💬 Feedback')
-						])),
-					A2(
-					$elm$html$Html$p,
-					_List_fromArray(
-						[
-							A2($elm$html$Html$Attributes$style, 'font-size', '0.83rem'),
-							A2($elm$html$Html$Attributes$style, 'color', '#c5cae9'),
-							A2($elm$html$Html$Attributes$style, 'margin-bottom', '18px'),
-							A2($elm$html$Html$Attributes$style, 'line-height', '1.6')
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('I\'d love to hear your thoughts! Fill out my quick form or send me an email.')
-						])),
-					A2(
-					$elm$html$Html$a,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$href('https://forms.gle/kP81UtQw5daQhpiH7'),
-							$elm$html$Html$Attributes$target('_blank'),
-							A2($elm$html$Html$Attributes$style, 'display', 'block'),
-							A2($elm$html$Html$Attributes$style, 'background', 'linear-gradient(135deg, #7c4dff, #e040fb)'),
-							A2($elm$html$Html$Attributes$style, 'color', 'white'),
-							A2($elm$html$Html$Attributes$style, 'text-decoration', 'none'),
-							A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
-							A2($elm$html$Html$Attributes$style, 'padding', '10px 0'),
-							A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
-							A2($elm$html$Html$Attributes$style, 'font-size', '0.85rem'),
-							A2($elm$html$Html$Attributes$style, 'font-weight', '600'),
-							A2($elm$html$Html$Attributes$style, 'margin-bottom', '12px')
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('📋 Open Feedback Form')
-						])),
-					A2(
-					$elm$html$Html$a,
-					_List_fromArray(
-						[
-							$elm$html$Html$Attributes$href('mailto:florakanuch@gmail.com'),
-							A2($elm$html$Html$Attributes$style, 'display', 'block'),
-							A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.07)'),
-							A2($elm$html$Html$Attributes$style, 'color', '#c5cae9'),
-							A2($elm$html$Html$Attributes$style, 'text-decoration', 'none'),
-							A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
-							A2($elm$html$Html$Attributes$style, 'padding', '10px 0'),
-							A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
-							A2($elm$html$Html$Attributes$style, 'font-size', '0.85rem'),
-							A2($elm$html$Html$Attributes$style, 'font-weight', '600'),
-							A2($elm$html$Html$Attributes$style, 'margin-bottom', '16px'),
-							A2($elm$html$Html$Attributes$style, 'border', '1px solid rgba(255,255,255,0.1)')
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('✉️ florakanuch@gmail.com')
-						])),
-					A5($author$project$View$Widgets$styledBtn, 'Close', $author$project$Types$ToggleFeedback, 'rgba(255,255,255,0.1)', '100%', '9px 0')
-				]))
-		]));
+var $author$project$View$Panels$viewFeedbackModal = function (t) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'position', 'fixed'),
+				A2($elm$html$Html$Attributes$style, 'inset', '0'),
+				A2($elm$html$Html$Attributes$style, 'background', 'rgba(0,0,0,0.7)'),
+				A2($elm$html$Html$Attributes$style, 'z-index', '300'),
+				A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+				A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
+				A2($elm$html$Html$Attributes$style, 'justify-content', 'center'),
+				$elm$html$Html$Events$onClick($author$project$Types$ToggleFeedback)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'background', '#1e1e3a'),
+						A2($elm$html$Html$Attributes$style, 'border', '1px solid rgba(224,64,251,0.4)'),
+						A2($elm$html$Html$Attributes$style, 'border-radius', '16px'),
+						A2($elm$html$Html$Attributes$style, 'padding', '26px 28px'),
+						A2($elm$html$Html$Attributes$style, 'max-width', '400px'),
+						A2($elm$html$Html$Attributes$style, 'width', '90%'),
+						A2($elm$html$Html$Attributes$style, 'box-shadow', '0 8px 32px rgba(0,0,0,0.5)'),
+						A2(
+						$elm$html$Html$Events$custom,
+						'click',
+						$elm$json$Json$Decode$succeed(
+							{c$: $author$project$Types$NoOp, dc: false, dq: true}))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$h3,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$Attributes$style, 'margin-top', '0'),
+								A2($elm$html$Html$Attributes$style, 'margin-bottom', '6px'),
+								A2($elm$html$Html$Attributes$style, 'font-size', '1.1rem')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text(t.ac)
+							])),
+						A2(
+						$elm$html$Html$p,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$Attributes$style, 'font-size', '0.83rem'),
+								A2($elm$html$Html$Attributes$style, 'color', '#c5cae9'),
+								A2($elm$html$Html$Attributes$style, 'margin-bottom', '18px'),
+								A2($elm$html$Html$Attributes$style, 'line-height', '1.6')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text(t.ab)
+							])),
+						A2(
+						$elm$html$Html$a,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$href('https://forms.gle/kP81UtQw5daQhpiH7'),
+								$elm$html$Html$Attributes$target('_blank'),
+								A2($elm$html$Html$Attributes$style, 'display', 'block'),
+								A2($elm$html$Html$Attributes$style, 'background', 'linear-gradient(135deg, #7c4dff, #e040fb)'),
+								A2($elm$html$Html$Attributes$style, 'color', 'white'),
+								A2($elm$html$Html$Attributes$style, 'text-decoration', 'none'),
+								A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
+								A2($elm$html$Html$Attributes$style, 'padding', '10px 0'),
+								A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
+								A2($elm$html$Html$Attributes$style, 'font-size', '0.85rem'),
+								A2($elm$html$Html$Attributes$style, 'font-weight', '600'),
+								A2($elm$html$Html$Attributes$style, 'margin-bottom', '12px')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text(t.bp)
+							])),
+						A2(
+						$elm$html$Html$a,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$href('mailto:florakanuch@gmail.com'),
+								A2($elm$html$Html$Attributes$style, 'display', 'block'),
+								A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.07)'),
+								A2($elm$html$Html$Attributes$style, 'color', '#c5cae9'),
+								A2($elm$html$Html$Attributes$style, 'text-decoration', 'none'),
+								A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
+								A2($elm$html$Html$Attributes$style, 'padding', '10px 0'),
+								A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
+								A2($elm$html$Html$Attributes$style, 'font-size', '0.85rem'),
+								A2($elm$html$Html$Attributes$style, 'font-weight', '600'),
+								A2($elm$html$Html$Attributes$style, 'margin-bottom', '16px'),
+								A2($elm$html$Html$Attributes$style, 'border', '1px solid rgba(255,255,255,0.1)')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('✉️ florakanuch@gmail.com')
+							])),
+						A5($author$project$View$Widgets$styledBtn, t.T, $author$project$Types$ToggleFeedback, 'rgba(255,255,255,0.1)', '100%', '9px 0')
+					]))
+			]));
+};
 var $author$project$Types$ToggleHelp = {$: 29};
 var $author$project$View$Widgets$helpLine = F2(
 	function (title, body) {
@@ -8708,8 +9289,8 @@ var $author$project$View$Panels$helpSectionTitle = function (t) {
 			]));
 };
 var $author$project$View$Widgets$purpleGrad = 'linear-gradient(135deg, #7c4dff, #e040fb)';
-var $author$project$View$Panels$statusExplain = F5(
-	function (fieldName, general, testPanel, codePanel, diagram) {
+var $author$project$View$Panels$statusExplain = F6(
+	function (t, fieldName, general, testPanel, codePanel, diagram) {
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -8767,7 +9348,7 @@ var $author$project$View$Panels$statusExplain = F5(
 										]),
 									_List_fromArray(
 										[
-											$elm$html$Html$text('Test String: ')
+											$elm$html$Html$text(t.b$)
 										])),
 									A2(
 									$elm$html$Html$span,
@@ -8795,7 +9376,7 @@ var $author$project$View$Panels$statusExplain = F5(
 										]),
 									_List_fromArray(
 										[
-											$elm$html$Html$text('Code panel: ')
+											$elm$html$Html$text(t.bY)
 										])),
 									A2(
 									$elm$html$Html$span,
@@ -8823,7 +9404,7 @@ var $author$project$View$Panels$statusExplain = F5(
 										]),
 									_List_fromArray(
 										[
-											$elm$html$Html$text('State Diagram: ')
+											$elm$html$Html$text(t.bZ)
 										])),
 									A2(
 									$elm$html$Html$span,
@@ -8840,172 +9421,161 @@ var $author$project$View$Panels$statusExplain = F5(
 						]))
 				]));
 	});
-var $author$project$View$Panels$viewHelpModal = A2(
-	$elm$html$Html$div,
-	_List_fromArray(
-		[
-			A2($elm$html$Html$Attributes$style, 'position', 'fixed'),
-			A2($elm$html$Html$Attributes$style, 'inset', '0'),
-			A2($elm$html$Html$Attributes$style, 'background', 'rgba(0,0,0,0.7)'),
-			A2($elm$html$Html$Attributes$style, 'z-index', '300'),
-			A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-			A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
-			A2($elm$html$Html$Attributes$style, 'justify-content', 'center'),
-			$elm$html$Html$Events$onClick($author$project$Types$ToggleHelp)
-		]),
-	_List_fromArray(
-		[
-			A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					A2($elm$html$Html$Attributes$style, 'background', '#1e1e3a'),
-					A2($elm$html$Html$Attributes$style, 'border', '1px solid rgba(124,77,255,0.4)'),
-					A2($elm$html$Html$Attributes$style, 'border-radius', '16px'),
-					A2($elm$html$Html$Attributes$style, 'padding', '26px 28px'),
-					A2($elm$html$Html$Attributes$style, 'max-width', '700px'),
-					A2($elm$html$Html$Attributes$style, 'width', '90%'),
-					A2($elm$html$Html$Attributes$style, 'max-height', '88vh'),
-					A2($elm$html$Html$Attributes$style, 'overflow-y', 'auto'),
-					A2($elm$html$Html$Attributes$style, 'box-shadow', '0 8px 32px rgba(0,0,0,0.5)'),
-					A2(
-					$elm$html$Html$Events$custom,
-					'click',
-					$elm$json$Json$Decode$succeed(
-						{aG: $author$project$Types$NoOp, aT: false, a5: true}))
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$h3,
-					_List_fromArray(
-						[
-							A2($elm$html$Html$Attributes$style, 'margin-top', '0'),
-							A2($elm$html$Html$Attributes$style, 'margin-bottom', '6px'),
-							A2($elm$html$Html$Attributes$style, 'font-size', '1.2rem'),
-							A2($elm$html$Html$Attributes$style, 'color', '#fff')
-						]),
-					_List_fromArray(
-						[
-							$elm$html$Html$text('📖 Help & Controls')
-						])),
-					A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							A2($elm$html$Html$Attributes$style, 'background', 'rgba(124,77,255,0.12)'),
-							A2($elm$html$Html$Attributes$style, 'border', '1px solid rgba(124,77,255,0.35)'),
-							A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
-							A2($elm$html$Html$Attributes$style, 'padding', '12px 14px'),
-							A2($elm$html$Html$Attributes$style, 'margin-bottom', '18px'),
-							A2($elm$html$Html$Attributes$style, 'font-size', '0.83rem'),
-							A2($elm$html$Html$Attributes$style, 'color', '#c5cae9'),
-							A2($elm$html$Html$Attributes$style, 'line-height', '1.65')
-						]),
-					_List_fromArray(
-						[
-							A2(
-							$elm$html$Html$p,
-							_List_fromArray(
-								[
-									A2($elm$html$Html$Attributes$style, 'margin', '0 0 6px 0'),
-									A2($elm$html$Html$Attributes$style, 'font-weight', '700'),
-									A2($elm$html$Html$Attributes$style, 'color', '#e8eaf6')
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text('What is this app?')
-								])),
-							A2(
-							$elm$html$Html$p,
-							_List_fromArray(
-								[
-									A2($elm$html$Html$Attributes$style, 'margin', '0')
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text('This tool is an interactive '),
-									A2(
-									$elm$html$Html$span,
-									_List_fromArray(
-										[
-											A2($elm$html$Html$Attributes$style, 'color', '#e040fb'),
-											A2($elm$html$Html$Attributes$style, 'font-weight', '700')
-										]),
-									_List_fromArray(
-										[
-											$elm$html$Html$text('Deterministic Finite Automaton (DFA)')
-										])),
-									$elm$html$Html$text(' simulator designed for college and university students. The goal is to help learners visually and interactively understand how automata work during theoretical computer science classes — how a DFA processes an input word, when it accepts, and when it rejects.')
-								]))
-						])),
-					$author$project$View$Panels$helpSectionTitle(' Save and Load'),
-					A2($author$project$View$Widgets$helpLine, 'Save', 'Save the current diagram to future use. You can rename the saved sloth and also delete it.'),
-					A2($author$project$View$Widgets$helpLine, 'Load', 'Choose one sloth from SAVED DIAGRAMS and it will be loaded. You can add the start state through the CODE PANEL or mark it at the STATES list if the start state does not load. The loaded diagram and code can be edited but it needs to be saved again separately after the editing.'),
-					$author$project$View$Panels$helpSectionTitle(' Editing the Diagram'),
-					A2($author$project$View$Widgets$helpLine, '✋ Select', 'Drag states to move them. Double-click a state to rename it.'),
-					A2($author$project$View$Widgets$helpLine, '⊕ Add State', 'Click on the empty canvas to place a new state.'),
-					A2($author$project$View$Widgets$helpLine, '→ Add Transition', 'Click the source state, then the target state. Enter the transition character.'),
-					A2($author$project$View$Widgets$helpLine, 'X Delete state/transition', 'Click on a state or transition to delete it.'),
-					A2($author$project$View$Widgets$helpLine, '✎ Rename', 'Use the button in the state list or double-click directly on the state.'),
-					A2($author$project$View$Widgets$helpLine, 'S / A / X', 'S = set as start state, A = toggle accept state, × = delete state.'),
-					A2($author$project$View$Widgets$helpLine, 'Pan', 'Drag the empty canvas area to move the view.'),
-					A2($author$project$View$Widgets$helpLine, '+ / − / ⌂', 'Zoom in, zoom out, and reset the view.'),
-					$author$project$View$Panels$helpSectionTitle('Undo / Redo / Clear'),
-					A2($author$project$View$Widgets$helpLine, '↩ Undo', 'Undo the last diagram change (up to 50 steps).'),
-					A2($author$project$View$Widgets$helpLine, '↪ Redo', 'Redo a previously undone action.'),
-					A2($author$project$View$Widgets$helpLine, '🗑 Clear All', 'Deletes all states, transitions and simulation data. This action CANNOT be undone.'),
-					$author$project$View$Panels$helpSectionTitle('Code Panel'),
-					A2($author$project$View$Widgets$helpLine, 'Format', 'One transition per line: from,character,to — e.g. q0,a,q1'),
-					A2($author$project$View$Widgets$helpLine, 'Generate diagram', 'Automatically builds the diagram from the typed code, arranging states in a circle.'),
-					A2($author$project$View$Widgets$helpLine, 'States / Alphabet / Start / Accept', 'Fill in these fields for a formal DFA description. They update automatically when editing the diagram.'),
-					$author$project$View$Panels$helpSectionTitle('Simulation'),
-					A2($author$project$View$Widgets$helpLine, 'Test word', 'Type the word you want to test (e.g. \"aab\").'),
-					A2($author$project$View$Widgets$helpLine, '⚙ Load DFA', 'Loads the DFA and sets the simulation to the start state. Press this first.'),
-					A2($author$project$View$Widgets$helpLine, '▶ Run / ⏹ Stop', 'Run: automatically plays through the simulation at the set speed. Stop: pauses it.'),
-					A2($author$project$View$Widgets$helpLine, '🐌 Speed slider 🐎', 'Adjust the speed of the automatic playback (slower ↔ faster).'),
-					A2($author$project$View$Widgets$helpLine, '< Back / > Step', 'Manually step through the simulation: go back or forward one character at a time.'),
-					A2($author$project$View$Widgets$helpLine, '>> Read all', 'Processes the entire word at once and shows the final result.'),
-					A2($author$project$View$Widgets$helpLine, '<< Reset', 'Resets the simulation back to the beginning.'),
-					$author$project$View$Panels$helpSectionTitle('What do the status indicators mean?'),
-					A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.04)'),
-							A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
-							A2($elm$html$Html$Attributes$style, 'padding', '12px 14px'),
-							A2($elm$html$Html$Attributes$style, 'margin-bottom', '6px'),
-							A2($elm$html$Html$Attributes$style, 'font-size', '0.8rem'),
-							A2($elm$html$Html$Attributes$style, 'line-height', '1.7')
-						]),
-					_List_fromArray(
-						[
-							A5($author$project$View$Panels$statusExplain, 'Status', 'A text description of the current event. Green = ACCEPTED, Red = REJECTED, Purple = in progress.', 'Shown in the Test String panel and updates continuously as the simulation runs.', 'Determined by whether a valid transition exists in the transitions field for the current input character.', 'The highlighted state on the canvas (green or red border) shows where the simulation currently is.'),
-							A5($author$project$View$Panels$statusExplain, 'Index', 'Shows which character position in the input word the simulation is currently at (e.g. 2 / 4).', 'Counts the characters of the word entered in the Test String field.', 'The transitions rows determine whether a valid transition exists at each index position.', 'The active arrow on the diagram shows which character was just read.'),
-							A5($author$project$View$Panels$statusExplain, 'Current State', 'The state the DFA is currently in. If shown as — (Nothing), the DFA has no valid transition and is stuck.', 'Starts from the start state when Load DFA is pressed, then changes step by step.', 'The start state field in the Code panel determines the initial Current State.', 'The state with the green border and dark green fill on the diagram is the current state.')
-						])),
-					A2(
-					$elm$html$Html$div,
-					_List_fromArray(
-						[
-							A2($elm$html$Html$Attributes$style, 'margin-top', '18px')
-						]),
-					_List_fromArray(
-						[
-							A5($author$project$View$Widgets$styledBtn, 'Got it!', $author$project$Types$ToggleHelp, $author$project$View$Widgets$purpleGrad, '100%', '9px 0')
-						]))
-				]))
-		]));
+var $author$project$View$Panels$viewHelpModal = function (t) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'position', 'fixed'),
+				A2($elm$html$Html$Attributes$style, 'inset', '0'),
+				A2($elm$html$Html$Attributes$style, 'background', 'rgba(0,0,0,0.7)'),
+				A2($elm$html$Html$Attributes$style, 'z-index', '300'),
+				A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+				A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
+				A2($elm$html$Html$Attributes$style, 'justify-content', 'center'),
+				$elm$html$Html$Events$onClick($author$project$Types$ToggleHelp)
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'background', '#1e1e3a'),
+						A2($elm$html$Html$Attributes$style, 'border', '1px solid rgba(124,77,255,0.4)'),
+						A2($elm$html$Html$Attributes$style, 'border-radius', '16px'),
+						A2($elm$html$Html$Attributes$style, 'padding', '26px 28px'),
+						A2($elm$html$Html$Attributes$style, 'max-width', '700px'),
+						A2($elm$html$Html$Attributes$style, 'width', '90%'),
+						A2($elm$html$Html$Attributes$style, 'max-height', '88vh'),
+						A2($elm$html$Html$Attributes$style, 'overflow-y', 'auto'),
+						A2($elm$html$Html$Attributes$style, 'box-shadow', '0 8px 32px rgba(0,0,0,0.5)'),
+						A2(
+						$elm$html$Html$Events$custom,
+						'click',
+						$elm$json$Json$Decode$succeed(
+							{c$: $author$project$Types$NoOp, dc: false, dq: true}))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$h3,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$Attributes$style, 'margin-top', '0'),
+								A2($elm$html$Html$Attributes$style, 'margin-bottom', '6px'),
+								A2($elm$html$Html$Attributes$style, 'font-size', '1.2rem'),
+								A2($elm$html$Html$Attributes$style, 'color', '#fff')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text(t.be)
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$Attributes$style, 'background', 'rgba(124,77,255,0.12)'),
+								A2($elm$html$Html$Attributes$style, 'border', '1px solid rgba(124,77,255,0.35)'),
+								A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
+								A2($elm$html$Html$Attributes$style, 'padding', '12px 14px'),
+								A2($elm$html$Html$Attributes$style, 'margin-bottom', '18px'),
+								A2($elm$html$Html$Attributes$style, 'font-size', '0.83rem'),
+								A2($elm$html$Html$Attributes$style, 'color', '#c5cae9'),
+								A2($elm$html$Html$Attributes$style, 'line-height', '1.65')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$p,
+								_List_fromArray(
+									[
+										A2($elm$html$Html$Attributes$style, 'margin', '0 0 6px 0'),
+										A2($elm$html$Html$Attributes$style, 'font-weight', '700'),
+										A2($elm$html$Html$Attributes$style, 'color', '#e8eaf6')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text(t.cb)
+									])),
+								A2(
+								$elm$html$Html$p,
+								_List_fromArray(
+									[
+										A2($elm$html$Html$Attributes$style, 'margin', '0')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text(t.cc)
+									]))
+							])),
+						$author$project$View$Panels$helpSectionTitle(t.a0),
+						A2($author$project$View$Widgets$helpLine, t.a_, t.a$),
+						A2($author$project$View$Widgets$helpLine, t.aI, t.aJ),
+						$author$project$View$Panels$helpSectionTitle(t.aw),
+						A2($author$project$View$Widgets$helpLine, t.a1, t.a2),
+						A2($author$project$View$Widgets$helpLine, t.ag, t.ah),
+						A2($author$project$View$Widgets$helpLine, t.ai, t.aj),
+						A2($author$project$View$Widgets$helpLine, t.au, t.av),
+						A2($author$project$View$Widgets$helpLine, t.aS, t.aT),
+						A2($author$project$View$Widgets$helpLine, t.aY, t.aZ),
+						A2($author$project$View$Widgets$helpLine, t.aM, t.aN),
+						A2($author$project$View$Widgets$helpLine, t.bi, t.bj),
+						$author$project$View$Panels$helpSectionTitle(t.bh),
+						A2($author$project$View$Widgets$helpLine, t.bg, t.bf),
+						A2($author$project$View$Widgets$helpLine, t.aR, t.aQ),
+						A2($author$project$View$Widgets$helpLine, t.an, t.am),
+						$author$project$View$Panels$helpSectionTitle(t.ao),
+						A2($author$project$View$Widgets$helpLine, t.az, t.aA),
+						A2($author$project$View$Widgets$helpLine, t.aB, t.aC),
+						A2($author$project$View$Widgets$helpLine, t.ax, t.ay),
+						$author$project$View$Panels$helpSectionTitle(t.a3),
+						A2($author$project$View$Widgets$helpLine, t.bc, t.bd),
+						A2($author$project$View$Widgets$helpLine, t.aK, t.aL),
+						A2($author$project$View$Widgets$helpLine, t.aW, t.aX),
+						A2($author$project$View$Widgets$helpLine, t.a4, t.a5),
+						A2($author$project$View$Widgets$helpLine, t.ak, t.al),
+						A2($author$project$View$Widgets$helpLine, t.aO, t.aP),
+						A2($author$project$View$Widgets$helpLine, t.aU, t.aV),
+						$author$project$View$Panels$helpSectionTitle(t.bb),
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.04)'),
+								A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
+								A2($elm$html$Html$Attributes$style, 'padding', '12px 14px'),
+								A2($elm$html$Html$Attributes$style, 'margin-bottom', '6px'),
+								A2($elm$html$Html$Attributes$style, 'font-size', '0.8rem'),
+								A2($elm$html$Html$Attributes$style, 'line-height', '1.7')
+							]),
+						_List_fromArray(
+							[
+								A6($author$project$View$Panels$statusExplain, t, t.a8, t.a9, t.ba, t.a6, t.a7),
+								A6($author$project$View$Panels$statusExplain, t, t.aF, t.aG, t.aH, t.aD, t.aE),
+								A6($author$project$View$Panels$statusExplain, t, t.ar, t.as, t.at, t.ap, t.aq)
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$Attributes$style, 'margin-top', '18px')
+							]),
+						_List_fromArray(
+							[
+								A5($author$project$View$Widgets$styledBtn, t.ae, $author$project$Types$ToggleHelp, $author$project$View$Widgets$purpleGrad, '100%', '9px 0')
+							]))
+					]))
+			]));
+};
 var $author$project$Types$CancelRename = {$: 9};
 var $author$project$Types$ConfirmRename = {$: 8};
 var $author$project$Types$SetRenameValue = function (a) {
 	return {$: 7, a: a};
 };
-var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $elm$json$Json$Decode$fail = _Json_fail;
-var $author$project$View$Panels$viewRenamePopup = F2(
-	function (stateName, currentVal) {
+var $author$project$View$Panels$viewRenamePopup = F3(
+	function (t, stateName, currentVal) {
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -9043,7 +9613,8 @@ var $author$project$View$Panels$viewRenamePopup = F2(
 								]),
 							_List_fromArray(
 								[
-									$elm$html$Html$text('Rename state: ' + stateName)
+									$elm$html$Html$text(
+									_Utils_ap(t.bt, stateName))
 								])),
 							A2(
 							$elm$html$Html$input,
@@ -9082,8 +9653,8 @@ var $author$project$View$Panels$viewRenamePopup = F2(
 								]),
 							_List_fromArray(
 								[
-									A5($author$project$View$Widgets$styledBtn, 'Rename', $author$project$Types$ConfirmRename, $author$project$View$Widgets$purpleGrad, '50%', '8px 0'),
-									A5($author$project$View$Widgets$styledBtn, 'Cancel', $author$project$Types$CancelRename, 'rgba(255,255,255,0.1)', '50%', '8px 0')
+									A5($author$project$View$Widgets$styledBtn, t.bs, $author$project$Types$ConfirmRename, $author$project$View$Widgets$purpleGrad, '50%', '8px 0'),
+									A5($author$project$View$Widgets$styledBtn, t.Q, $author$project$Types$CancelRename, 'rgba(255,255,255,0.1)', '50%', '8px 0')
 								]))
 						]))
 				]));
@@ -9101,60 +9672,62 @@ var $author$project$Types$StepBack = {$: 19};
 var $author$project$Types$StepForward = {$: 18};
 var $author$project$Types$ToggleTestPanel = {$: 45};
 var $author$project$Types$StartAutoRun = {$: 35};
-var $author$project$View$Widgets$autoRunBtn = function (model) {
-	return A2(
-		$elm$html$Html$button,
-		_List_fromArray(
-			[
-				$elm$html$Html$Events$onClick($author$project$Types$StartAutoRun),
-				A2($elm$html$Html$Attributes$style, 'flex', '1'),
-				A2(
-				$elm$html$Html$Attributes$style,
-				'background',
-				model.ar ? 'linear-gradient(135deg, #388e3c, #66bb6a)' : 'rgba(255,255,255,0.07)'),
-				A2(
-				$elm$html$Html$Attributes$style,
-				'border',
-				model.ar ? '1px solid #66bb6a' : '1px solid rgba(255,255,255,0.1)'),
-				A2($elm$html$Html$Attributes$style, 'border-radius', '8px'),
-				A2($elm$html$Html$Attributes$style, 'padding', '7px 10px'),
-				A2($elm$html$Html$Attributes$style, 'font-size', '0.78rem'),
-				A2($elm$html$Html$Attributes$style, 'font-weight', '600'),
-				A2($elm$html$Html$Attributes$style, 'cursor', 'pointer'),
-				A2(
-				$elm$html$Html$Attributes$style,
-				'color',
-				model.ar ? '#fff' : '#9fa8da'),
-				A2($elm$html$Html$Attributes$style, 'font-family', 'inherit')
-			]),
-		_List_fromArray(
-			[
-				$elm$html$Html$text('▶ Run')
-			]));
-};
+var $author$project$View$Widgets$autoRunBtn = F2(
+	function (t, model) {
+		return A2(
+			$elm$html$Html$button,
+			_List_fromArray(
+				[
+					$elm$html$Html$Events$onClick($author$project$Types$StartAutoRun),
+					A2($elm$html$Html$Attributes$style, 'flex', '1'),
+					A2(
+					$elm$html$Html$Attributes$style,
+					'background',
+					model.cL ? 'linear-gradient(135deg, #388e3c, #66bb6a)' : 'rgba(255,255,255,0.07)'),
+					A2(
+					$elm$html$Html$Attributes$style,
+					'border',
+					model.cL ? '1px solid #66bb6a' : '1px solid rgba(255,255,255,0.1)'),
+					A2($elm$html$Html$Attributes$style, 'border-radius', '8px'),
+					A2($elm$html$Html$Attributes$style, 'padding', '7px 10px'),
+					A2($elm$html$Html$Attributes$style, 'font-size', '0.78rem'),
+					A2($elm$html$Html$Attributes$style, 'font-weight', '600'),
+					A2($elm$html$Html$Attributes$style, 'cursor', 'pointer'),
+					A2(
+					$elm$html$Html$Attributes$style,
+					'color',
+					model.cL ? '#fff' : '#9fa8da'),
+					A2($elm$html$Html$Attributes$style, 'font-family', 'inherit')
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(t.bw)
+				]));
+	});
 var $author$project$Types$StopAutoRun = {$: 36};
-var $author$project$View$Widgets$autoStopBtn = function (model) {
-	return A2(
-		$elm$html$Html$button,
-		_List_fromArray(
-			[
-				$elm$html$Html$Events$onClick($author$project$Types$StopAutoRun),
-				A2($elm$html$Html$Attributes$style, 'flex', '1'),
-				A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.07)'),
-				A2($elm$html$Html$Attributes$style, 'border', '1px solid rgba(255,255,255,0.1)'),
-				A2($elm$html$Html$Attributes$style, 'border-radius', '8px'),
-				A2($elm$html$Html$Attributes$style, 'padding', '7px 10px'),
-				A2($elm$html$Html$Attributes$style, 'font-size', '0.78rem'),
-				A2($elm$html$Html$Attributes$style, 'font-weight', '600'),
-				A2($elm$html$Html$Attributes$style, 'cursor', 'pointer'),
-				A2($elm$html$Html$Attributes$style, 'color', '#9fa8da'),
-				A2($elm$html$Html$Attributes$style, 'font-family', 'inherit')
-			]),
-		_List_fromArray(
-			[
-				$elm$html$Html$text('⏹ Stop')
-			]));
-};
+var $author$project$View$Widgets$autoStopBtn = F2(
+	function (t, model) {
+		return A2(
+			$elm$html$Html$button,
+			_List_fromArray(
+				[
+					$elm$html$Html$Events$onClick($author$project$Types$StopAutoRun),
+					A2($elm$html$Html$Attributes$style, 'flex', '1'),
+					A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.07)'),
+					A2($elm$html$Html$Attributes$style, 'border', '1px solid rgba(255,255,255,0.1)'),
+					A2($elm$html$Html$Attributes$style, 'border-radius', '8px'),
+					A2($elm$html$Html$Attributes$style, 'padding', '7px 10px'),
+					A2($elm$html$Html$Attributes$style, 'font-size', '0.78rem'),
+					A2($elm$html$Html$Attributes$style, 'font-weight', '600'),
+					A2($elm$html$Html$Attributes$style, 'cursor', 'pointer'),
+					A2($elm$html$Html$Attributes$style, 'color', '#9fa8da'),
+					A2($elm$html$Html$Attributes$style, 'font-family', 'inherit')
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(t.b2)
+				]));
+	});
 var $elm$html$Html$Attributes$max = $elm$html$Html$Attributes$stringProperty('max');
 var $elm$html$Html$Attributes$min = $elm$html$Html$Attributes$stringProperty('min');
 var $author$project$View$Widgets$rowLabel = function (t) {
@@ -9199,282 +9772,348 @@ var $author$project$View$Widgets$stepBtn = F2(
 				]));
 	});
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
-var $author$project$View$Panels$viewTestStringPanel = function (model) {
+var $author$project$View$Panels$viewTestStringPanel = F2(
+	function (t, model) {
+		return A2(
+			$author$project$View$Widgets$panel,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A3($author$project$View$Widgets$collapsibleHeader, t.b3, model.dv, $author$project$Types$ToggleTestPanel),
+					model.dv ? $elm$html$Html$text('') : A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'margin-top', '10px')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('')
+								])),
+							A2(
+							$elm$html$Html$input,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$value(model.b4),
+									$elm$html$Html$Events$onInput($author$project$Types$SetTestWord),
+									$elm$html$Html$Attributes$placeholder(t._),
+									A2($elm$html$Html$Attributes$style, 'width', '100%'),
+									A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.06)'),
+									A2($elm$html$Html$Attributes$style, 'border', '2px solid #7c4dff'),
+									A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
+									A2($elm$html$Html$Attributes$style, 'padding', '10px 14px'),
+									A2($elm$html$Html$Attributes$style, 'color', '#e8eaf6'),
+									A2($elm$html$Html$Attributes$style, 'font-family', 'monospace'),
+									A2($elm$html$Html$Attributes$style, 'font-size', '0.9rem'),
+									A2($elm$html$Html$Attributes$style, 'outline', 'none'),
+									A2($elm$html$Html$Attributes$style, 'box-sizing', 'border-box')
+								]),
+							_List_Nil),
+							A5($author$project$View$Widgets$styledBtn, t.bm, $author$project$Types$LoadDFA, $author$project$View$Widgets$purpleGrad, '100%', '9px 0'),
+							$author$project$View$Widgets$rowLabel(t.O),
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+									A2($elm$html$Html$Attributes$style, 'gap', '8px'),
+									A2($elm$html$Html$Attributes$style, 'margin-top', '6px')
+								]),
+							_List_fromArray(
+								[
+									A2($author$project$View$Widgets$autoRunBtn, t, model),
+									A2($author$project$View$Widgets$autoStopBtn, t, model)
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'margin-top', '8px')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$div,
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+											A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
+											A2($elm$html$Html$Attributes$style, 'justify-content', 'space-between'),
+											A2($elm$html$Html$Attributes$style, 'margin-bottom', '4px')
+										]),
+									_List_fromArray(
+										[
+											A2(
+											$elm$html$Html$span,
+											_List_fromArray(
+												[
+													A2($elm$html$Html$Attributes$style, 'font-size', '0.72rem'),
+													A2($elm$html$Html$Attributes$style, 'color', '#9fa8da')
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text(t.bS)
+												])),
+											A2(
+											$elm$html$Html$span,
+											_List_fromArray(
+												[
+													A2($elm$html$Html$Attributes$style, 'font-size', '0.72rem'),
+													A2($elm$html$Html$Attributes$style, 'color', '#9fa8da'),
+													A2($elm$html$Html$Attributes$style, 'font-family', 'monospace')
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text(
+													function () {
+														var tenths = $elm$core$Basics$round((2100 - model.cM) / 100);
+														var whole = (tenths / 10) | 0;
+														var frac = tenths % 10;
+														return $elm$core$String$fromInt(whole) + ('.' + ($elm$core$String$fromInt(frac) + ' s/step'));
+													}())
+												]))
+										])),
+									A2(
+									$elm$html$Html$div,
+									_List_fromArray(
+										[
+											A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+											A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
+											A2($elm$html$Html$Attributes$style, 'gap', '8px')
+										]),
+									_List_fromArray(
+										[
+											A2(
+											$elm$html$Html$span,
+											_List_fromArray(
+												[
+													A2($elm$html$Html$Attributes$style, 'font-size', '1rem')
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text('🐌')
+												])),
+											A2(
+											$elm$html$Html$input,
+											_List_fromArray(
+												[
+													$elm$html$Html$Attributes$type_('range'),
+													$elm$html$Html$Attributes$min('100'),
+													$elm$html$Html$Attributes$max('2000'),
+													$elm$html$Html$Attributes$step('100'),
+													$elm$html$Html$Attributes$value(
+													$elm$core$String$fromInt(model.cM)),
+													$elm$html$Html$Events$onInput(
+													function (v) {
+														return $author$project$Types$SetAutoSpeed(
+															A2(
+																$elm$core$Maybe$withDefault,
+																800,
+																$elm$core$String$toInt(v)));
+													}),
+													A2($elm$html$Html$Attributes$style, 'flex', '1'),
+													A2($elm$html$Html$Attributes$style, 'accent-color', '#7c4dff'),
+													A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')
+												]),
+											_List_Nil),
+											A2(
+											$elm$html$Html$span,
+											_List_fromArray(
+												[
+													A2($elm$html$Html$Attributes$style, 'font-size', '1rem')
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text('🐎')
+												]))
+										]))
+								])),
+							$author$project$View$Widgets$rowLabel(t.b1),
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+									A2($elm$html$Html$Attributes$style, 'gap', '6px'),
+									A2($elm$html$Html$Attributes$style, 'margin-top', '6px')
+								]),
+							_List_fromArray(
+								[
+									A2($author$project$View$Widgets$stepBtn, t.bu, $author$project$Types$ResetSim),
+									A2($author$project$View$Widgets$stepBtn, t.P, $author$project$Types$StepBack),
+									A2($author$project$View$Widgets$stepBtn, t.b0, $author$project$Types$StepForward),
+									A2($author$project$View$Widgets$stepBtn, t.bq, $author$project$Types$RunAll)
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.05)'),
+									A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
+									A2($elm$html$Html$Attributes$style, 'padding', '12px 14px'),
+									A2($elm$html$Html$Attributes$style, 'margin-top', '12px'),
+									A2($elm$html$Html$Attributes$style, 'font-family', 'monospace'),
+									A2($elm$html$Html$Attributes$style, 'font-size', '0.78rem'),
+									A2($elm$html$Html$Attributes$style, 'line-height', '1.8'),
+									A2(
+									$elm$html$Html$Attributes$style,
+									'border-left',
+									A2($elm$core$String$contains, 'ACCEPTED', model.dl) ? '3px solid #69f0ae' : (A2($elm$core$String$contains, 'REJECTED', model.dl) ? '3px solid #ef5350' : '3px solid #7c4dff'))
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$div,
+									_List_Nil,
+									_List_fromArray(
+										[
+											A2(
+											$elm$html$Html$span,
+											_List_fromArray(
+												[
+													A2($elm$html$Html$Attributes$style, 'color', '#9fa8da')
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text(t.b_)
+												])),
+											A2(
+											$elm$html$Html$span,
+											_List_fromArray(
+												[
+													A2($elm$html$Html$Attributes$style, 'color', '#e040fb'),
+													A2($elm$html$Html$Attributes$style, 'font-weight', '700')
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text(model.dl)
+												]))
+										])),
+									A2(
+									$elm$html$Html$div,
+									_List_Nil,
+									_List_fromArray(
+										[
+											A2(
+											$elm$html$Html$span,
+											_List_fromArray(
+												[
+													A2($elm$html$Html$Attributes$style, 'color', '#9fa8da')
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text(t.bk)
+												])),
+											A2(
+											$elm$html$Html$span,
+											_List_Nil,
+											_List_fromArray(
+												[
+													$elm$html$Html$text(
+													$elm$core$String$fromInt(model.dm) + (' / ' + $elm$core$String$fromInt(
+														$elm$core$String$length(model.b4))))
+												]))
+										])),
+									A2(
+									$elm$html$Html$div,
+									_List_Nil,
+									_List_fromArray(
+										[
+											A2(
+											$elm$html$Html$span,
+											_List_fromArray(
+												[
+													A2($elm$html$Html$Attributes$style, 'color', '#9fa8da')
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text(t.X)
+												])),
+											A2(
+											$elm$html$Html$span,
+											_List_Nil,
+											_List_fromArray(
+												[
+													$elm$html$Html$text(
+													A2($elm$core$Maybe$withDefault, '—', model.cQ))
+												]))
+										]))
+								]))
+						]))
+				]));
+	});
+var $author$project$Types$ClearAll = {$: 31};
+var $author$project$Types$RequestLoad = {$: 52};
+var $author$project$Types$RequestSave = {$: 51};
+var $elm$html$Html$h1 = _VirtualDom_node('h1');
+var $author$project$Types$ToggleLanguage = {$: 49};
+var $author$project$View$langToggleBtn = function (lang) {
 	return A2(
-		$author$project$View$Widgets$panel,
-		_List_Nil,
+		$elm$html$Html$button,
 		_List_fromArray(
 			[
-				A3($author$project$View$Widgets$collapsibleHeader, 'Test String', model.ba, $author$project$Types$ToggleTestPanel),
-				model.ba ? $elm$html$Html$text('') : A2(
-				$elm$html$Html$div,
+				$elm$html$Html$Events$onClick($author$project$Types$ToggleLanguage),
+				A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.12)'),
+				A2($elm$html$Html$Attributes$style, 'border', '1px solid rgba(255,255,255,0.35)'),
+				A2($elm$html$Html$Attributes$style, 'color', 'white'),
+				A2($elm$html$Html$Attributes$style, 'padding', '7px 14px'),
+				A2($elm$html$Html$Attributes$style, 'border-radius', '20px'),
+				A2($elm$html$Html$Attributes$style, 'cursor', 'pointer'),
+				A2($elm$html$Html$Attributes$style, 'font-family', 'inherit'),
+				A2($elm$html$Html$Attributes$style, 'font-size', '0.85rem'),
+				A2($elm$html$Html$Attributes$style, 'font-weight', '600'),
+				A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+				A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
+				A2($elm$html$Html$Attributes$style, 'gap', '6px')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$span,
+				_List_Nil,
 				_List_fromArray(
 					[
-						A2($elm$html$Html$Attributes$style, 'margin-top', '10px')
+						$elm$html$Html$text('🌐')
+					])),
+				A2(
+				$elm$html$Html$span,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						function () {
+							if (!lang) {
+								return 'EN';
+							} else {
+								return 'SK';
+							}
+						}())
+					])),
+				A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'font-size', '0.7rem'),
+						A2($elm$html$Html$Attributes$style, 'opacity', '0.7')
 					]),
 				_List_fromArray(
 					[
-						A2(
-						$elm$html$Html$div,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text('')
-							])),
-						A2(
-						$elm$html$Html$input,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$value(model.K),
-								$elm$html$Html$Events$onInput($author$project$Types$SetTestWord),
-								$elm$html$Html$Attributes$placeholder('Enter test word…'),
-								A2($elm$html$Html$Attributes$style, 'width', '100%'),
-								A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.06)'),
-								A2($elm$html$Html$Attributes$style, 'border', '2px solid #7c4dff'),
-								A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
-								A2($elm$html$Html$Attributes$style, 'padding', '10px 14px'),
-								A2($elm$html$Html$Attributes$style, 'color', '#e8eaf6'),
-								A2($elm$html$Html$Attributes$style, 'font-family', 'monospace'),
-								A2($elm$html$Html$Attributes$style, 'font-size', '0.9rem'),
-								A2($elm$html$Html$Attributes$style, 'outline', 'none'),
-								A2($elm$html$Html$Attributes$style, 'box-sizing', 'border-box')
-							]),
-						_List_Nil),
-						A5($author$project$View$Widgets$styledBtn, '⚙ Load DFA', $author$project$Types$LoadDFA, $author$project$View$Widgets$purpleGrad, '100%', '9px 0'),
-						$author$project$View$Widgets$rowLabel('Auto run'),
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-								A2($elm$html$Html$Attributes$style, 'gap', '8px'),
-								A2($elm$html$Html$Attributes$style, 'margin-top', '6px')
-							]),
-						_List_fromArray(
-							[
-								$author$project$View$Widgets$autoRunBtn(model),
-								$author$project$View$Widgets$autoStopBtn(model)
-							])),
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								A2($elm$html$Html$Attributes$style, 'margin-top', '8px')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$div,
-								_List_fromArray(
-									[
-										A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-										A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
-										A2($elm$html$Html$Attributes$style, 'justify-content', 'space-between'),
-										A2($elm$html$Html$Attributes$style, 'margin-bottom', '4px')
-									]),
-								_List_fromArray(
-									[
-										A2(
-										$elm$html$Html$span,
-										_List_fromArray(
-											[
-												A2($elm$html$Html$Attributes$style, 'font-size', '0.72rem'),
-												A2($elm$html$Html$Attributes$style, 'color', '#9fa8da')
-											]),
-										_List_fromArray(
-											[
-												$elm$html$Html$text('Speed')
-											])),
-										A2(
-										$elm$html$Html$span,
-										_List_fromArray(
-											[
-												A2($elm$html$Html$Attributes$style, 'font-size', '0.72rem'),
-												A2($elm$html$Html$Attributes$style, 'color', '#9fa8da'),
-												A2($elm$html$Html$Attributes$style, 'font-family', 'monospace')
-											]),
-										_List_fromArray(
-											[
-												$elm$html$Html$text(
-												function () {
-													var tenths = $elm$core$Basics$round((2100 - model.as) / 100);
-													var whole = (tenths / 10) | 0;
-													var frac = tenths % 10;
-													return $elm$core$String$fromInt(whole) + ('.' + ($elm$core$String$fromInt(frac) + ' s/step'));
-												}())
-											]))
-									])),
-								A2(
-								$elm$html$Html$div,
-								_List_fromArray(
-									[
-										A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-										A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
-										A2($elm$html$Html$Attributes$style, 'gap', '8px')
-									]),
-								_List_fromArray(
-									[
-										A2(
-										$elm$html$Html$span,
-										_List_fromArray(
-											[
-												A2($elm$html$Html$Attributes$style, 'font-size', '1rem')
-											]),
-										_List_fromArray(
-											[
-												$elm$html$Html$text('🐌')
-											])),
-										A2(
-										$elm$html$Html$input,
-										_List_fromArray(
-											[
-												$elm$html$Html$Attributes$type_('range'),
-												$elm$html$Html$Attributes$min('100'),
-												$elm$html$Html$Attributes$max('2000'),
-												$elm$html$Html$Attributes$step('100'),
-												$elm$html$Html$Attributes$value(
-												$elm$core$String$fromInt(model.as)),
-												$elm$html$Html$Events$onInput(
-												function (v) {
-													return $author$project$Types$SetAutoSpeed(
-														A2(
-															$elm$core$Maybe$withDefault,
-															800,
-															$elm$core$String$toInt(v)));
-												}),
-												A2($elm$html$Html$Attributes$style, 'flex', '1'),
-												A2($elm$html$Html$Attributes$style, 'accent-color', '#7c4dff'),
-												A2($elm$html$Html$Attributes$style, 'cursor', 'pointer')
-											]),
-										_List_Nil),
-										A2(
-										$elm$html$Html$span,
-										_List_fromArray(
-											[
-												A2($elm$html$Html$Attributes$style, 'font-size', '1rem')
-											]),
-										_List_fromArray(
-											[
-												$elm$html$Html$text('🐎')
-											]))
-									]))
-							])),
-						$author$project$View$Widgets$rowLabel('Step-by-step'),
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-								A2($elm$html$Html$Attributes$style, 'gap', '6px'),
-								A2($elm$html$Html$Attributes$style, 'margin-top', '6px')
-							]),
-						_List_fromArray(
-							[
-								A2($author$project$View$Widgets$stepBtn, '<< Reset', $author$project$Types$ResetSim),
-								A2($author$project$View$Widgets$stepBtn, '< Back', $author$project$Types$StepBack),
-								A2($author$project$View$Widgets$stepBtn, '> Step', $author$project$Types$StepForward),
-								A2($author$project$View$Widgets$stepBtn, '>> Read all', $author$project$Types$RunAll)
-							])),
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.05)'),
-								A2($elm$html$Html$Attributes$style, 'border-radius', '10px'),
-								A2($elm$html$Html$Attributes$style, 'padding', '12px 14px'),
-								A2($elm$html$Html$Attributes$style, 'margin-top', '12px'),
-								A2($elm$html$Html$Attributes$style, 'font-family', 'monospace'),
-								A2($elm$html$Html$Attributes$style, 'font-size', '0.78rem'),
-								A2($elm$html$Html$Attributes$style, 'line-height', '1.8'),
-								A2(
-								$elm$html$Html$Attributes$style,
-								'border-left',
-								A2($elm$core$String$contains, 'ACCEPTED', model.a0) ? '3px solid #69f0ae' : (A2($elm$core$String$contains, 'REJECTED', model.a0) ? '3px solid #ef5350' : '3px solid #7c4dff'))
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$div,
-								_List_Nil,
-								_List_fromArray(
-									[
-										A2(
-										$elm$html$Html$span,
-										_List_fromArray(
-											[
-												A2($elm$html$Html$Attributes$style, 'color', '#9fa8da')
-											]),
-										_List_fromArray(
-											[
-												$elm$html$Html$text('Status: ')
-											])),
-										A2(
-										$elm$html$Html$span,
-										_List_fromArray(
-											[
-												A2($elm$html$Html$Attributes$style, 'color', '#e040fb'),
-												A2($elm$html$Html$Attributes$style, 'font-weight', '700')
-											]),
-										_List_fromArray(
-											[
-												$elm$html$Html$text(model.a0)
-											]))
-									])),
-								A2(
-								$elm$html$Html$div,
-								_List_Nil,
-								_List_fromArray(
-									[
-										A2(
-										$elm$html$Html$span,
-										_List_fromArray(
-											[
-												A2($elm$html$Html$Attributes$style, 'color', '#9fa8da')
-											]),
-										_List_fromArray(
-											[
-												$elm$html$Html$text('Index: ')
-											])),
-										A2(
-										$elm$html$Html$span,
-										_List_Nil,
-										_List_fromArray(
-											[
-												$elm$html$Html$text(
-												$elm$core$String$fromInt(model.a1) + (' / ' + $elm$core$String$fromInt(
-													$elm$core$String$length(model.K))))
-											]))
-									])),
-								A2(
-								$elm$html$Html$div,
-								_List_Nil,
-								_List_fromArray(
-									[
-										A2(
-										$elm$html$Html$span,
-										_List_fromArray(
-											[
-												A2($elm$html$Html$Attributes$style, 'color', '#9fa8da')
-											]),
-										_List_fromArray(
-											[
-												$elm$html$Html$text('Current State: ')
-											])),
-										A2(
-										$elm$html$Html$span,
-										_List_Nil,
-										_List_fromArray(
-											[
-												$elm$html$Html$text(
-												A2($elm$core$Maybe$withDefault, '—', model.aw))
-											]))
-									]))
-							]))
+						$elm$html$Html$text(
+						function () {
+							if (!lang) {
+								return '→ SK';
+							} else {
+								return '→ EN';
+							}
+						}())
 					]))
 			]));
 };
-var $author$project$Types$ClearAll = {$: 31};
-var $elm$html$Html$h1 = _VirtualDom_node('h1');
 var $author$project$View$Widgets$topBarBtn = F2(
 	function (label, msg) {
 		return A2(
@@ -9497,149 +10136,157 @@ var $author$project$View$Widgets$topBarBtn = F2(
 					$elm$html$Html$text(label)
 				]));
 	});
-var $author$project$View$viewTopBar = A2(
-	$elm$html$Html$div,
-	_List_fromArray(
-		[
-			A2($elm$html$Html$Attributes$style, 'background', 'linear-gradient(135deg, #4a0080, #6a0dad, #7c4dff)'),
-			A2($elm$html$Html$Attributes$style, 'padding', '12px 28px'),
-			A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-			A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
-			A2($elm$html$Html$Attributes$style, 'justify-content', 'space-between'),
-			A2($elm$html$Html$Attributes$style, 'box-shadow', '0 2px 20px rgba(124,77,255,0.5)')
-		]),
-	_List_fromArray(
-		[
-			A2(
-			$elm$html$Html$h1,
-			_List_fromArray(
-				[
-					A2($elm$html$Html$Attributes$style, 'font-family', 'monospace'),
-					A2($elm$html$Html$Attributes$style, 'font-size', '1.6rem'),
-					A2($elm$html$Html$Attributes$style, 'color', '#fff'),
-					A2($elm$html$Html$Attributes$style, 'margin', '0'),
-					A2($elm$html$Html$Attributes$style, 'letter-spacing', '1px')
-				]),
-			_List_fromArray(
-				[
-					$elm$html$Html$text('DFA Simulator')
-				])),
-			A2(
+var $author$project$View$viewTopBar = F2(
+	function (t, lang) {
+		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
 				[
+					A2($elm$html$Html$Attributes$style, 'background', 'linear-gradient(135deg, #4a0080, #6a0dad, #7c4dff)'),
+					A2($elm$html$Html$Attributes$style, 'padding', '12px 28px'),
 					A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-					A2($elm$html$Html$Attributes$style, 'gap', '10px')
+					A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
+					A2($elm$html$Html$Attributes$style, 'justify-content', 'space-between'),
+					A2($elm$html$Html$Attributes$style, 'box-shadow', '0 2px 20px rgba(124,77,255,0.5)')
 				]),
 			_List_fromArray(
 				[
-					A2($author$project$View$Widgets$topBarBtn, '📖 Guide', $author$project$Types$ToggleHelp),
-					A2($author$project$View$Widgets$topBarBtn, '💬 Feedback', $author$project$Types$ToggleFeedback),
-					A2($author$project$View$Widgets$topBarBtn, '🗑 Clear All', $author$project$Types$ClearAll)
-				]))
-		]));
+					A2(
+					$elm$html$Html$h1,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'font-family', 'monospace'),
+							A2($elm$html$Html$Attributes$style, 'font-size', '1.6rem'),
+							A2($elm$html$Html$Attributes$style, 'color', '#fff'),
+							A2($elm$html$Html$Attributes$style, 'margin', '0'),
+							A2($elm$html$Html$Attributes$style, 'letter-spacing', '1px')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('DFA Simulator')
+						])),
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+							A2($elm$html$Html$Attributes$style, 'gap', '10px')
+						]),
+					_List_fromArray(
+						[
+							$author$project$View$langToggleBtn(lang),
+							A2($author$project$View$Widgets$topBarBtn, t.bx, $author$project$Types$RequestSave),
+							A2($author$project$View$Widgets$topBarBtn, t.bl, $author$project$Types$RequestLoad),
+							A2($author$project$View$Widgets$topBarBtn, t.af, $author$project$Types$ToggleHelp),
+							A2($author$project$View$Widgets$topBarBtn, t.aa, $author$project$Types$ToggleFeedback),
+							A2($author$project$View$Widgets$topBarBtn, t.R, $author$project$Types$ClearAll)
+						]))
+				]));
+	});
 var $author$project$Types$CancelTransition = {$: 15};
 var $author$project$Types$ConfirmTransition = {$: 14};
 var $author$project$Types$SetTransitionChar = function (a) {
 	return {$: 13, a: a};
 };
-var $author$project$View$Panels$viewTransCharPopup = function (model) {
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				A2($elm$html$Html$Attributes$style, 'position', 'fixed'),
-				A2($elm$html$Html$Attributes$style, 'inset', '0'),
-				A2($elm$html$Html$Attributes$style, 'background', 'rgba(0,0,0,0.6)'),
-				A2($elm$html$Html$Attributes$style, 'z-index', '200'),
-				A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-				A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
-				A2($elm$html$Html$Attributes$style, 'justify-content', 'center')
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						A2($elm$html$Html$Attributes$style, 'background', '#1e1e3a'),
-						A2($elm$html$Html$Attributes$style, 'border', '2px solid #7c4dff'),
-						A2($elm$html$Html$Attributes$style, 'border-radius', '14px'),
-						A2($elm$html$Html$Attributes$style, 'padding', '22px 24px'),
-						A2($elm$html$Html$Attributes$style, 'min-width', '260px'),
-						A2($elm$html$Html$Attributes$style, 'box-shadow', '0 8px 32px rgba(0,0,0,0.5)')
-					]),
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								A2($elm$html$Html$Attributes$style, 'font-size', '0.9rem'),
-								A2($elm$html$Html$Attributes$style, 'font-weight', '600'),
-								A2($elm$html$Html$Attributes$style, 'margin-bottom', '6px')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Transition: ' + (model.aR + (' → ' + model.aS)))
-							])),
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								A2($elm$html$Html$Attributes$style, 'font-size', '0.78rem'),
-								A2($elm$html$Html$Attributes$style, 'color', '#9fa8da'),
-								A2($elm$html$Html$Attributes$style, 'margin-bottom', '10px')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Character for this transition:')
-							])),
-						A2(
-						$elm$html$Html$input,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$value(model.bc),
-								$elm$html$Html$Events$onInput($author$project$Types$SetTransitionChar),
-								$elm$html$Html$Attributes$placeholder('e.g.  a'),
-								A2(
-								$elm$html$Html$Events$on,
-								'keydown',
-								A2(
-									$elm$json$Json$Decode$andThen,
-									function (k) {
-										return (k === 'Enter') ? $elm$json$Json$Decode$succeed($author$project$Types$ConfirmTransition) : ((k === 'Escape') ? $elm$json$Json$Decode$succeed($author$project$Types$CancelTransition) : $elm$json$Json$Decode$fail('other key'));
-									},
-									A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string))),
-								A2($elm$html$Html$Attributes$style, 'width', '100%'),
-								A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.06)'),
-								A2($elm$html$Html$Attributes$style, 'border', '1px solid #7c4dff'),
-								A2($elm$html$Html$Attributes$style, 'border-radius', '8px'),
-								A2($elm$html$Html$Attributes$style, 'padding', '8px 12px'),
-								A2($elm$html$Html$Attributes$style, 'color', '#e8eaf6'),
-								A2($elm$html$Html$Attributes$style, 'font-family', 'monospace'),
-								A2($elm$html$Html$Attributes$style, 'font-size', '0.9rem'),
-								A2($elm$html$Html$Attributes$style, 'outline', 'none'),
-								A2($elm$html$Html$Attributes$style, 'box-sizing', 'border-box'),
-								A2($elm$html$Html$Attributes$style, 'margin-bottom', '12px')
-							]),
-						_List_Nil),
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								A2($elm$html$Html$Attributes$style, 'display', 'flex'),
-								A2($elm$html$Html$Attributes$style, 'gap', '10px')
-							]),
-						_List_fromArray(
-							[
-								A5($author$project$View$Widgets$styledBtn, 'Add', $author$project$Types$ConfirmTransition, $author$project$View$Widgets$purpleGrad, '50%', '8px 0'),
-								A5($author$project$View$Widgets$styledBtn, 'Cancel', $author$project$Types$CancelTransition, 'rgba(255,255,255,0.1)', '50%', '8px 0')
-							]))
-					]))
-			]));
-};
+var $author$project$View$Panels$viewTransCharPopup = F2(
+	function (t, model) {
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'position', 'fixed'),
+					A2($elm$html$Html$Attributes$style, 'inset', '0'),
+					A2($elm$html$Html$Attributes$style, 'background', 'rgba(0,0,0,0.6)'),
+					A2($elm$html$Html$Attributes$style, 'z-index', '200'),
+					A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+					A2($elm$html$Html$Attributes$style, 'align-items', 'center'),
+					A2($elm$html$Html$Attributes$style, 'justify-content', 'center')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							A2($elm$html$Html$Attributes$style, 'background', '#1e1e3a'),
+							A2($elm$html$Html$Attributes$style, 'border', '2px solid #7c4dff'),
+							A2($elm$html$Html$Attributes$style, 'border-radius', '14px'),
+							A2($elm$html$Html$Attributes$style, 'padding', '22px 24px'),
+							A2($elm$html$Html$Attributes$style, 'min-width', '260px'),
+							A2($elm$html$Html$Attributes$style, 'box-shadow', '0 8px 32px rgba(0,0,0,0.5)')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'font-size', '0.9rem'),
+									A2($elm$html$Html$Attributes$style, 'font-weight', '600'),
+									A2($elm$html$Html$Attributes$style, 'margin-bottom', '6px')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text(t.b6 + (model.da + (' → ' + model.db)))
+								])),
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'font-size', '0.78rem'),
+									A2($elm$html$Html$Attributes$style, 'color', '#9fa8da'),
+									A2($elm$html$Html$Attributes$style, 'margin-bottom', '10px')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text(t.b5)
+								])),
+							A2(
+							$elm$html$Html$input,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$value(model.dx),
+									$elm$html$Html$Events$onInput($author$project$Types$SetTransitionChar),
+									$elm$html$Html$Attributes$placeholder('e.g.  a'),
+									A2(
+									$elm$html$Html$Events$on,
+									'keydown',
+									A2(
+										$elm$json$Json$Decode$andThen,
+										function (k) {
+											return (k === 'Enter') ? $elm$json$Json$Decode$succeed($author$project$Types$ConfirmTransition) : ((k === 'Escape') ? $elm$json$Json$Decode$succeed($author$project$Types$CancelTransition) : $elm$json$Json$Decode$fail('other key'));
+										},
+										A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string))),
+									A2($elm$html$Html$Attributes$style, 'width', '100%'),
+									A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.06)'),
+									A2($elm$html$Html$Attributes$style, 'border', '1px solid #7c4dff'),
+									A2($elm$html$Html$Attributes$style, 'border-radius', '8px'),
+									A2($elm$html$Html$Attributes$style, 'padding', '8px 12px'),
+									A2($elm$html$Html$Attributes$style, 'color', '#e8eaf6'),
+									A2($elm$html$Html$Attributes$style, 'font-family', 'monospace'),
+									A2($elm$html$Html$Attributes$style, 'font-size', '0.9rem'),
+									A2($elm$html$Html$Attributes$style, 'outline', 'none'),
+									A2($elm$html$Html$Attributes$style, 'box-sizing', 'border-box'),
+									A2($elm$html$Html$Attributes$style, 'margin-bottom', '12px')
+								]),
+							_List_Nil),
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'display', 'flex'),
+									A2($elm$html$Html$Attributes$style, 'gap', '10px')
+								]),
+							_List_fromArray(
+								[
+									A5($author$project$View$Widgets$styledBtn, t.K, $author$project$Types$ConfirmTransition, $author$project$View$Widgets$purpleGrad, '50%', '8px 0'),
+									A5($author$project$View$Widgets$styledBtn, t.Q, $author$project$Types$CancelTransition, 'rgba(255,255,255,0.1)', '50%', '8px 0')
+								]))
+						]))
+				]));
+	});
 var $author$project$View$view = function (model) {
+	var t = $author$project$Lang$translations(model.c_);
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -9658,7 +10305,7 @@ var $author$project$View$view = function (model) {
 			]),
 		_List_fromArray(
 			[
-				$author$project$View$viewTopBar,
+				A2($author$project$View$viewTopBar, t, model.c_),
 				A2(
 				$elm$html$Html$div,
 				_List_fromArray(
@@ -9686,36 +10333,26 @@ var $author$project$View$view = function (model) {
 							]),
 						_List_fromArray(
 							[
-								$author$project$View$Panels$viewTestStringPanel(model),
-								$author$project$View$Panels$viewCodePanel(model)
+								A2($author$project$View$Panels$viewTestStringPanel, t, model),
+								A2($author$project$View$Panels$viewCodePanel, t, model)
 							])),
-						$author$project$View$viewDiagramPanel(model)
+						A2($author$project$View$viewDiagramPanel, t, model)
 					])),
-				model.a_ ? $author$project$View$Panels$viewTransCharPopup(model) : $elm$html$Html$text(''),
+				model.dj ? A2($author$project$View$Panels$viewTransCharPopup, t, model) : $elm$html$Html$text(''),
 				function () {
-				var _v0 = model.aW;
+				var _v0 = model.df;
 				if (!_v0.$) {
 					var stateName = _v0.a;
-					return A2($author$project$View$Panels$viewRenamePopup, stateName, model.aV);
+					return A3($author$project$View$Panels$viewRenamePopup, t, stateName, model.de);
 				} else {
 					return $elm$html$Html$text('');
 				}
 			}(),
-				model.aZ ? $author$project$View$Panels$viewHelpModal : $elm$html$Html$text(''),
-				model.aY ? $author$project$View$Panels$viewFeedbackModal : $elm$html$Html$text('')
+				model.di ? $author$project$View$Panels$viewHelpModal(t) : $elm$html$Html$text(''),
+				model.dh ? $author$project$View$Panels$viewFeedbackModal(t) : $elm$html$Html$text('')
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
-	{
-		aE: $author$project$Main$init,
-		a6: $author$project$Main$subscriptions,
-		bf: F2(
-			function (msg, model) {
-				return _Utils_Tuple2(
-					A2($author$project$Update$update, msg, model),
-					$elm$core$Platform$Cmd$none);
-			}),
-		bg: $author$project$View$view
-	});
+	{cY: $author$project$Main$init, dr: $author$project$Main$subscriptions, dA: $author$project$Main$updateWithPorts, ca: $author$project$View$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
 	$elm$json$Json$Decode$succeed(0))(0)}});}(this));
