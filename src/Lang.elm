@@ -169,6 +169,31 @@ type alias Translations =
     , simNothingRedo : String
     , simRedone : String
     , simInitial : String
+
+    
+    , simLoadFirst : String
+    , simReadChar : String -> String -> String
+    , simNoTransition : String -> String -> String
+    , simBackToStart : String
+    , simSteppedBack : String -> String
+    , simAccepted : String -> String
+    , simRejected : String -> String
+
+    
+    , modalSaveTitle : String
+    , modalSaveNamePlaceholder : String
+    , modalSaveBtn : String
+    , modalSavedDiagrams : String
+    , modalLoadTitle : String
+    , modalYourSavedDiagrams : String
+    , modalLoadBtn : String
+    , modalDeleteBtn : String
+    , modalRenameBtn : String
+    , modalNoSaves : String
+    , toastSaved : String -> String
+    , toastLoaded : String -> String
+    , toastDeleted : String
+    , toastNothingToSave : String
     }
 
 
@@ -239,7 +264,7 @@ translations lang =
             , helpAddTrans = "→ Add Transition"
             , helpAddTransBody = "Click the source state, then the target state. Enter the transition character."
             , helpDelete = "X Delete state/transition"
-            , helpDeleteBody = "Click on a state or transition to delete it."
+            , helpDeleteBody = "Click on a state or transition to delete it. You can also delete elements in other draw modes — if your cursor is hovering over a state or transition, click the Delete button on your keyboard. The hovered element will turn red to indicate it can be deleted. This is not a bug and you can continue drawing normally."
             , helpRename = "✎ Rename"
             , helpRenameBody = "Use the button in the state list or double-click directly on the state."
             , helpSAX = "S / A / X"
@@ -250,9 +275,9 @@ translations lang =
             , helpZoomBody = "Zoom in, zoom out, and reset the view."
             , helpUndoRedo = "Undo / Redo / Clear"
             , helpUndoItem = "↩ Undo"
-            , helpUndoBody = "Undo the last diagram change (up to 50 steps)."
+            , helpUndoBody = "Undo the last diagram change (up to 50 steps). You can also use Ctrl+Z."
             , helpRedoItem = "↪ Redo"
-            , helpRedoBody = "Redo a previously undone action."
+            , helpRedoBody = "Redo a previously undone action. You can also use Ctrl+Y"
             , helpClearItem = "🗑 Clear All"
             , helpClearBody = "Deletes all states, transitions and simulation data. This action CANNOT be undone."
             , helpCodePanel = "Code Panel"
@@ -321,6 +346,27 @@ translations lang =
             , simNothingRedo = "Nothing to redo."
             , simRedone = "Redone."
             , simInitial = "Add states by clicking the canvas."
+            , simLoadFirst = "Load DFA first!"
+            , simReadChar = \ch st -> "Read '" ++ ch ++ "' → moved to " ++ st
+            , simNoTransition = \st ch -> "✘ REJECTED: no transition from " ++ st ++ " on '" ++ ch ++ "'"
+            , simBackToStart = "Back to start."
+            , simSteppedBack = \st -> "Stepped back to " ++ st
+            , simAccepted = \st -> "✔ ACCEPTED — in accept state: " ++ st
+            , simRejected = \st -> "✘ REJECTED — not in accept state (current: " ++ st ++ ")"
+            , modalSaveTitle = "Save diagram"
+            , modalSaveNamePlaceholder = "Name your save…"
+            , modalSaveBtn = "Save"
+            , modalSavedDiagrams = "Saved diagrams"
+            , modalLoadTitle = "Load diagram"
+            , modalYourSavedDiagrams = "Your saved diagrams"
+            , modalLoadBtn = "↩ Load"
+            , modalDeleteBtn = "X"
+            , modalRenameBtn = "✎"
+            , modalNoSaves = "No saved diagrams yet.\nBuild something and save it!"
+            , toastSaved = \n -> "Saved \"" ++ n ++ "\""
+            , toastLoaded = \n -> "Loaded \"" ++ n ++ "\""
+            , toastDeleted = "Deleted"
+            , toastNothingToSave = "Nothing to save yet."
             }
 
         SK ->
@@ -387,7 +433,7 @@ translations lang =
             , helpAddTrans = "→ Pridať prechod"
             , helpAddTransBody = "Klikni na zdrojový stav, potom na cieľový stav. Zadaj znak prechodu."
             , helpDelete = "X Odstrániť stav/prechod"
-            , helpDeleteBody = "Klikni na stav alebo prechod pre jeho odstránenie."
+            , helpDeleteBody = "Klikni na stav alebo prechod pre jeho odstránenie. Prvky môžeš odstrániť aj v iných režimoch kreslenia — ak je kurzor nad stavom alebo prechodom, stačí kliknúť na tlačidlo Delete na klávesnici. Zvýraznený prvok sa zobrazí červenou farbou, čo znamená, že ho možno odstrániť. Nie je to chyba a kreslenie môžeš normálne používať ďalej."
             , helpRename = "✎ Premenovať"
             , helpRenameBody = "Použi tlačidlo v zozname stavov alebo dvojklikni priamo na stav."
             , helpSAX = "S / A / X"
@@ -398,9 +444,9 @@ translations lang =
             , helpZoomBody = "Priblížiť, oddialiť a resetovať pohľad."
             , helpUndoRedo = "Späť / Znova / Vymazať"
             , helpUndoItem = "↩ Späť"
-            , helpUndoBody = "Vráti poslednú zmenu diagramu (až 50 krokov)."
+            , helpUndoBody = "Vráti poslednú zmenu diagramu (až 50 krokov). Môžeš použiť aj Ctrl+Z."
             , helpRedoItem = "↪ Znova"
-            , helpRedoBody = "Zopakuje predtým vratenú akciu."
+            , helpRedoBody = "Zopakuje predtým vratenú akciu. Môžeš použiť aj Ctrl+Y."
             , helpClearItem = "🗑 Vymazať všetko"
             , helpClearBody = "Odstráni všetky stavy, prechody a simulačné dáta. Túto akciu NEMOŽNO vrátiť."
             , helpCodePanel = "Panel kódu"
@@ -469,4 +515,25 @@ translations lang =
             , simNothingRedo = "Nie je čo zopakovať."
             , simRedone = "Zopakované."
             , simInitial = "Pridaj stavy kliknutím na plátno."
+            , simLoadFirst = "Najprv načítaj DKA!"
+            , simReadChar = \ch st -> "Prečítaný '" ++ ch ++ "' → prechod do " ++ st
+            , simNoTransition = \st ch -> "✘ ODMIETNUTÝ: žiadny prechod z " ++ st ++ " pre '" ++ ch ++ "'"
+            , simBackToStart = "Späť na začiatok."
+            , simSteppedBack = \st -> "Krok späť do " ++ st
+            , simAccepted = \st -> "✔ PRIJATÝ — akceptačný stav: " ++ st
+            , simRejected = \st -> "✘ ODMIETNUTÝ — nie je v akceptačnom stave (aktuálny: " ++ st ++ ")"
+            , modalSaveTitle = "Uložiť diagram"
+            , modalSaveNamePlaceholder = "Pomenuj uloženie…"
+            , modalSaveBtn = "Uložiť"
+            , modalSavedDiagrams = "Uložené diagramy"
+            , modalLoadTitle = "Načítať diagram"
+            , modalYourSavedDiagrams = "Tvoje uložené diagramy"
+            , modalLoadBtn = "↩ Načítať"
+            , modalDeleteBtn = "X"
+            , modalRenameBtn = "✎"
+            , modalNoSaves = "Žiadne uložené diagramy.\nNiečo vytvor a ulož!"
+            , toastSaved = \n -> "Uložené \"" ++ n ++ "\""
+            , toastLoaded = \n -> "Načítané \"" ++ n ++ "\""
+            , toastDeleted = "Odstránené"
+            , toastNothingToSave = "Zatiaľ nič na uloženie."
             }

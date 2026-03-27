@@ -5,6 +5,7 @@ import Time
 import Types exposing (Model, Msg(..))
 import Update exposing (update, defaultModel)
 import View exposing (view)
+import Lang exposing (Language(..))
 
 
 
@@ -17,6 +18,10 @@ port openSaveModal : () -> Cmd msg
 port openLoadModal : () -> Cmd msg
 
 port importDFA : ({ states : String, alphabet : String, start : String, accept : String, transitions : String } -> msg) -> Sub msg
+
+port sendLanguage : String -> Cmd msg
+
+port keyboardMsg : (String -> msg) -> Sub msg
 
 
 init : () -> ( Model, Cmd Msg )
@@ -35,6 +40,13 @@ subscriptions model =
             LoadDFAFromSave d.states d.alphabet d.start d.accept d.transitions
           )
         , requestExport (\_ -> GenerateCodeFromDiagram)
+        , keyboardMsg (\key ->
+            case key of
+                "undo"   -> Undo
+                "redo"   -> Redo
+                "delete" -> KeyDelete
+                _        -> NoOp
+          )
         ]
 
 
@@ -62,6 +74,15 @@ updateWithPorts msg model =
       
         RequestLoad ->
             ( model, openLoadModal () )
+
+        ToggleLanguage ->
+            let
+                newModel = update msg model
+                langStr = case newModel.language of
+                    EN -> "EN"
+                    SK -> "SK"
+            in
+            ( newModel, sendLanguage langStr )
 
         _ ->
             ( update msg model, Cmd.none )

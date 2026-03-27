@@ -13,6 +13,11 @@ type DrawTool
     | DeleteTool
 
 
+type HoverTarget
+    = HoverState String
+    | HoverTransition String String
+
+
 
 type alias StatePos =
     { x : Float
@@ -81,6 +86,7 @@ type alias Model =
     , codeCollapsed : Bool
     , stateListCollapsed : Bool
     , language : Language
+    , hoveredObject : Maybe HoverTarget
     }
 
 
@@ -138,3 +144,8 @@ type Msg
     | LoadDFAFromSave String String String String String
     | RequestSave
     | RequestLoad
+    | HoverEnter HoverTarget
+    | HoverLeave
+    | KeyDelete
+    | KeyUndo
+    | KeyRedo

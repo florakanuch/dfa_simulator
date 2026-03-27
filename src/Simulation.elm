@@ -3,18 +3,19 @@ module Simulation exposing (stepOnce, stepBack, runToEnd, checkAcceptance)
 import Dict
 import Types exposing (Model, Msg)
 import Helpers exposing (listLast)
+import Lang exposing (Translations)
 
 
 
-stepOnce : Model -> Model
-stepOnce model =
+stepOnce : Translations -> Model -> Model
+stepOnce t model =
     case model.currentState of
         Nothing ->
-            { model | simMessage = "Load DFA first!" }
+            { model | simMessage = t.simLoadFirst }
 
         Just current ->
             if model.simPosition >= String.length model.testWord then
-                checkAcceptance model
+                checkAcceptance t model
 
             else
                 let
@@ -29,23 +30,18 @@ stepOnce model =
                             , simPosition = model.simPosition + 1
                             , simHistory =
                                 model.simHistory ++ [ ( nextState, model.simPosition + 1 ) ]
-                            , simMessage = "Read '" ++ ch ++ "' → moved to " ++ nextState
+                            , simMessage = t.simReadChar ch nextState
                         }
 
                     Nothing ->
                         { model
                             | currentState = Nothing
-                            , simMessage =
-                                "✘ REJECTED: no transition from "
-                                    ++ current
-                                    ++ " on '"
-                                    ++ ch
-                                    ++ "'"
+                            , simMessage = t.simNoTransition current ch
                         }
 
 
-stepBack : Model -> Model
-stepBack model =
+stepBack : Translations -> Model -> Model
+stepBack t model =
     let
         histLen = List.length model.simHistory
     in
@@ -54,7 +50,7 @@ stepBack model =
             | currentState = Just model.startState
             , simPosition = 0
             , simHistory = [ ( model.startState, 0 ) ]
-            , simMessage = "Back to start."
+            , simMessage = t.simBackToStart
         }
 
     else
@@ -68,16 +64,16 @@ stepBack model =
             | currentState = Just (Tuple.first prev)
             , simPosition = Tuple.second prev
             , simHistory = newHistory
-            , simMessage = "Stepped back to " ++ Tuple.first prev
+            , simMessage = t.simSteppedBack (Tuple.first prev)
         }
 
 
-runToEnd : Model -> Model
-runToEnd model =
+runToEnd : Translations -> Model -> Model
+runToEnd t model =
     let
         helper m =
             if m.simPosition >= String.length m.testWord then
-                checkAcceptance m
+                checkAcceptance t m
 
             else
                 case m.currentState of
@@ -86,7 +82,7 @@ runToEnd model =
 
                     Just _ ->
                         let
-                            stepped = stepOnce m
+                            stepped = stepOnce t m
                         in
                         if stepped.currentState == Nothing then
                             stepped
@@ -97,15 +93,15 @@ runToEnd model =
     helper model
 
 
-checkAcceptance : Model -> Model
-checkAcceptance model =
+checkAcceptance : Translations -> Model -> Model
+checkAcceptance t model =
     case model.currentState of
         Nothing ->
             model
 
         Just current ->
             if List.member current model.acceptStates then
-                { model | simMessage = "✔ ACCEPTED — in accept state: " ++ current }
+                { model | simMessage = t.simAccepted current }
 
             else
-                { model | simMessage = "✘ REJECTED — not in accept state (current: " ++ current ++ ")" }
+                { model | simMessage = t.simRejected current }

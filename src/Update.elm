@@ -55,6 +55,7 @@ defaultModel =
     , codeCollapsed = False
     , stateListCollapsed = False
     , language = EN
+    , hoveredObject = Nothing
     }
 
 
@@ -439,11 +440,11 @@ update msg model =
                 , simMessage = t.simLoaded model.testWord
             }
 
-        StepForward -> stepOnce model
+        StepForward -> stepOnce t model
 
-        StepBack -> stepBack model
+        StepBack -> stepBack t model
 
-        RunAll -> runToEnd model
+        RunAll -> runToEnd t model
 
         ResetSim ->
             { model
@@ -539,11 +540,58 @@ update msg model =
         RequestLoad ->
             model
 
+        HoverEnter target ->
+            { model | hoveredObject = Just target }
+
+        HoverLeave ->
+            { model | hoveredObject = Nothing }
+
+        KeyDelete ->
+            case model.hoveredObject of
+                Just (HoverState name) ->
+                    let
+                        m0 = saveUndo model
+                        newPositions = Dict.remove name m0.statePositions
+                        newTrans = Dict.filter (\( fr, _ ) to -> fr /= name && to /= name) m0.transitions
+                        newAccept = List.filter ((/=) name) m0.acceptStates
+                        newStart = if m0.startState == name then "" else m0.startState
+                    in
+                    { m0
+                        | statePositions = newPositions
+                        , transitions = newTrans
+                        , acceptStates = newAccept
+                        , startState = newStart
+                        , hoveredObject = Nothing
+                        , simMessage = t.simDeleted name
+                    }
+                    |> syncCodeFromDiagram
+
+                Just (HoverTransition from to) ->
+                    let
+                        m0 = saveUndo model
+                    in
+                    { m0
+                        | transitions =
+                            Dict.filter (\( fr, _ ) tgt -> not (fr == from && tgt == to)) m0.transitions
+                        , hoveredObject = Nothing
+                        , simMessage = t.simDeletedTrans from to
+                    }
+                    |> syncCodeFromDiagram
+
+                Nothing ->
+                    model
+
+        KeyUndo ->
+            update Undo model
+
+        KeyRedo ->
+            update Redo model
+
         AutoTick _ ->
             if not model.autoRunning then
                 model
             else if model.simPosition >= String.length model.testWord || model.currentState == Nothing then
                 { model | autoRunning = False }
-                    |> checkAcceptance
+                    |> checkAcceptance t
             else
-                stepOnce model
+                stepOnce t model
