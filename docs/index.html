@@ -104,13 +104,13 @@
 
     <div id="dfa-save-modal" class="dfa-modal-backdrop">
         <div class="dfa-modal">
-            <h2>Save diagram <button class="dfa-modal-close" id="dfa-save-close">✕</button></h2>
+            <h2 id="modal-save-title">Save diagram <button class="dfa-modal-close" id="dfa-save-close">✕</button></h2>
             <div class="dfa-save-name-row">
                 <input id="dfa-save-input" type="text" placeholder="Name your save…" maxlength="60" />
                 <button class="dfa-btn-primary" id="dfa-save-confirm">Save</button>
             </div>
             <div class="dfa-divider"></div>
-            <div style="font-size:0.72rem;color:#7986cb;margin-bottom:10px;letter-spacing:0.5px;text-transform:uppercase;font-weight:600;">Saved diagrams</div>
+            <div id="modal-saved-diagrams-label" style="font-size:0.72rem;color:#7986cb;margin-bottom:10px;letter-spacing:0.5px;text-transform:uppercase;font-weight:600;">Saved diagrams</div>
             <div class="dfa-saves-list" id="dfa-saves-list-save"></div>
         </div>
     </div>
@@ -119,8 +119,8 @@
 
     <div id="dfa-load-modal" class="dfa-modal-backdrop">
         <div class="dfa-modal">
-            <h2>Load diagram <button class="dfa-modal-close" id="dfa-load-close">✕</button></h2>
-            <div style="font-size:0.72rem;color:#7986cb;margin-bottom:14px;letter-spacing:0.5px;text-transform:uppercase;font-weight:600;">Your saved diagrams</div>
+            <h2 id="modal-load-title">Load diagram <button class="dfa-modal-close" id="dfa-load-close">✕</button></h2>
+            <div id="modal-your-saved-label" style="font-size:0.72rem;color:#7986cb;margin-bottom:14px;letter-spacing:0.5px;text-transform:uppercase;font-weight:600;">Your saved diagrams</div>
             <div class="dfa-saves-list" id="dfa-saves-list-load"></div>
         </div>
     </div>
@@ -135,6 +135,76 @@
     function persistSaves(arr) { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
 
    
+    const STRINGS = {
+        EN: {
+            saveTitle:         'Save diagram',
+            savePlaceholder:   'Name your save\u2026',
+            saveBtn:           'Save',
+            savedDiagrams:     'Saved diagrams',
+            loadTitle:         'Load diagram',
+            yourSaved:         'Your saved diagrams',
+            loadBtn:           '\u21a9 Load',
+            deleteBtn:         'X',
+            renameBtn:         '\u270e',
+            noSaves:           'No saved diagrams yet.\nBuild something and save it!',
+            toastSaved:        n => `Saved \u201c${n}\u201d`,
+            toastLoaded:       n => `Loaded \u201c${n}\u201d`,
+            toastDeleted:      'Deleted',
+            toastNothingToSave:'Nothing to save yet.',
+            defaultSaveName:   () => {
+                const d = new Date(), pad = n => String(n).padStart(2,'0');
+                return `DFA ${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            },
+            stateSuffix:       n => `${n} state${n!==1?'s':''}`,
+            transSuffix:       n => `${n} transition${n!==1?'s':''}`,
+        },
+        SK: {
+            saveTitle:         'Uložiť diagram',
+            savePlaceholder:   'Pomenuj uloženie\u2026',
+            saveBtn:           'Uložiť',
+            savedDiagrams:     'Uložené diagramy',
+            loadTitle:         'Načítať diagram',
+            yourSaved:         'Tvoje uložené diagramy',
+            loadBtn:           '\u21a9 Načítať',
+            deleteBtn:         'X',
+            renameBtn:         '\u270e',
+            noSaves:           'Žiadne uložené diagramy.\nNiečo vytvor a ulož!',
+            toastSaved:        n => `Uložené \u201e${n}\u201c`,
+            toastLoaded:       n => `Načítané \u201e${n}\u201c`,
+            toastDeleted:      'Odstránené',
+            toastNothingToSave:'Zatiaľ nič na uloženie.',
+            defaultSaveName:   () => {
+                const d = new Date(), pad = n => String(n).padStart(2,'0');
+                return `DKA ${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            },
+            stateSuffix:       n => `${n} stav${n===1?'':'y'}`,
+            transSuffix:       n => `${n} prechod${n===1?'':'y'}`,
+        }
+    };
+
+    let currentLang = 'EN';
+    function s() { return STRINGS[currentLang]; }
+
+    function applyLanguageToModals() {
+        const str = s();
+        const saveTitle = document.getElementById('modal-save-title');
+        if (saveTitle) {
+            saveTitle.childNodes[0].textContent = str.saveTitle + ' ';
+        }
+        const saveInput = document.getElementById('dfa-save-input');
+        if (saveInput) saveInput.placeholder = str.savePlaceholder;
+        const saveConfirm = document.getElementById('dfa-save-confirm');
+        if (saveConfirm) saveConfirm.textContent = str.saveBtn;
+        const savedLabel = document.getElementById('modal-saved-diagrams-label');
+        if (savedLabel) savedLabel.textContent = str.savedDiagrams;
+        const loadTitle = document.getElementById('modal-load-title');
+        if (loadTitle) {
+            loadTitle.childNodes[0].textContent = str.loadTitle + ' ';
+        }
+        const yourSavedLabel = document.getElementById('modal-your-saved-label');
+        if (yourSavedLabel) yourSavedLabel.textContent = str.yourSaved;
+    }
+
     let toastTimer;
     function showToast(msg) {
         const t = document.getElementById('dfa-toast');
@@ -144,55 +214,57 @@
         toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
     }
 
-    
     function openModal(id)  { document.getElementById(id).classList.add('open'); }
     function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-    
     function fmtDate(iso) {
         const d = new Date(iso);
         const pad = n => String(n).padStart(2,'0');
         return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}  ${pad(d.getHours())}:${pad(d.getMinutes())}`;
     }
 
-    
     var app = Elm.Main.init({ node: document.getElementById('app') });
 
-    
     let latestDFAState = null;
     app.ports.exportDFA.subscribe(function(data) {
         latestDFAState = data;
     });
 
     
+    app.ports.sendLanguage.subscribe(function(lang) {
+        currentLang = (lang === 'SK') ? 'SK' : 'EN';
+        applyLanguageToModals();
+    });
+
     app.ports.openSaveModal.subscribe(function() {
         const nameInput = document.getElementById('dfa-save-input');
         if (!nameInput.value.trim()) {
-            const now = new Date();
-            const pad = n => String(n).padStart(2,'0');
-            nameInput.value = `DFA ${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+            nameInput.value = s().defaultSaveName();
         }
         app.ports.requestExport.send(null);
         renderSavesList('dfa-saves-list-save', 'save');
+        applyLanguageToModals();
         openModal('dfa-save-modal');
     });
 
-    
-
     app.ports.openLoadModal.subscribe(function() {
         renderSavesList('dfa-saves-list-load', 'load');
+        applyLanguageToModals();
         openModal('dfa-load-modal');
     });
-
-    
 
     function renderSavesList(containerId, mode) {
         const container = document.getElementById(containerId);
         const saves = loadSaves();
+        const str = s();
         container.innerHTML = '';
 
         if (saves.length === 0) {
-            container.innerHTML = '<div class="dfa-empty">No saved diagrams yet.<br>Build something and save it!</div>';
+            const lines = str.noSaves.split('\n');
+            container.innerHTML =
+                '<div class="dfa-empty">' +
+                lines.map(l => `<span>${l}</span>`).join('<br>') +
+                '</div>';
             return;
         }
 
@@ -211,7 +283,7 @@
             meta.className = 'dfa-save-meta';
             const sc = save.data.states ? save.data.states.split(',').filter(s=>s.trim()).length : 0;
             const tc = save.data.transitions ? save.data.transitions.split('\n').filter(s=>s.trim()).length : 0;
-            meta.textContent = `${fmtDate(save.savedAt)}  ·  ${sc} state${sc!==1?'s':''}  ·  ${tc} transition${tc!==1?'s':''}`;
+            meta.textContent = `${fmtDate(save.savedAt)}  ·  ${str.stateSuffix(sc)}  ·  ${str.transSuffix(tc)}`;
 
             info.appendChild(nameEl);
             info.appendChild(meta);
@@ -222,7 +294,7 @@
             if (mode === 'save') {
                 const renameBtn = document.createElement('button');
                 renameBtn.className = 'dfa-btn-load';
-                renameBtn.textContent = '✎';
+                renameBtn.textContent = str.renameBtn;
                 renameBtn.title = 'Rename';
                 renameBtn.onclick = () => startInlineRename(save.id, nameEl, renameBtn);
                 actions.appendChild(renameBtn);
@@ -231,24 +303,24 @@
             if (mode === 'load') {
                 const loadBtn = document.createElement('button');
                 loadBtn.className = 'dfa-btn-load';
-                loadBtn.textContent = '↩ Load';
+                loadBtn.textContent = str.loadBtn;
                 loadBtn.onclick = () => {
                     closeModal('dfa-load-modal');
                     app.ports.importDFA.send(save.data);
-                    showToast(`Loaded "${save.name}"`);
+                    showToast(str.toastLoaded(save.name));
                 };
                 actions.appendChild(loadBtn);
             }
 
             const delBtn = document.createElement('button');
             delBtn.className = 'dfa-btn-del';
-            delBtn.textContent = 'X';
+            delBtn.textContent = str.deleteBtn;
             delBtn.title = 'Delete';
             delBtn.onclick = () => {
-                const arr = loadSaves().filter(s => s.id !== save.id);
+                const arr = loadSaves().filter(sv => sv.id !== save.id);
                 persistSaves(arr);
                 renderSavesList(containerId, mode);
-                showToast('Deleted');
+                showToast(str.toastDeleted);
             };
             actions.appendChild(delBtn);
 
@@ -257,7 +329,6 @@
             container.appendChild(item);
         });
     }
-
 
     function startInlineRename(id, nameEl, renameBtn) {
         const oldName = nameEl.textContent;
@@ -272,7 +343,7 @@
         const confirm = () => {
             const newName = inp.value.trim() || oldName;
             const arr = loadSaves();
-            const idx = arr.findIndex(s => s.id === id);
+            const idx = arr.findIndex(sv => sv.id === id);
             if (idx !== -1) { arr[idx].name = newName; persistSaves(arr); }
             renderSavesList('dfa-saves-list-save', 'save');
         };
@@ -283,13 +354,11 @@
         });
     }
 
-
-
     document.getElementById('dfa-save-confirm').onclick = () => {
         const nameInput = document.getElementById('dfa-save-input');
         const name = nameInput.value.trim();
         if (!name) { nameInput.focus(); return; }
-        if (!latestDFAState) { showToast('Nothing to save yet.'); return; }
+        if (!latestDFAState) { showToast(s().toastNothingToSave); return; }
 
         const save = {
             id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
@@ -300,10 +369,8 @@
         persistSaves([...loadSaves(), save]);
         nameInput.value = '';
         renderSavesList('dfa-saves-list-save', 'save');
-        showToast(`Saved "${name}"`);
+        showToast(s().toastSaved(name));
     };
-
-
 
     document.getElementById('dfa-save-close').onclick  = () => closeModal('dfa-save-modal');
     document.getElementById('dfa-load-close').onclick  = () => closeModal('dfa-load-modal');
@@ -312,9 +379,25 @@
     document.getElementById('dfa-save-input').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('dfa-save-confirm').click(); });
     document.addEventListener('keydown', e => {
         if (e.key==='Escape') { closeModal('dfa-save-modal'); closeModal('dfa-load-modal'); }
+
+        const tag = document.activeElement && document.activeElement.tagName;
+        const isTyping = tag === 'INPUT' || tag === 'TEXTAREA';
+        if (isTyping) return;
+
+        const ctrl = e.ctrlKey || e.metaKey;
+
+        if (ctrl && !e.shiftKey && e.key.toLowerCase() === 'z') {
+            e.preventDefault();
+            app.ports.keyboardMsg.send('undo');
+        } else if (ctrl && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
+            e.preventDefault();
+            app.ports.keyboardMsg.send('redo');
+        } else if ((e.key === 'Delete' || e.key === 'Backspace') && !ctrl) {
+            e.preventDefault();
+            app.ports.keyboardMsg.send('delete');
+        }
     });
 
-    
     (function() {
         function attachFix() {
             var svg = document.querySelector('svg');

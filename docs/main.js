@@ -784,11 +784,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.G.y === region.cl.y)
+	if (region.G.y === region.cG.y)
 	{
 		return 'on line ' + region.G.y;
 	}
-	return 'on lines ' + region.G.y + ' through ' + region.cl.y;
+	return 'on lines ' + region.G.y + ' through ' + region.cG.y;
 }
 
 
@@ -1861,9 +1861,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.cY,
-		impl.dA,
-		impl.dr,
+		impl.di,
+		impl.dW,
+		impl.dN,
 		function() { return function() {} }
 	);
 });
@@ -2727,9 +2727,9 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		c$: func(record.c$),
-		dq: record.dq,
-		dc: record.dc
+		dl: func(record.dl),
+		dM: record.dM,
+		dy: record.dy
 	}
 });
 
@@ -2997,11 +2997,11 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.c$;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.dq;
+		var message = !tag ? value : tag < 3 ? value.a : value.dl;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.dM;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.dc) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.dy) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3951,11 +3951,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.cY,
-		impl.dA,
-		impl.dr,
+		impl.di,
+		impl.dW,
+		impl.dN,
 		function(sendToApp, initialModel) {
-			var view = impl.ca;
+			var view = impl.cv;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3987,12 +3987,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.cY,
-		impl.dA,
-		impl.dr,
+		impl.di,
+		impl.dW,
+		impl.dN,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.bz && impl.bz(sendToApp)
-			var view = impl.ca;
+			var divertHrefToApp = impl.bJ && impl.bJ(sendToApp)
+			var view = impl.cv;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -4000,12 +4000,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.cN);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.c6);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.dw) && (_VirtualDom_doc.title = title = doc.dw);
+				(title !== doc.dS) && (_VirtualDom_doc.title = title = doc.dS);
 			});
 		}
 	);
@@ -4061,12 +4061,12 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.c3;
-	var onUrlRequest = impl.c4;
+	var onUrlChange = impl.dp;
+	var onUrlRequest = impl.dq;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		bz: function(sendToApp)
+		bJ: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4082,9 +4082,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.cy === next.cy
-							&& curr.cp === next.cp
-							&& curr.cv.a === next.cv.a
+							&& curr.cT === next.cT
+							&& curr.cK === next.cK
+							&& curr.cQ.a === next.cQ.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4092,13 +4092,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		cY: function(flags)
+		di: function(flags)
 		{
-			return A3(impl.cY, flags, _Browser_getUrl(), key);
+			return A3(impl.di, flags, _Browser_getUrl(), key);
 		},
-		ca: impl.ca,
-		dA: impl.dA,
-		dr: impl.dr
+		cv: impl.cv,
+		dW: impl.dW,
+		dN: impl.dN
 	});
 }
 
@@ -4164,17 +4164,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { cW: 'hidden', cO: 'visibilitychange' }
+		? { df: 'hidden', c7: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { cW: 'mozHidden', cO: 'mozvisibilitychange' }
+		? { df: 'mozHidden', c7: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { cW: 'msHidden', cO: 'msvisibilitychange' }
+		? { df: 'msHidden', c7: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { cW: 'webkitHidden', cO: 'webkitvisibilitychange' }
-		: { cW: 'hidden', cO: 'visibilitychange' };
+		? { df: 'webkitHidden', c7: 'webkitvisibilitychange' }
+		: { df: 'hidden', c7: 'visibilitychange' };
 }
 
 
@@ -4255,12 +4255,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		cC: _Browser_getScene(),
-		cH: {
-			dC: _Browser_window.pageXOffset,
-			dD: _Browser_window.pageYOffset,
-			cI: _Browser_doc.documentElement.clientWidth,
-			co: _Browser_doc.documentElement.clientHeight
+		cX: _Browser_getScene(),
+		c0: {
+			dY: _Browser_window.pageXOffset,
+			dZ: _Browser_window.pageYOffset,
+			c1: _Browser_doc.documentElement.clientWidth,
+			cJ: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4270,8 +4270,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		cI: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		co: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		c1: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		cJ: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4294,15 +4294,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			cC: {
-				cI: node.scrollWidth,
-				co: node.scrollHeight
+			cX: {
+				c1: node.scrollWidth,
+				cJ: node.scrollHeight
 			},
-			cH: {
-				dC: node.scrollLeft,
-				dD: node.scrollTop,
-				cI: node.clientWidth,
-				co: node.clientHeight
+			c0: {
+				dY: node.scrollLeft,
+				dZ: node.scrollTop,
+				c1: node.clientWidth,
+				cJ: node.clientHeight
 			}
 		};
 	});
@@ -4332,18 +4332,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			cC: _Browser_getScene(),
-			cH: {
-				dC: x,
-				dD: y,
-				cI: _Browser_doc.documentElement.clientWidth,
-				co: _Browser_doc.documentElement.clientHeight
+			cX: _Browser_getScene(),
+			c0: {
+				dY: x,
+				dZ: y,
+				c1: _Browser_doc.documentElement.clientWidth,
+				cJ: _Browser_doc.documentElement.clientHeight
 			},
-			cU: {
-				dC: x + rect.left,
-				dD: y + rect.top,
-				cI: rect.width,
-				co: rect.height
+			dd: {
+				dY: x + rect.left,
+				dZ: y + rect.top,
+				c1: rect.width,
+				cJ: rect.height
 			}
 		};
 	});
@@ -4928,7 +4928,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {cn: fragment, cp: host, ct: path, cv: port_, cy: protocol, cz: query};
+		return {cI: fragment, cK: host, cO: path, cQ: port_, cT: protocol, cU: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5252,7 +5252,7 @@ var $author$project$Lang$translations = function (lang) {
 			as: 'The state the DFA is currently in. If shown as — (Nothing), the DFA has no valid transition and is stuck.',
 			at: 'Starts from the start state when Load DFA is pressed, then changes step by step.',
 			au: 'X Delete state/transition',
-			av: 'Click on a state or transition to delete it.',
+			av: 'Click on a state or transition to delete it. You can also delete elements in other draw modes — if your cursor is hovering over a state or transition, click the Delete button on your keyboard. The hovered element will turn red to indicate it can be deleted. This is not a bug and you can continue drawing normally.',
 			aw: ' Editing the Diagram',
 			ax: 'States / Alphabet / Start / Accept',
 			ay: 'Fill in these fields for a formal DFA description. They update automatically when editing the diagram.',
@@ -5273,7 +5273,7 @@ var $author$project$Lang$translations = function (lang) {
 			aN: 'Drag the empty canvas area to move the view.',
 			aO: '>> Read all',
 			aP: 'Processes the entire word at once and shows the final result.',
-			aQ: 'Redo a previously undone action.',
+			aQ: 'Redo a previously undone action. You can also use Ctrl+Y',
 			aR: '↪ Redo',
 			aS: '✎ Rename',
 			aT: 'Use the button in the state list or double-click directly on the state.',
@@ -5300,7 +5300,7 @@ var $author$project$Lang$translations = function (lang) {
 			bc: 'Test word',
 			bd: 'Type the word you want to test (e.g. \"aab\").',
 			be: '📖 Help & Controls',
-			bf: 'Undo the last diagram change (up to 50 steps).',
+			bf: 'Undo the last diagram change (up to 50 steps). You can also use Ctrl+Z.',
 			bg: '↩ Undo',
 			bh: 'Undo / Redo / Clear',
 			bi: '+ / − / ⌂',
@@ -5308,76 +5308,113 @@ var $author$project$Lang$translations = function (lang) {
 			bk: 'Index: ',
 			bl: 'Load',
 			bm: '⚙ Load DFA',
-			bp: '📋 Open Feedback Form',
-			bq: '>> Read all',
-			br: 'Redo',
-			bs: 'Rename',
-			bt: 'Rename state: ',
-			bu: '<< Reset',
-			bv: 'Reset view',
-			bw: '▶ Run',
-			bx: 'Save',
-			by: 'Select/Move',
-			bA: function (n) {
+			bo: 'X',
+			bp: '↩ Load',
+			bq: 'Load diagram',
+			br: 'No saved diagrams yet.\nBuild something and save it!',
+			bs: '✎',
+			bt: 'Save',
+			bu: 'Name your save…',
+			bv: 'Save diagram',
+			bw: 'Saved diagrams',
+			bx: 'Your saved diagrams',
+			bz: '📋 Open Feedback Form',
+			bA: '>> Read all',
+			bB: 'Redo',
+			bC: 'Rename',
+			bD: 'Rename state: ',
+			bE: '<< Reset',
+			bF: 'Reset view',
+			bG: '▶ Run',
+			bH: 'Save',
+			bI: 'Select/Move',
+			bK: function (st) {
+				return '✔ ACCEPTED — in accept state: ' + st;
+			},
+			bL: function (n) {
 				return 'State added: ' + n;
 			},
-			bB: 'Auto run resumed...',
-			bC: 'Auto run started...',
-			bD: 'Cleared everything.',
-			bE: function (n) {
+			bM: 'Auto run resumed...',
+			bN: 'Auto run started...',
+			bO: 'Back to start.',
+			bP: 'Cleared everything.',
+			bQ: function (n) {
 				return 'Deleted state: ' + n;
 			},
-			bF: F2(
+			bR: F2(
 				function (fr, to) {
 					return 'Deleted transition: ' + (fr + (' → ' + to));
 				}),
-			bG: 'Diagram generated from code.',
-			bH: 'Add states by clicking the canvas.',
-			bI: function (w) {
+			bS: 'Diagram generated from code.',
+			bT: 'Add states by clicking the canvas.',
+			bU: 'Load DFA first!',
+			bV: function (w) {
 				return 'Loaded. Ready to test: \"' + (w + '\"');
 			},
-			bJ: 'Nothing to redo.',
-			bK: 'Nothing to undo.',
-			bL: 'Paused.',
-			bM: 'Redone.',
-			bN: F2(
+			bW: F2(
+				function (st, ch) {
+					return '✘ REJECTED: no transition from ' + (st + (' on \'' + (ch + '\'')));
+				}),
+			bX: 'Nothing to redo.',
+			bY: 'Nothing to undo.',
+			bZ: 'Paused.',
+			b_: F2(
+				function (ch, st) {
+					return 'Read \'' + (ch + ('\' → moved to ' + st));
+				}),
+			b$: 'Redone.',
+			b0: function (st) {
+				return '✘ REJECTED — not in accept state (current: ' + (st + ')');
+			},
+			b1: F2(
 				function (o, nw) {
 					return 'Renamed: ' + (o + (' → ' + nw));
 				}),
-			bO: 'Reset. Click \'Load DFA\' to start.',
-			bP: function (n) {
+			b2: 'Reset. Click \'Load DFA\' to start.',
+			b3: function (n) {
 				return 'Start state set: ' + n;
 			},
-			bQ: F3(
+			b4: function (st) {
+				return 'Stepped back to ' + st;
+			},
+			b5: F3(
 				function (fr, ch, to) {
 					return fr + (' --[' + (ch + (']--> ' + to)));
 				}),
-			bR: 'Undone.',
-			bS: 'Speed',
-			bT: 'Start state',
-			bU: 'State Diagram',
-			bV: '✎ rename · S start · A accept · X delete',
-			bW: function (n) {
+			b6: 'Undone.',
+			b7: 'Speed',
+			b8: 'Start state',
+			b9: 'State Diagram',
+			ca: '✎ rename · S start · A accept · X delete',
+			cb: function (n) {
 				return 'States  (' + ($elm$core$String$fromInt(n) + ')');
 			},
-			bX: 'States',
-			bY: 'Code panel: ',
-			bZ: 'State Diagram: ',
-			b_: 'Status: ',
-			b$: 'Test String: ',
-			b0: '> Step',
-			b1: 'Step-by-step',
-			b2: '⏹ Stop',
-			b3: 'Test String',
-			b5: 'Character for this transition:',
-			b6: 'Transition: ',
-			b8: 'Transitions',
-			b9: 'Undo',
-			ca: 'View',
-			cb: 'What is this app?',
-			cc: 'This tool is an interactive Deterministic Finite Automaton (DFA) simulator designed for college and university students. The goal is to help learners visually and interactively understand how automata work during theoretical computer science classes — how a DFA processes an input word, when it accepts, and when it rejects.',
-			cd: 'Zoom in',
-			ce: 'Zoom out'
+			cc: 'States',
+			cd: 'Code panel: ',
+			ce: 'State Diagram: ',
+			cf: 'Status: ',
+			cg: 'Test String: ',
+			ch: '> Step',
+			ci: 'Step-by-step',
+			cj: '⏹ Stop',
+			ck: 'Test String',
+			cm: 'Deleted',
+			cn: function (n) {
+				return 'Loaded \"' + (n + '\"');
+			},
+			co: 'Nothing to save yet.',
+			cp: function (n) {
+				return 'Saved \"' + (n + '\"');
+			},
+			cq: 'Character for this transition:',
+			cr: 'Transition: ',
+			ct: 'Transitions',
+			cu: 'Undo',
+			cv: 'View',
+			cw: 'What is this app?',
+			cx: 'This tool is an interactive Deterministic Finite Automaton (DFA) simulator designed for college and university students. The goal is to help learners visually and interactively understand how automata work during theoretical computer science classes — how a DFA processes an input word, when it accepts, and when it rejects.',
+			cy: 'Zoom in',
+			cz: 'Zoom out'
 		};
 	} else {
 		return {
@@ -5419,7 +5456,7 @@ var $author$project$Lang$translations = function (lang) {
 			as: 'Stav, v ktorom sa DKA aktuálne nachádza. Ak je zobrazené — (Nothing), DKA nemá platný prechod a je zaseknutý.',
 			at: 'Začína zo začiatočného stavu po stlačení Načítať DKA, potom sa mení krok po kroku.',
 			au: 'X Odstrániť stav/prechod',
-			av: 'Klikni na stav alebo prechod pre jeho odstránenie.',
+			av: 'Klikni na stav alebo prechod pre jeho odstránenie. Prvky môžeš odstrániť aj v iných režimoch kreslenia — ak je kurzor nad stavom alebo prechodom, stačí kliknúť na tlačidlo Delete na klávesnici. Zvýraznený prvok sa zobrazí červenou farbou, čo znamená, že ho možno odstrániť. Nie je to chyba a kreslenie môžeš normálne používať ďalej.',
 			aw: ' Úprava diagramu',
 			ax: 'Stavy / Abeceda / Začiatok / Akceptačné',
 			ay: 'Vyplň tieto polia pre formálny popis DKA. Automaticky sa aktualizujú pri úprave diagramu.',
@@ -5440,7 +5477,7 @@ var $author$project$Lang$translations = function (lang) {
 			aN: 'Ťahaj prázdnu plochu plátna na posun pohľadu.',
 			aO: '>> Prečítať všetko',
 			aP: 'Spracuje celé slovo naraz a zobrazí výsledok.',
-			aQ: 'Zopakuje predtým vratenú akciu.',
+			aQ: 'Zopakuje predtým vratenú akciu. Môžeš použiť aj Ctrl+Y.',
 			aR: '↪ Znova',
 			aS: '✎ Premenovať',
 			aT: 'Použi tlačidlo v zozname stavov alebo dvojklikni priamo na stav.',
@@ -5467,7 +5504,7 @@ var $author$project$Lang$translations = function (lang) {
 			bc: 'Testové slovo',
 			bd: 'Zadaj slovo, ktoré chceš otestovať (napr. \"aab\").',
 			be: '📖 Návod a ovládanie',
-			bf: 'Vráti poslednú zmenu diagramu (až 50 krokov).',
+			bf: 'Vráti poslednú zmenu diagramu (až 50 krokov). Môžeš použiť aj Ctrl+Z.',
 			bg: '↩ Späť',
 			bh: 'Späť / Znova / Vymazať',
 			bi: '+ / − / ⌂',
@@ -5475,122 +5512,160 @@ var $author$project$Lang$translations = function (lang) {
 			bk: 'Index: ',
 			bl: 'Načítať',
 			bm: '⚙ Načítať DKA',
-			bp: '📋 Otvoriť formulár',
-			bq: '>> Prečítať všetko',
-			br: 'Znova',
-			bs: 'Premenovať',
-			bt: 'Premenovať stav: ',
-			bu: '<< Reset',
-			bv: 'Resetovať pohľad',
-			bw: '▶ Spustiť',
-			bx: 'Uložiť',
-			by: 'Vybrať/Presunúť',
-			bA: function (n) {
+			bo: 'X',
+			bp: '↩ Načítať',
+			bq: 'Načítať diagram',
+			br: 'Žiadne uložené diagramy.\nNiečo vytvor a ulož!',
+			bs: '✎',
+			bt: 'Uložiť',
+			bu: 'Pomenuj uloženie…',
+			bv: 'Uložiť diagram',
+			bw: 'Uložené diagramy',
+			bx: 'Tvoje uložené diagramy',
+			bz: '📋 Otvoriť formulár',
+			bA: '>> Prečítať všetko',
+			bB: 'Znova',
+			bC: 'Premenovať',
+			bD: 'Premenovať stav: ',
+			bE: '<< Reset',
+			bF: 'Resetovať pohľad',
+			bG: '▶ Spustiť',
+			bH: 'Uložiť',
+			bI: 'Vybrať/Presunúť',
+			bK: function (st) {
+				return '✔ PRIJATÝ — akceptačný stav: ' + st;
+			},
+			bL: function (n) {
 				return 'Stav pridaný: ' + n;
 			},
-			bB: 'Automatický beh obnovený...',
-			bC: 'Automatický beh spustený...',
-			bD: 'Všetko vymazané.',
-			bE: function (n) {
+			bM: 'Automatický beh obnovený...',
+			bN: 'Automatický beh spustený...',
+			bO: 'Späť na začiatok.',
+			bP: 'Všetko vymazané.',
+			bQ: function (n) {
 				return 'Stav odstránený: ' + n;
 			},
-			bF: F2(
+			bR: F2(
 				function (fr, to) {
 					return 'Prechod odstránený: ' + (fr + (' → ' + to));
 				}),
-			bG: 'Diagram vygenerovaný z kódu.',
-			bH: 'Pridaj stavy kliknutím na plátno.',
-			bI: function (w) {
+			bS: 'Diagram vygenerovaný z kódu.',
+			bT: 'Pridaj stavy kliknutím na plátno.',
+			bU: 'Najprv načítaj DKA!',
+			bV: function (w) {
 				return 'Načítané. Pripravené na test: \"' + (w + '\"');
 			},
-			bJ: 'Nie je čo zopakovať.',
-			bK: 'Nie je čo vrátiť.',
-			bL: 'Pozastavené.',
-			bM: 'Zopakované.',
-			bN: F2(
+			bW: F2(
+				function (st, ch) {
+					return '✘ ODMIETNUTÝ: žiadny prechod z ' + (st + (' pre \'' + (ch + '\'')));
+				}),
+			bX: 'Nie je čo zopakovať.',
+			bY: 'Nie je čo vrátiť.',
+			bZ: 'Pozastavené.',
+			b_: F2(
+				function (ch, st) {
+					return 'Prečítaný \'' + (ch + ('\' → prechod do ' + st));
+				}),
+			b$: 'Zopakované.',
+			b0: function (st) {
+				return '✘ ODMIETNUTÝ — nie je v akceptačnom stave (aktuálny: ' + (st + ')');
+			},
+			b1: F2(
 				function (o, nw) {
 					return 'Premenovaný: ' + (o + (' → ' + nw));
 				}),
-			bO: 'Reset. Stlač \'Načítať DKA\' pre začiatok.',
-			bP: function (n) {
+			b2: 'Reset. Stlač \'Načítať DKA\' pre začiatok.',
+			b3: function (n) {
 				return 'Začiatočný stav nastavený: ' + n;
 			},
-			bQ: F3(
+			b4: function (st) {
+				return 'Krok späť do ' + st;
+			},
+			b5: F3(
 				function (fr, ch, to) {
 					return fr + (' --[' + (ch + (']--> ' + to)));
 				}),
-			bR: 'Vrátené.',
-			bS: 'Rýchlosť',
-			bT: 'Začiatočný stav',
-			bU: 'Stavový diagram',
-			bV: '✎ premenovať · S začiatočný · A akceptačný · X odstrániť',
-			bW: function (n) {
+			b6: 'Vrátené.',
+			b7: 'Rýchlosť',
+			b8: 'Začiatočný stav',
+			b9: 'Stavový diagram',
+			ca: '✎ premenovať · S začiatočný · A akceptačný · X odstrániť',
+			cb: function (n) {
 				return 'Stavy  (' + ($elm$core$String$fromInt(n) + ')');
 			},
-			bX: 'Stavy',
-			bY: 'Panel kódu: ',
-			bZ: 'Stavový diagram: ',
-			b_: 'Stav: ',
-			b$: 'Testovací reťazec: ',
-			b0: '> Krok',
-			b1: 'Krok po kroku',
-			b2: '⏹ Zastaviť',
-			b3: 'Testovací reťazec',
-			b5: 'Znak pre tento prechod:',
-			b6: 'Prechod: ',
-			b8: 'Prechody',
-			b9: 'Späť',
-			ca: 'Zobrazenie',
-			cb: 'Čo je táto aplikácia?',
-			cc: 'Tento nástroj je interaktívny simulátor Deterministického Konečného Automatu (DKA) určený pre študentov vysokých škôl. Cieľom je pomôcť študentom vizuálne a interaktívne pochopiť, ako automaty fungujú v rámci predmetov teoretickej informatiky — ako DKA spracúva vstupné slovo, kedy ho prijme a kedy odmietne.',
-			cd: 'Priblížiť',
-			ce: 'Oddialiť'
+			cc: 'Stavy',
+			cd: 'Panel kódu: ',
+			ce: 'Stavový diagram: ',
+			cf: 'Stav: ',
+			cg: 'Testovací reťazec: ',
+			ch: '> Krok',
+			ci: 'Krok po kroku',
+			cj: '⏹ Zastaviť',
+			ck: 'Testovací reťazec',
+			cm: 'Odstránené',
+			cn: function (n) {
+				return 'Načítané \"' + (n + '\"');
+			},
+			co: 'Zatiaľ nič na uloženie.',
+			cp: function (n) {
+				return 'Uložené \"' + (n + '\"');
+			},
+			cq: 'Znak pre tento prechod:',
+			cr: 'Prechod: ',
+			ct: 'Prechody',
+			cu: 'Späť',
+			cv: 'Zobrazenie',
+			cw: 'Čo je táto aplikácia?',
+			cx: 'Tento nástroj je interaktívny simulátor Deterministického Konečného Automatu (DKA) určený pre študentov vysokých škôl. Cieľom je pomôcť študentom vizuálne a interaktívne pochopiť, ako automaty fungujú v rámci predmetov teoretickej informatiky — ako DKA spracúva vstupné slovo, kedy ho prijme a kedy odmietne.',
+			cy: 'Priblížiť',
+			cz: 'Oddialiť'
 		};
 	}
 };
 var $author$project$Update$defaultModel = {
-	cf: _List_Nil,
-	cL: false,
-	cM: 800,
-	ci: '',
+	cA: _List_Nil,
+	c4: false,
+	c5: 800,
+	cD: '',
 	V: '',
-	cP: false,
-	cj: '',
+	c8: false,
+	cE: '',
 	W: '',
 	F: '',
-	cQ: $elm$core$Maybe$Nothing,
-	cS: $elm$core$Maybe$Nothing,
-	cT: 1,
-	cZ: false,
-	c_: 0,
-	c6: 0,
-	c7: 0,
-	c8: 0,
-	c9: 0,
-	da: '',
-	db: '',
-	dd: _List_Nil,
-	de: '',
-	df: $elm$core$Maybe$Nothing,
-	dh: false,
-	di: false,
+	c9: $elm$core$Maybe$Nothing,
+	db: $elm$core$Maybe$Nothing,
+	dc: 1,
+	dg: $elm$core$Maybe$Nothing,
 	dj: false,
-	dk: _List_Nil,
-	dl: $author$project$Lang$translations(0).bH,
-	dm: 0,
-	cD: '',
-	dn: 0,
-	$7: false,
-	cE: $elm$core$Dict$empty,
+	dk: 0,
 	ds: 0,
 	dt: 0,
-	du: 1.0,
-	dv: false,
-	b4: '',
-	dx: 'a',
-	dy: $elm$core$Maybe$Nothing,
-	b7: $elm$core$Dict$empty,
-	dz: _List_Nil
+	du: 0,
+	dv: 0,
+	dw: '',
+	dx: '',
+	dz: _List_Nil,
+	dA: '',
+	dB: $elm$core$Maybe$Nothing,
+	dD: false,
+	dE: false,
+	dF: false,
+	dG: _List_Nil,
+	dH: $author$project$Lang$translations(0).bT,
+	dI: 0,
+	cY: '',
+	dJ: 0,
+	dK: false,
+	cZ: $elm$core$Dict$empty,
+	dO: 0,
+	dP: 0,
+	dQ: 1.0,
+	dR: false,
+	cl: '',
+	dT: 'a',
+	dU: $elm$core$Maybe$Nothing,
+	cs: $elm$core$Dict$empty,
+	dV: _List_Nil
 };
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
@@ -5601,10 +5676,14 @@ var $author$project$Types$AutoTick = function (a) {
 	return {$: 38, a: a};
 };
 var $author$project$Types$GenerateCodeFromDiagram = {$: 28};
+var $author$project$Types$KeyDelete = {$: 55};
 var $author$project$Types$LoadDFAFromSave = F5(
 	function (a, b, c, d, e) {
 		return {$: 50, a: a, b: b, c: c, d: d, e: e};
 	});
+var $author$project$Types$NoOp = {$: 32};
+var $author$project$Types$Redo = {$: 34};
+var $author$project$Types$Undo = {$: 33};
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$time$Time$Every = F2(
 	function (a, b) {
@@ -5612,7 +5691,7 @@ var $elm$time$Time$Every = F2(
 	});
 var $elm$time$Time$State = F2(
 	function (taggers, processes) {
-		return {cx: processes, cG: taggers};
+		return {cS: processes, c$: taggers};
 	});
 var $elm$time$Time$init = $elm$core$Task$succeed(
 	A2($elm$time$Time$State, $elm$core$Dict$empty, $elm$core$Dict$empty));
@@ -5902,7 +5981,7 @@ var $elm$time$Time$spawnHelp = F3(
 	});
 var $elm$time$Time$onEffects = F3(
 	function (router, subs, _v0) {
-		var processes = _v0.cx;
+		var processes = _v0.cS;
 		var rightStep = F3(
 			function (_v6, id, _v7) {
 				var spawns = _v7.a;
@@ -5971,7 +6050,7 @@ var $elm$time$Time$millisToPosix = $elm$core$Basics$identity;
 var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
 var $elm$time$Time$onSelfMsg = F3(
 	function (router, interval, state) {
-		var _v0 = A2($elm$core$Dict$get, interval, state.cG);
+		var _v0 = A2($elm$core$Dict$get, interval, state.c$);
 		if (_v0.$ === 1) {
 			return $elm$core$Task$succeed(state);
 		} else {
@@ -6038,7 +6117,7 @@ var $author$project$Main$importDFA = _Platform_incomingPort(
 										$elm$json$Json$Decode$andThen,
 										function (accept) {
 											return $elm$json$Json$Decode$succeed(
-												{D: accept, E: alphabet, G: start, H: states, b7: transitions});
+												{D: accept, E: alphabet, G: start, H: states, cs: transitions});
 										},
 										A2($elm$json$Json$Decode$field, 'accept', $elm$json$Json$Decode$string));
 								},
@@ -6049,6 +6128,7 @@ var $author$project$Main$importDFA = _Platform_incomingPort(
 				A2($elm$json$Json$Decode$field, 'states', $elm$json$Json$Decode$string));
 		},
 		A2($elm$json$Json$Decode$field, 'transitions', $elm$json$Json$Decode$string)));
+var $author$project$Main$keyboardMsg = _Platform_incomingPort('keyboardMsg', $elm$json$Json$Decode$string);
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $elm$json$Json$Decode$null = _Json_decodeNull;
 var $author$project$Main$requestExport = _Platform_incomingPort(
@@ -6058,14 +6138,27 @@ var $author$project$Main$subscriptions = function (model) {
 	return $elm$core$Platform$Sub$batch(
 		_List_fromArray(
 			[
-				model.cL ? A2($elm$time$Time$every, 2100 - model.cM, $author$project$Types$AutoTick) : $elm$core$Platform$Sub$none,
+				model.c4 ? A2($elm$time$Time$every, 2100 - model.c5, $author$project$Types$AutoTick) : $elm$core$Platform$Sub$none,
 				$author$project$Main$importDFA(
 				function (d) {
-					return A5($author$project$Types$LoadDFAFromSave, d.H, d.E, d.G, d.D, d.b7);
+					return A5($author$project$Types$LoadDFAFromSave, d.H, d.E, d.G, d.D, d.cs);
 				}),
 				$author$project$Main$requestExport(
 				function (_v0) {
 					return $author$project$Types$GenerateCodeFromDiagram;
+				}),
+				$author$project$Main$keyboardMsg(
+				function (key) {
+					switch (key) {
+						case 'undo':
+							return $author$project$Types$Undo;
+						case 'redo':
+							return $author$project$Types$Redo;
+						case 'delete':
+							return $author$project$Types$KeyDelete;
+						default:
+							return $author$project$Types$NoOp;
+					}
 				})
 			]));
 };
@@ -6103,7 +6196,7 @@ var $author$project$Main$exportDFA = _Platform_outgoingPort(
 					$elm$json$Json$Encode$string($.H)),
 					_Utils_Tuple2(
 					'transitions',
-					$elm$json$Json$Encode$string($.b7))
+					$elm$json$Json$Encode$string($.cs))
 				]));
 	});
 var $elm$json$Json$Encode$null = _Json_encodeNull;
@@ -6117,13 +6210,14 @@ var $author$project$Main$openSaveModal = _Platform_outgoingPort(
 	function ($) {
 		return $elm$json$Json$Encode$null;
 	});
+var $author$project$Main$sendLanguage = _Platform_outgoingPort('sendLanguage', $elm$json$Json$Encode$string);
 var $author$project$Lang$SK = 1;
 var $author$project$Types$SelectTool = 0;
 var $author$project$Update$applySnapshot = F2(
 	function (snap, model) {
 		return _Utils_update(
 			model,
-			{cf: snap.cf, cD: snap.cD, dn: snap.dn, cE: snap.cE, b7: snap.b7});
+			{cA: snap.cA, cY: snap.cY, dJ: snap.dJ, cZ: snap.cZ, cs: snap.cs});
 	});
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
@@ -6155,19 +6249,24 @@ var $elm$core$List$member = F2(
 			},
 			xs);
 	});
-var $author$project$Simulation$checkAcceptance = function (model) {
-	var _v0 = model.cQ;
-	if (_v0.$ === 1) {
-		return model;
-	} else {
-		var current = _v0.a;
-		return A2($elm$core$List$member, current, model.cf) ? _Utils_update(
-			model,
-			{dl: '✔ ACCEPTED — in accept state: ' + current}) : _Utils_update(
-			model,
-			{dl: '✘ REJECTED — not in accept state (current: ' + (current + ')')});
-	}
-};
+var $author$project$Simulation$checkAcceptance = F2(
+	function (t, model) {
+		var _v0 = model.c9;
+		if (_v0.$ === 1) {
+			return model;
+		} else {
+			var current = _v0.a;
+			return A2($elm$core$List$member, current, model.cA) ? _Utils_update(
+				model,
+				{
+					dH: t.bK(current)
+				}) : _Utils_update(
+				model,
+				{
+					dH: t.b0(current)
+				});
+		}
+	});
 var $elm$core$Basics$clamp = F3(
 	function (low, high, number) {
 		return (_Utils_cmp(number, low) < 0) ? low : ((_Utils_cmp(number, high) > 0) ? high : number);
@@ -6274,7 +6373,7 @@ var $author$project$CodeSync$generateDiagramFromCode = function (model) {
 				}
 			},
 			$elm$core$String$lines(model.F)));
-	var newStart = $elm$core$String$trim(model.cj);
+	var newStart = $elm$core$String$trim(model.cE);
 	var startStates = (newStart !== '') ? _List_fromArray(
 		[newStart]) : _List_Nil;
 	var impliedFromTransitions = $elm$core$List$concat(
@@ -6345,7 +6444,7 @@ var $author$project$CodeSync$generateDiagramFromCode = function (model) {
 		A2(
 			$elm$core$List$map,
 			$elm$core$String$trim,
-			A2($elm$core$String$split, ',', model.ci)));
+			A2($elm$core$String$split, ',', model.cD)));
 	var allMentioned = _Utils_ap(
 		startStates,
 		_Utils_ap(acceptList, impliedFromTransitions));
@@ -6369,23 +6468,23 @@ var $author$project$CodeSync$generateDiagramFromCode = function (model) {
 					var y = cyC + (radius * $elm$core$Basics$sin(angle));
 					return _Utils_Tuple2(
 						name,
-						{dC: x, dD: y});
+						{dY: x, dZ: y});
 				}),
 			stateNames));
 	return _Utils_update(
 		model,
 		{
-			cf: acceptList,
+			cA: acceptList,
 			V: A2($elm$core$String$join, ', ', mergedAlphabet),
 			W: A2($elm$core$String$join, ', ', stateNames),
-			cQ: $elm$core$Maybe$Nothing,
-			dk: _List_Nil,
-			dl: 'Diagram generated from code.',
-			dm: 0,
-			cD: newStart,
-			dn: $elm$core$List$length(stateNames),
-			cE: positions,
-			b7: parsedTrans
+			c9: $elm$core$Maybe$Nothing,
+			dG: _List_Nil,
+			dH: 'Diagram generated from code.',
+			dI: 0,
+			cY: newStart,
+			dJ: $elm$core$List$length(stateNames),
+			cZ: positions,
+			cs: parsedTrans
 		});
 };
 var $elm$core$Dict$member = F2(
@@ -6759,76 +6858,81 @@ var $elm$core$Dict$remove = F2(
 			return x;
 		}
 	});
-var $author$project$Simulation$stepOnce = function (model) {
-	var _v0 = model.cQ;
-	if (_v0.$ === 1) {
-		return _Utils_update(
-			model,
-			{dl: 'Load DFA first!'});
-	} else {
-		var current = _v0.a;
-		if (_Utils_cmp(
-			model.dm,
-			$elm$core$String$length(model.b4)) > -1) {
-			return $author$project$Simulation$checkAcceptance(model);
+var $author$project$Simulation$stepOnce = F2(
+	function (t, model) {
+		var _v0 = model.c9;
+		if (_v0.$ === 1) {
+			return _Utils_update(
+				model,
+				{dH: t.bU});
 		} else {
-			var ch = A3($elm$core$String$slice, model.dm, model.dm + 1, model.b4);
-			var next = A2(
-				$elm$core$Dict$get,
-				_Utils_Tuple2(current, ch),
-				model.b7);
-			if (!next.$) {
-				var nextState = next.a;
-				return _Utils_update(
-					model,
-					{
-						cQ: $elm$core$Maybe$Just(nextState),
-						dk: _Utils_ap(
-							model.dk,
-							_List_fromArray(
-								[
-									_Utils_Tuple2(nextState, model.dm + 1)
-								])),
-						dl: 'Read \'' + (ch + ('\' → moved to ' + nextState)),
-						dm: model.dm + 1
-					});
-			} else {
-				return _Utils_update(
-					model,
-					{cQ: $elm$core$Maybe$Nothing, dl: '✘ REJECTED: no transition from ' + (current + (' on \'' + (ch + '\'')))});
-			}
-		}
-	}
-};
-var $author$project$Simulation$runToEnd = function (model) {
-	var helper = function (m) {
-		helper:
-		while (true) {
+			var current = _v0.a;
 			if (_Utils_cmp(
-				m.dm,
-				$elm$core$String$length(m.b4)) > -1) {
-				return $author$project$Simulation$checkAcceptance(m);
+				model.dI,
+				$elm$core$String$length(model.cl)) > -1) {
+				return A2($author$project$Simulation$checkAcceptance, t, model);
 			} else {
-				var _v0 = m.cQ;
-				if (_v0.$ === 1) {
-					return m;
+				var ch = A3($elm$core$String$slice, model.dI, model.dI + 1, model.cl);
+				var next = A2(
+					$elm$core$Dict$get,
+					_Utils_Tuple2(current, ch),
+					model.cs);
+				if (!next.$) {
+					var nextState = next.a;
+					return _Utils_update(
+						model,
+						{
+							c9: $elm$core$Maybe$Just(nextState),
+							dG: _Utils_ap(
+								model.dG,
+								_List_fromArray(
+									[
+										_Utils_Tuple2(nextState, model.dI + 1)
+									])),
+							dH: A2(t.b_, ch, nextState),
+							dI: model.dI + 1
+						});
 				} else {
-					var stepped = $author$project$Simulation$stepOnce(m);
-					if (_Utils_eq(stepped.cQ, $elm$core$Maybe$Nothing)) {
-						return stepped;
-					} else {
-						var $temp$m = stepped;
-						m = $temp$m;
-						continue helper;
-					}
+					return _Utils_update(
+						model,
+						{
+							c9: $elm$core$Maybe$Nothing,
+							dH: A2(t.bW, current, ch)
+						});
 				}
 			}
 		}
-	};
-	return helper(model);
-};
+	});
+var $author$project$Simulation$runToEnd = F2(
+	function (t, model) {
+		var helper = function (m) {
+			helper:
+			while (true) {
+				if (_Utils_cmp(
+					m.dI,
+					$elm$core$String$length(m.cl)) > -1) {
+					return A2($author$project$Simulation$checkAcceptance, t, m);
+				} else {
+					var _v0 = m.c9;
+					if (_v0.$ === 1) {
+						return m;
+					} else {
+						var stepped = A2($author$project$Simulation$stepOnce, t, m);
+						if (_Utils_eq(stepped.c9, $elm$core$Maybe$Nothing)) {
+							return stepped;
+						} else {
+							var $temp$m = stepped;
+							m = $temp$m;
+							continue helper;
+						}
+					}
+				}
+			}
+		};
+		return helper(model);
+	});
 var $author$project$Update$snapshotDiagram = function (model) {
-	return {cf: model.cf, cD: model.cD, dn: model.dn, cE: model.cE, b7: model.b7};
+	return {cA: model.cA, cY: model.cY, dJ: model.dJ, cZ: model.cZ, cs: model.cs};
 };
 var $elm$core$List$takeReverse = F3(
 	function (n, list, kept) {
@@ -6960,14 +7064,14 @@ var $author$project$Update$saveUndo = function (model) {
 	return _Utils_update(
 		model,
 		{
-			dd: _List_Nil,
-			dz: A2(
+			dz: _List_Nil,
+			dV: A2(
 				$elm$core$List$take,
 				50,
 				A2(
 					$elm$core$List$cons,
 					$author$project$Update$snapshotDiagram(model),
-					model.dz))
+					model.dV))
 		});
 };
 var $author$project$Helpers$listLast = function (list) {
@@ -7001,36 +7105,37 @@ var $elm$core$Maybe$withDefault = F2(
 			return _default;
 		}
 	});
-var $author$project$Simulation$stepBack = function (model) {
-	var histLen = $elm$core$List$length(model.dk);
-	if (histLen <= 1) {
-		return _Utils_update(
-			model,
-			{
-				cQ: $elm$core$Maybe$Just(model.cD),
-				dk: _List_fromArray(
-					[
-						_Utils_Tuple2(model.cD, 0)
-					]),
-				dl: 'Back to start.',
-				dm: 0
-			});
-	} else {
-		var newHistory = A2($elm$core$List$take, histLen - 1, model.dk);
-		var prev = A2(
-			$elm$core$Maybe$withDefault,
-			_Utils_Tuple2(model.cD, 0),
-			$author$project$Helpers$listLast(newHistory));
-		return _Utils_update(
-			model,
-			{
-				cQ: $elm$core$Maybe$Just(prev.a),
-				dk: newHistory,
-				dl: 'Stepped back to ' + prev.a,
-				dm: prev.b
-			});
-	}
-};
+var $author$project$Simulation$stepBack = F2(
+	function (t, model) {
+		var histLen = $elm$core$List$length(model.dG);
+		if (histLen <= 1) {
+			return _Utils_update(
+				model,
+				{
+					c9: $elm$core$Maybe$Just(model.cY),
+					dG: _List_fromArray(
+						[
+							_Utils_Tuple2(model.cY, 0)
+						]),
+					dH: t.bO,
+					dI: 0
+				});
+		} else {
+			var newHistory = A2($elm$core$List$take, histLen - 1, model.dG);
+			var prev = A2(
+				$elm$core$Maybe$withDefault,
+				_Utils_Tuple2(model.cY, 0),
+				$author$project$Helpers$listLast(newHistory));
+			return _Utils_update(
+				model,
+				{
+					c9: $elm$core$Maybe$Just(prev.a),
+					dG: newHistory,
+					dH: t.b4(prev.a),
+					dI: prev.b
+				});
+		}
+	});
 var $author$project$CodeSync$syncCodeFromDiagram = function (model) {
 	var transStr = A2(
 		$elm$core$String$join,
@@ -7044,8 +7149,8 @@ var $author$project$CodeSync$syncCodeFromDiagram = function (model) {
 				var to = _v0.b;
 				return fr + (',' + (ch + (',' + to)));
 			},
-			$elm$core$Dict$toList(model.b7)));
-	var stateNames = $elm$core$Dict$keys(model.cE);
+			$elm$core$Dict$toList(model.cs)));
+	var stateNames = $elm$core$Dict$keys(model.cZ);
 	var alphabet = A2(
 		$elm$core$String$join,
 		', ',
@@ -7053,578 +7158,661 @@ var $author$project$CodeSync$syncCodeFromDiagram = function (model) {
 			A2(
 				$elm$core$List$map,
 				$elm$core$Tuple$second,
-				$elm$core$Dict$keys(model.b7))));
-	var acceptStr = A2($elm$core$String$join, ', ', model.cf);
+				$elm$core$Dict$keys(model.cs))));
+	var acceptStr = A2($elm$core$String$join, ', ', model.cA);
 	return _Utils_update(
 		model,
 		{
-			ci: acceptStr,
+			cD: acceptStr,
 			V: alphabet,
-			cj: model.cD,
+			cE: model.cY,
 			W: A2($elm$core$String$join, ', ', stateNames),
 			F: transStr
 		});
 };
 var $author$project$Update$update = F2(
 	function (msg, model) {
-		var t = $author$project$Lang$translations(model.c_);
-		switch (msg.$) {
-			case 49:
-				var newLang = function () {
-					var _v1 = model.c_;
-					if (!_v1) {
-						return 1;
-					} else {
-						return 0;
-					}
-				}();
-				return _Utils_update(
-					model,
-					{c_: newLang});
-			case 50:
-				var states = msg.a;
-				var alphabet = msg.b;
-				var start = msg.c;
-				var accept = msg.d;
-				var trans = msg.e;
-				var loaded = _Utils_update(
-					model,
-					{ci: accept, V: alphabet, cj: start, W: states, F: trans});
-				return $author$project$CodeSync$generateDiagramFromCode(
-					$author$project$Update$saveUndo(loaded));
-			case 0:
-				var x = msg.a;
-				var y = msg.b;
-				var _v2 = model.cT;
-				if (_v2 === 1) {
-					var m0 = $author$project$Update$saveUndo(model);
-					var name = 'q' + $elm$core$String$fromInt(m0.dn);
-					var newPositions = A3(
-						$elm$core$Dict$insert,
-						name,
-						{dC: x, dD: y},
-						m0.cE);
-					var newStart = (m0.cD === '') ? name : m0.cD;
-					return $author$project$CodeSync$syncCodeFromDiagram(
-						_Utils_update(
-							m0,
-							{
-								dl: t.bA(name),
-								cD: newStart,
-								dn: m0.dn + 1,
-								cE: newPositions
-							}));
-				} else {
-					return model;
-				}
-			case 1:
-				var stateName = msg.a;
-				var _v3 = model.cT;
-				switch (_v3) {
-					case 2:
-						var _v4 = model.dy;
-						if (_v4.$ === 1) {
-							return _Utils_update(
-								model,
-								{
-									dl: function () {
-										var _v5 = model.c_;
-										if (!_v5) {
-											return 'Now click the target state (from: ';
-										} else {
-											return 'Klikni na cieľový stav (od: ';
-										}
-									}() + (stateName + ')'),
-									dy: $elm$core$Maybe$Just(stateName)
-								});
+		update:
+		while (true) {
+			var t = $author$project$Lang$translations(model.dk);
+			switch (msg.$) {
+				case 49:
+					var newLang = function () {
+						var _v1 = model.dk;
+						if (!_v1) {
+							return 1;
 						} else {
-							var fromState = _v4.a;
-							return _Utils_update(
-								model,
-								{da: fromState, db: stateName, dj: true, dy: $elm$core$Maybe$Nothing});
+							return 0;
 						}
-					case 3:
+					}();
+					return _Utils_update(
+						model,
+						{dk: newLang});
+				case 50:
+					var states = msg.a;
+					var alphabet = msg.b;
+					var start = msg.c;
+					var accept = msg.d;
+					var trans = msg.e;
+					var loaded = _Utils_update(
+						model,
+						{cD: accept, V: alphabet, cE: start, W: states, F: trans});
+					return $author$project$CodeSync$generateDiagramFromCode(
+						$author$project$Update$saveUndo(loaded));
+				case 0:
+					var x = msg.a;
+					var y = msg.b;
+					var _v2 = model.dc;
+					if (_v2 === 1) {
 						var m0 = $author$project$Update$saveUndo(model);
-						var newAccept = A2(
-							$elm$core$List$filter,
-							$elm$core$Basics$neq(stateName),
-							m0.cf);
-						var newPos = A2($elm$core$Dict$remove, stateName, m0.cE);
-						var newStart = _Utils_eq(m0.cD, stateName) ? '' : m0.cD;
-						var newTrans = A2(
-							$elm$core$Dict$filter,
-							F2(
-								function (_v6, to) {
-									var fr = _v6.a;
-									return (!_Utils_eq(fr, stateName)) && (!_Utils_eq(to, stateName));
-								}),
-							m0.b7);
+						var name = 'q' + $elm$core$String$fromInt(m0.dJ);
+						var newPositions = A3(
+							$elm$core$Dict$insert,
+							name,
+							{dY: x, dZ: y},
+							m0.cZ);
+						var newStart = (m0.cY === '') ? name : m0.cY;
 						return $author$project$CodeSync$syncCodeFromDiagram(
 							_Utils_update(
 								m0,
 								{
-									cf: newAccept,
-									dl: t.bE(stateName),
-									cD: newStart,
-									cE: newPos,
-									b7: newTrans
+									dH: t.bL(name),
+									cY: newStart,
+									dJ: m0.dJ + 1,
+									cZ: newPositions
 								}));
-					case 0:
-						return model;
-					default:
-						return model;
-				}
-			case 2:
-				var tool = msg.a;
-				return _Utils_update(
-					model,
-					{
-						cS: $elm$core$Maybe$Nothing,
-						cT: tool,
-						dl: function () {
-							switch (tool) {
-								case 1:
-									return t.L;
-								case 2:
-									return t.M;
-								case 0:
-									return t.by;
-								default:
-									return t.Y;
-							}
-						}(),
-						dy: $elm$core$Maybe$Nothing
-					});
-			case 3:
-				var stateName = msg.a;
-				var mouseX = msg.b;
-				var mouseY = msg.c;
-				if (!model.cT) {
-					var _v8 = A2($elm$core$Dict$get, stateName, model.cE);
-					if (!_v8.$) {
-						var pos = _v8.a;
-						var m0 = $author$project$Update$saveUndo(model);
-						return _Utils_update(
-							m0,
-							{
-								cS: $elm$core$Maybe$Just(
-									{c1: 0, c2: 0, dp: stateName})
-							});
 					} else {
 						return model;
 					}
-				} else {
-					return model;
-				}
-			case 4:
-				var mouseX = msg.a;
-				var mouseY = msg.b;
-				var _v9 = model.cS;
-				if (_v9.$ === 1) {
-					return model;
-				} else {
-					var drag = _v9.a;
-					return _Utils_update(
-						model,
-						{
-							cE: A3(
-								$elm$core$Dict$insert,
-								drag.dp,
-								{dC: mouseX, dD: mouseY},
-								model.cE)
-						});
-				}
-			case 5:
-				return _Utils_update(
-					model,
-					{cS: $elm$core$Maybe$Nothing, cZ: false});
-			case 39:
-				var mx = msg.a;
-				var my = msg.b;
-				return _Utils_update(
-					model,
-					{cZ: true, c6: model.ds, c7: model.dt, c8: mx, c9: my});
-			case 40:
-				var mx = msg.a;
-				var my = msg.b;
-				return model.cZ ? _Utils_update(
-					model,
-					{ds: model.c6 + (mx - model.c8), dt: model.c7 + (my - model.c9)}) : model;
-			case 41:
-				return _Utils_update(
-					model,
-					{cZ: false});
-			case 42:
-				var newZoom = A3($elm$core$Basics$clamp, 0.15, 8.0, model.du * 1.25);
-				var cy = 260.0;
-				var newPanY = cy - ((cy - model.dt) * (newZoom / model.du));
-				var cx = 450.0;
-				var newPanX = cx - ((cx - model.ds) * (newZoom / model.du));
-				return _Utils_update(
-					model,
-					{ds: newPanX, dt: newPanY, du: newZoom});
-			case 43:
-				var newZoom = A3($elm$core$Basics$clamp, 0.15, 8.0, model.du * 0.8);
-				var cy = 260.0;
-				var newPanY = cy - ((cy - model.dt) * (newZoom / model.du));
-				var cx = 450.0;
-				var newPanX = cx - ((cx - model.ds) * (newZoom / model.du));
-				return _Utils_update(
-					model,
-					{ds: newPanX, dt: newPanY, du: newZoom});
-			case 44:
-				return _Utils_update(
-					model,
-					{ds: 0, dt: 0, du: 1.0});
-			case 45:
-				return _Utils_update(
-					model,
-					{dv: !model.dv});
-			case 46:
-				return _Utils_update(
-					model,
-					{cP: !model.cP});
-			case 47:
-				return _Utils_update(
-					model,
-					{$7: !model.$7});
-			case 48:
-				var from = msg.a;
-				var to = msg.b;
-				var m0 = $author$project$Update$saveUndo(model);
-				var newTrans = A2(
-					$elm$core$Dict$filter,
-					F2(
-						function (_v10, tgt) {
-							var fr = _v10.a;
-							return !(_Utils_eq(fr, from) && _Utils_eq(tgt, to));
-						}),
-					m0.b7);
-				return $author$project$CodeSync$syncCodeFromDiagram(
-					_Utils_update(
-						m0,
-						{
-							dl: A2(t.bF, from, to),
-							b7: newTrans
-						}));
-			case 6:
-				var stateName = msg.a;
-				return _Utils_update(
-					model,
-					{
-						de: stateName,
-						df: $elm$core$Maybe$Just(stateName)
-					});
-			case 7:
-				var v = msg.a;
-				return _Utils_update(
-					model,
-					{de: v});
-			case 8:
-				var _v11 = model.df;
-				if (_v11.$ === 1) {
-					return model;
-				} else {
-					var oldName = _v11.a;
-					var newName = $elm$core$String$trim(model.de);
-					if ((newName === '') || _Utils_eq(newName, oldName)) {
-						return _Utils_update(
-							model,
-							{de: '', df: $elm$core$Maybe$Nothing});
-					} else {
-						if (A2($elm$core$Dict$member, newName, model.cE)) {
-							return _Utils_update(
-								model,
-								{de: '', df: $elm$core$Maybe$Nothing});
-						} else {
+				case 1:
+					var stateName = msg.a;
+					var _v3 = model.dc;
+					switch (_v3) {
+						case 2:
+							var _v4 = model.dU;
+							if (_v4.$ === 1) {
+								return _Utils_update(
+									model,
+									{
+										dH: function () {
+											var _v5 = model.dk;
+											if (!_v5) {
+												return 'Now click the target state (from: ';
+											} else {
+												return 'Klikni na cieľový stav (od: ';
+											}
+										}() + (stateName + ')'),
+										dU: $elm$core$Maybe$Just(stateName)
+									});
+							} else {
+								var fromState = _v4.a;
+								return _Utils_update(
+									model,
+									{dw: fromState, dx: stateName, dF: true, dU: $elm$core$Maybe$Nothing});
+							}
+						case 3:
 							var m0 = $author$project$Update$saveUndo(model);
 							var newAccept = A2(
-								$elm$core$List$map,
-								function (s) {
-									return _Utils_eq(s, oldName) ? newName : s;
-								},
-								m0.cf);
-							var newStart = _Utils_eq(m0.cD, oldName) ? newName : m0.cD;
-							var newTransitions = $elm$core$Dict$fromList(
-								A2(
-									$elm$core$List$map,
-									function (_v12) {
-										var _v13 = _v12.a;
-										var fr = _v13.a;
-										var ch = _v13.b;
-										var to = _v12.b;
-										return _Utils_Tuple2(
-											_Utils_Tuple2(
-												_Utils_eq(fr, oldName) ? newName : fr,
-												ch),
-											_Utils_eq(to, oldName) ? newName : to);
-									},
-									$elm$core$Dict$toList(m0.b7)));
-							var pos = A2(
-								$elm$core$Maybe$withDefault,
-								{dC: 0, dD: 0},
-								A2($elm$core$Dict$get, oldName, m0.cE));
-							var newPositions = A3(
-								$elm$core$Dict$insert,
-								newName,
-								pos,
-								A2($elm$core$Dict$remove, oldName, m0.cE));
+								$elm$core$List$filter,
+								$elm$core$Basics$neq(stateName),
+								m0.cA);
+							var newPos = A2($elm$core$Dict$remove, stateName, m0.cZ);
+							var newStart = _Utils_eq(m0.cY, stateName) ? '' : m0.cY;
+							var newTrans = A2(
+								$elm$core$Dict$filter,
+								F2(
+									function (_v6, to) {
+										var fr = _v6.a;
+										return (!_Utils_eq(fr, stateName)) && (!_Utils_eq(to, stateName));
+									}),
+								m0.cs);
 							return $author$project$CodeSync$syncCodeFromDiagram(
 								_Utils_update(
 									m0,
 									{
-										cf: newAccept,
-										de: '',
-										df: $elm$core$Maybe$Nothing,
-										dl: A2(t.bN, oldName, newName),
-										cD: newStart,
-										cE: newPositions,
-										b7: newTransitions
+										cA: newAccept,
+										dH: t.bQ(stateName),
+										cY: newStart,
+										cZ: newPos,
+										cs: newTrans
 									}));
-						}
+						case 0:
+							return model;
+						default:
+							return model;
 					}
-				}
-			case 9:
-				return _Utils_update(
-					model,
-					{de: '', df: $elm$core$Maybe$Nothing});
-			case 10:
-				var state = msg.a;
-				return $author$project$CodeSync$syncCodeFromDiagram(
-					function (m0) {
+				case 2:
+					var tool = msg.a;
+					return _Utils_update(
+						model,
+						{
+							db: $elm$core$Maybe$Nothing,
+							dc: tool,
+							dH: function () {
+								switch (tool) {
+									case 1:
+										return t.L;
+									case 2:
+										return t.M;
+									case 0:
+										return t.bI;
+									default:
+										return t.Y;
+								}
+							}(),
+							dU: $elm$core$Maybe$Nothing
+						});
+				case 3:
+					var stateName = msg.a;
+					var mouseX = msg.b;
+					var mouseY = msg.c;
+					if (!model.dc) {
+						var _v8 = A2($elm$core$Dict$get, stateName, model.cZ);
+						if (!_v8.$) {
+							var pos = _v8.a;
+							var m0 = $author$project$Update$saveUndo(model);
+							return _Utils_update(
+								m0,
+								{
+									db: $elm$core$Maybe$Just(
+										{dn: 0, $7: 0, dL: stateName})
+								});
+						} else {
+							return model;
+						}
+					} else {
+						return model;
+					}
+				case 4:
+					var mouseX = msg.a;
+					var mouseY = msg.b;
+					var _v9 = model.db;
+					if (_v9.$ === 1) {
+						return model;
+					} else {
+						var drag = _v9.a;
 						return _Utils_update(
+							model,
+							{
+								cZ: A3(
+									$elm$core$Dict$insert,
+									drag.dL,
+									{dY: mouseX, dZ: mouseY},
+									model.cZ)
+							});
+					}
+				case 5:
+					return _Utils_update(
+						model,
+						{db: $elm$core$Maybe$Nothing, dj: false});
+				case 39:
+					var mx = msg.a;
+					var my = msg.b;
+					return _Utils_update(
+						model,
+						{dj: true, ds: model.dO, dt: model.dP, du: mx, dv: my});
+				case 40:
+					var mx = msg.a;
+					var my = msg.b;
+					return model.dj ? _Utils_update(
+						model,
+						{dO: model.ds + (mx - model.du), dP: model.dt + (my - model.dv)}) : model;
+				case 41:
+					return _Utils_update(
+						model,
+						{dj: false});
+				case 42:
+					var newZoom = A3($elm$core$Basics$clamp, 0.15, 8.0, model.dQ * 1.25);
+					var cy = 260.0;
+					var newPanY = cy - ((cy - model.dP) * (newZoom / model.dQ));
+					var cx = 450.0;
+					var newPanX = cx - ((cx - model.dO) * (newZoom / model.dQ));
+					return _Utils_update(
+						model,
+						{dO: newPanX, dP: newPanY, dQ: newZoom});
+				case 43:
+					var newZoom = A3($elm$core$Basics$clamp, 0.15, 8.0, model.dQ * 0.8);
+					var cy = 260.0;
+					var newPanY = cy - ((cy - model.dP) * (newZoom / model.dQ));
+					var cx = 450.0;
+					var newPanX = cx - ((cx - model.dO) * (newZoom / model.dQ));
+					return _Utils_update(
+						model,
+						{dO: newPanX, dP: newPanY, dQ: newZoom});
+				case 44:
+					return _Utils_update(
+						model,
+						{dO: 0, dP: 0, dQ: 1.0});
+				case 45:
+					return _Utils_update(
+						model,
+						{dR: !model.dR});
+				case 46:
+					return _Utils_update(
+						model,
+						{c8: !model.c8});
+				case 47:
+					return _Utils_update(
+						model,
+						{dK: !model.dK});
+				case 48:
+					var from = msg.a;
+					var to = msg.b;
+					var m0 = $author$project$Update$saveUndo(model);
+					var newTrans = A2(
+						$elm$core$Dict$filter,
+						F2(
+							function (_v10, tgt) {
+								var fr = _v10.a;
+								return !(_Utils_eq(fr, from) && _Utils_eq(tgt, to));
+							}),
+						m0.cs);
+					return $author$project$CodeSync$syncCodeFromDiagram(
+						_Utils_update(
 							m0,
 							{
-								dl: t.bP(state),
-								cD: state
-							});
-					}(
-						$author$project$Update$saveUndo(model)));
-			case 11:
-				var state = msg.a;
-				var m0 = $author$project$Update$saveUndo(model);
-				var newAccept = A2($elm$core$List$member, state, m0.cf) ? A2(
-					$elm$core$List$filter,
-					$elm$core$Basics$neq(state),
-					m0.cf) : A2($elm$core$List$cons, state, m0.cf);
-				return $author$project$CodeSync$syncCodeFromDiagram(
-					_Utils_update(
-						m0,
-						{cf: newAccept}));
-			case 12:
-				var state = msg.a;
-				var m0 = $author$project$Update$saveUndo(model);
-				var newAccept = A2(
-					$elm$core$List$filter,
-					$elm$core$Basics$neq(state),
-					m0.cf);
-				var newPos = A2($elm$core$Dict$remove, state, m0.cE);
-				var newStart = _Utils_eq(m0.cD, state) ? '' : m0.cD;
-				var newTrans = A2(
-					$elm$core$Dict$filter,
-					F2(
-						function (_v14, to) {
-							var fr = _v14.a;
-							return (!_Utils_eq(fr, state)) && (!_Utils_eq(to, state));
-						}),
-					m0.b7);
-				return $author$project$CodeSync$syncCodeFromDiagram(
-					_Utils_update(
-						m0,
-						{
-							cf: newAccept,
-							dl: t.bE(state),
-							cD: newStart,
-							cE: newPos,
-							b7: newTrans
-						}));
-			case 13:
-				var c = msg.a;
-				return _Utils_update(
-					model,
-					{dx: c});
-			case 14:
-				var m0 = $author$project$Update$saveUndo(model);
-				var newTrans = A3(
-					$elm$core$Dict$insert,
-					_Utils_Tuple2(m0.da, m0.dx),
-					m0.db,
-					m0.b7);
-				return $author$project$CodeSync$syncCodeFromDiagram(
-					_Utils_update(
-						m0,
-						{
-							dj: false,
-							dl: A3(t.bQ, model.da, model.dx, model.db),
-							b7: newTrans
-						}));
-			case 15:
-				return _Utils_update(
-					model,
-					{dj: false, dy: $elm$core$Maybe$Nothing});
-			case 16:
-				var w = msg.a;
-				return _Utils_update(
-					model,
-					{b4: w});
-			case 17:
-				return _Utils_update(
-					model,
-					{
-						cQ: $elm$core$Maybe$Just(model.cD),
-						dk: _List_fromArray(
-							[
-								_Utils_Tuple2(model.cD, 0)
-							]),
-						dl: t.bI(model.b4),
-						dm: 0
-					});
-			case 18:
-				return $author$project$Simulation$stepOnce(model);
-			case 19:
-				return $author$project$Simulation$stepBack(model);
-			case 20:
-				return $author$project$Simulation$runToEnd(model);
-			case 21:
-				return _Utils_update(
-					model,
-					{cL: false, cQ: $elm$core$Maybe$Nothing, dk: _List_Nil, dl: t.bO, dm: 0});
-			case 22:
-				var v = msg.a;
-				return _Utils_update(
-					model,
-					{W: v});
-			case 23:
-				var v = msg.a;
-				return _Utils_update(
-					model,
-					{V: v});
-			case 24:
-				var v = msg.a;
-				return _Utils_update(
-					model,
-					{cj: v});
-			case 25:
-				var v = msg.a;
-				return _Utils_update(
-					model,
-					{ci: v});
-			case 26:
-				var v = msg.a;
-				return _Utils_update(
-					model,
-					{F: v});
-			case 27:
-				return $author$project$CodeSync$generateDiagramFromCode(
-					$author$project$Update$saveUndo(model));
-			case 28:
-				return $author$project$CodeSync$syncCodeFromDiagram(model);
-			case 29:
-				return _Utils_update(
-					model,
-					{di: !model.di});
-			case 30:
-				return _Utils_update(
-					model,
-					{dh: !model.dh});
-			case 31:
-				return _Utils_update(
-					$author$project$Update$defaultModel,
-					{
-						c_: model.c_,
-						dl: $author$project$Lang$translations(model.c_).bD
-					});
-			case 32:
-				return model;
-			case 33:
-				var _v15 = model.dz;
-				if (!_v15.b) {
+								dH: A2(t.bR, from, to),
+								cs: newTrans
+							}));
+				case 6:
+					var stateName = msg.a;
 					return _Utils_update(
 						model,
-						{dl: t.bK});
-				} else {
-					var snap = _v15.a;
-					var rest = _v15.b;
-					return $author$project$CodeSync$syncCodeFromDiagram(
-						A2(
-							$author$project$Update$applySnapshot,
-							snap,
-							_Utils_update(
-								model,
-								{
-									dd: A2(
-										$elm$core$List$take,
-										50,
-										A2(
-											$elm$core$List$cons,
-											$author$project$Update$snapshotDiagram(model),
-											model.dd)),
-									dl: t.bR,
-									dz: rest
-								})));
-				}
-			case 34:
-				var _v16 = model.dd;
-				if (!_v16.b) {
+						{
+							dA: stateName,
+							dB: $elm$core$Maybe$Just(stateName)
+						});
+				case 7:
+					var v = msg.a;
 					return _Utils_update(
 						model,
-						{dl: t.bJ});
-				} else {
-					var snap = _v16.a;
-					var rest = _v16.b;
-					return $author$project$CodeSync$syncCodeFromDiagram(
-						A2(
-							$author$project$Update$applySnapshot,
-							snap,
-							_Utils_update(
+						{dA: v});
+				case 8:
+					var _v11 = model.dB;
+					if (_v11.$ === 1) {
+						return model;
+					} else {
+						var oldName = _v11.a;
+						var newName = $elm$core$String$trim(model.dA);
+						if ((newName === '') || _Utils_eq(newName, oldName)) {
+							return _Utils_update(
 								model,
-								{
-									dd: rest,
-									dl: t.bM,
-									dz: A2(
-										$elm$core$List$take,
-										50,
-										A2(
-											$elm$core$List$cons,
-											$author$project$Update$snapshotDiagram(model),
-											model.dz))
-								})));
-				}
-			case 35:
-				return _Utils_eq(model.cQ, $elm$core$Maybe$Nothing) ? _Utils_update(
-					model,
-					{
-						cL: true,
-						cQ: $elm$core$Maybe$Just(model.cD),
-						dk: _List_fromArray(
-							[
-								_Utils_Tuple2(model.cD, 0)
-							]),
-						dl: t.bC,
-						dm: 0
-					}) : _Utils_update(
-					model,
-					{cL: true, dl: t.bB});
-			case 36:
-				return _Utils_update(
-					model,
-					{cL: false, dl: t.bL});
-			case 37:
-				var ms = msg.a;
-				return _Utils_update(
-					model,
-					{cM: ms});
-			case 51:
-				return model;
-			case 52:
-				return model;
-			default:
-				return (!model.cL) ? model : (((_Utils_cmp(
-					model.dm,
-					$elm$core$String$length(model.b4)) > -1) || _Utils_eq(model.cQ, $elm$core$Maybe$Nothing)) ? $author$project$Simulation$checkAcceptance(
-					_Utils_update(
+								{dA: '', dB: $elm$core$Maybe$Nothing});
+						} else {
+							if (A2($elm$core$Dict$member, newName, model.cZ)) {
+								return _Utils_update(
+									model,
+									{dA: '', dB: $elm$core$Maybe$Nothing});
+							} else {
+								var m0 = $author$project$Update$saveUndo(model);
+								var newAccept = A2(
+									$elm$core$List$map,
+									function (s) {
+										return _Utils_eq(s, oldName) ? newName : s;
+									},
+									m0.cA);
+								var newStart = _Utils_eq(m0.cY, oldName) ? newName : m0.cY;
+								var newTransitions = $elm$core$Dict$fromList(
+									A2(
+										$elm$core$List$map,
+										function (_v12) {
+											var _v13 = _v12.a;
+											var fr = _v13.a;
+											var ch = _v13.b;
+											var to = _v12.b;
+											return _Utils_Tuple2(
+												_Utils_Tuple2(
+													_Utils_eq(fr, oldName) ? newName : fr,
+													ch),
+												_Utils_eq(to, oldName) ? newName : to);
+										},
+										$elm$core$Dict$toList(m0.cs)));
+								var pos = A2(
+									$elm$core$Maybe$withDefault,
+									{dY: 0, dZ: 0},
+									A2($elm$core$Dict$get, oldName, m0.cZ));
+								var newPositions = A3(
+									$elm$core$Dict$insert,
+									newName,
+									pos,
+									A2($elm$core$Dict$remove, oldName, m0.cZ));
+								return $author$project$CodeSync$syncCodeFromDiagram(
+									_Utils_update(
+										m0,
+										{
+											cA: newAccept,
+											dA: '',
+											dB: $elm$core$Maybe$Nothing,
+											dH: A2(t.b1, oldName, newName),
+											cY: newStart,
+											cZ: newPositions,
+											cs: newTransitions
+										}));
+							}
+						}
+					}
+				case 9:
+					return _Utils_update(
 						model,
-						{cL: false})) : $author$project$Simulation$stepOnce(model));
+						{dA: '', dB: $elm$core$Maybe$Nothing});
+				case 10:
+					var state = msg.a;
+					return $author$project$CodeSync$syncCodeFromDiagram(
+						function (m0) {
+							return _Utils_update(
+								m0,
+								{
+									dH: t.b3(state),
+									cY: state
+								});
+						}(
+							$author$project$Update$saveUndo(model)));
+				case 11:
+					var state = msg.a;
+					var m0 = $author$project$Update$saveUndo(model);
+					var newAccept = A2($elm$core$List$member, state, m0.cA) ? A2(
+						$elm$core$List$filter,
+						$elm$core$Basics$neq(state),
+						m0.cA) : A2($elm$core$List$cons, state, m0.cA);
+					return $author$project$CodeSync$syncCodeFromDiagram(
+						_Utils_update(
+							m0,
+							{cA: newAccept}));
+				case 12:
+					var state = msg.a;
+					var m0 = $author$project$Update$saveUndo(model);
+					var newAccept = A2(
+						$elm$core$List$filter,
+						$elm$core$Basics$neq(state),
+						m0.cA);
+					var newPos = A2($elm$core$Dict$remove, state, m0.cZ);
+					var newStart = _Utils_eq(m0.cY, state) ? '' : m0.cY;
+					var newTrans = A2(
+						$elm$core$Dict$filter,
+						F2(
+							function (_v14, to) {
+								var fr = _v14.a;
+								return (!_Utils_eq(fr, state)) && (!_Utils_eq(to, state));
+							}),
+						m0.cs);
+					return $author$project$CodeSync$syncCodeFromDiagram(
+						_Utils_update(
+							m0,
+							{
+								cA: newAccept,
+								dH: t.bQ(state),
+								cY: newStart,
+								cZ: newPos,
+								cs: newTrans
+							}));
+				case 13:
+					var c = msg.a;
+					return _Utils_update(
+						model,
+						{dT: c});
+				case 14:
+					var m0 = $author$project$Update$saveUndo(model);
+					var newTrans = A3(
+						$elm$core$Dict$insert,
+						_Utils_Tuple2(m0.dw, m0.dT),
+						m0.dx,
+						m0.cs);
+					return $author$project$CodeSync$syncCodeFromDiagram(
+						_Utils_update(
+							m0,
+							{
+								dF: false,
+								dH: A3(t.b5, model.dw, model.dT, model.dx),
+								cs: newTrans
+							}));
+				case 15:
+					return _Utils_update(
+						model,
+						{dF: false, dU: $elm$core$Maybe$Nothing});
+				case 16:
+					var w = msg.a;
+					return _Utils_update(
+						model,
+						{cl: w});
+				case 17:
+					return _Utils_update(
+						model,
+						{
+							c9: $elm$core$Maybe$Just(model.cY),
+							dG: _List_fromArray(
+								[
+									_Utils_Tuple2(model.cY, 0)
+								]),
+							dH: t.bV(model.cl),
+							dI: 0
+						});
+				case 18:
+					return A2($author$project$Simulation$stepOnce, t, model);
+				case 19:
+					return A2($author$project$Simulation$stepBack, t, model);
+				case 20:
+					return A2($author$project$Simulation$runToEnd, t, model);
+				case 21:
+					return _Utils_update(
+						model,
+						{c4: false, c9: $elm$core$Maybe$Nothing, dG: _List_Nil, dH: t.b2, dI: 0});
+				case 22:
+					var v = msg.a;
+					return _Utils_update(
+						model,
+						{W: v});
+				case 23:
+					var v = msg.a;
+					return _Utils_update(
+						model,
+						{V: v});
+				case 24:
+					var v = msg.a;
+					return _Utils_update(
+						model,
+						{cE: v});
+				case 25:
+					var v = msg.a;
+					return _Utils_update(
+						model,
+						{cD: v});
+				case 26:
+					var v = msg.a;
+					return _Utils_update(
+						model,
+						{F: v});
+				case 27:
+					return $author$project$CodeSync$generateDiagramFromCode(
+						$author$project$Update$saveUndo(model));
+				case 28:
+					return $author$project$CodeSync$syncCodeFromDiagram(model);
+				case 29:
+					return _Utils_update(
+						model,
+						{dE: !model.dE});
+				case 30:
+					return _Utils_update(
+						model,
+						{dD: !model.dD});
+				case 31:
+					return _Utils_update(
+						$author$project$Update$defaultModel,
+						{
+							dk: model.dk,
+							dH: $author$project$Lang$translations(model.dk).bP
+						});
+				case 32:
+					return model;
+				case 33:
+					var _v15 = model.dV;
+					if (!_v15.b) {
+						return _Utils_update(
+							model,
+							{dH: t.bY});
+					} else {
+						var snap = _v15.a;
+						var rest = _v15.b;
+						return $author$project$CodeSync$syncCodeFromDiagram(
+							A2(
+								$author$project$Update$applySnapshot,
+								snap,
+								_Utils_update(
+									model,
+									{
+										dz: A2(
+											$elm$core$List$take,
+											50,
+											A2(
+												$elm$core$List$cons,
+												$author$project$Update$snapshotDiagram(model),
+												model.dz)),
+										dH: t.b6,
+										dV: rest
+									})));
+					}
+				case 34:
+					var _v16 = model.dz;
+					if (!_v16.b) {
+						return _Utils_update(
+							model,
+							{dH: t.bX});
+					} else {
+						var snap = _v16.a;
+						var rest = _v16.b;
+						return $author$project$CodeSync$syncCodeFromDiagram(
+							A2(
+								$author$project$Update$applySnapshot,
+								snap,
+								_Utils_update(
+									model,
+									{
+										dz: rest,
+										dH: t.b$,
+										dV: A2(
+											$elm$core$List$take,
+											50,
+											A2(
+												$elm$core$List$cons,
+												$author$project$Update$snapshotDiagram(model),
+												model.dV))
+									})));
+					}
+				case 35:
+					return _Utils_eq(model.c9, $elm$core$Maybe$Nothing) ? _Utils_update(
+						model,
+						{
+							c4: true,
+							c9: $elm$core$Maybe$Just(model.cY),
+							dG: _List_fromArray(
+								[
+									_Utils_Tuple2(model.cY, 0)
+								]),
+							dH: t.bN,
+							dI: 0
+						}) : _Utils_update(
+						model,
+						{c4: true, dH: t.bM});
+				case 36:
+					return _Utils_update(
+						model,
+						{c4: false, dH: t.bZ});
+				case 37:
+					var ms = msg.a;
+					return _Utils_update(
+						model,
+						{c5: ms});
+				case 51:
+					return model;
+				case 52:
+					return model;
+				case 53:
+					var target = msg.a;
+					return _Utils_update(
+						model,
+						{
+							dg: $elm$core$Maybe$Just(target)
+						});
+				case 54:
+					return _Utils_update(
+						model,
+						{dg: $elm$core$Maybe$Nothing});
+				case 55:
+					var _v17 = model.dg;
+					if (!_v17.$) {
+						if (!_v17.a.$) {
+							var name = _v17.a.a;
+							var m0 = $author$project$Update$saveUndo(model);
+							var newAccept = A2(
+								$elm$core$List$filter,
+								$elm$core$Basics$neq(name),
+								m0.cA);
+							var newPositions = A2($elm$core$Dict$remove, name, m0.cZ);
+							var newStart = _Utils_eq(m0.cY, name) ? '' : m0.cY;
+							var newTrans = A2(
+								$elm$core$Dict$filter,
+								F2(
+									function (_v18, to) {
+										var fr = _v18.a;
+										return (!_Utils_eq(fr, name)) && (!_Utils_eq(to, name));
+									}),
+								m0.cs);
+							return $author$project$CodeSync$syncCodeFromDiagram(
+								_Utils_update(
+									m0,
+									{
+										cA: newAccept,
+										dg: $elm$core$Maybe$Nothing,
+										dH: t.bQ(name),
+										cY: newStart,
+										cZ: newPositions,
+										cs: newTrans
+									}));
+						} else {
+							var _v19 = _v17.a;
+							var from = _v19.a;
+							var to = _v19.b;
+							var m0 = $author$project$Update$saveUndo(model);
+							return $author$project$CodeSync$syncCodeFromDiagram(
+								_Utils_update(
+									m0,
+									{
+										dg: $elm$core$Maybe$Nothing,
+										dH: A2(t.bR, from, to),
+										cs: A2(
+											$elm$core$Dict$filter,
+											F2(
+												function (_v20, tgt) {
+													var fr = _v20.a;
+													return !(_Utils_eq(fr, from) && _Utils_eq(tgt, to));
+												}),
+											m0.cs)
+									}));
+						}
+					} else {
+						return model;
+					}
+				case 56:
+					var $temp$msg = $author$project$Types$Undo,
+						$temp$model = model;
+					msg = $temp$msg;
+					model = $temp$model;
+					continue update;
+				case 57:
+					var $temp$msg = $author$project$Types$Redo,
+						$temp$model = model;
+					msg = $temp$msg;
+					model = $temp$model;
+					continue update;
+				default:
+					return (!model.c4) ? model : (((_Utils_cmp(
+						model.dI,
+						$elm$core$String$length(model.cl)) > -1) || _Utils_eq(model.c9, $elm$core$Maybe$Nothing)) ? A2(
+						$author$project$Simulation$checkAcceptance,
+						t,
+						_Utils_update(
+							model,
+							{c4: false})) : A2($author$project$Simulation$stepOnce, t, model));
+			}
 		}
 	});
 var $author$project$Main$updateWithPorts = F2(
@@ -7635,7 +7823,7 @@ var $author$project$Main$updateWithPorts = F2(
 				return _Utils_Tuple2(
 					newModel,
 					$author$project$Main$exportDFA(
-						{D: newModel.ci, E: newModel.V, G: newModel.cj, H: newModel.W, b7: newModel.F}));
+						{D: newModel.cD, E: newModel.V, G: newModel.cE, H: newModel.W, cs: newModel.F}));
 			case 51:
 				return _Utils_Tuple2(
 					model,
@@ -7644,6 +7832,19 @@ var $author$project$Main$updateWithPorts = F2(
 				return _Utils_Tuple2(
 					model,
 					$author$project$Main$openLoadModal(0));
+			case 49:
+				var newModel = A2($author$project$Update$update, msg, model);
+				var langStr = function () {
+					var _v1 = newModel.dk;
+					if (!_v1) {
+						return 'EN';
+					} else {
+						return 'SK';
+					}
+				}();
+				return _Utils_Tuple2(
+					newModel,
+					$author$project$Main$sendLanguage(langStr));
 			default:
 				return _Utils_Tuple2(
 					A2($author$project$Update$update, msg, model),
@@ -7886,8 +8087,8 @@ var $author$project$View$Panels$viewCodePanel = F2(
 			_List_Nil,
 			_List_fromArray(
 				[
-					A3($author$project$View$Widgets$collapsibleHeader, t.U, model.cP, $author$project$Types$ToggleCodePanel),
-					model.cP ? $elm$html$Html$text('') : A2(
+					A3($author$project$View$Widgets$collapsibleHeader, t.U, model.c8, $author$project$Types$ToggleCodePanel),
+					model.c8 ? $elm$html$Html$text('') : A2(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
@@ -7905,10 +8106,10 @@ var $author$project$View$Panels$viewCodePanel = F2(
 								]),
 							_List_fromArray(
 								[
-									A4($author$project$View$Panels$codeField, t.bX, model.W, $author$project$Types$SetCodeStates, 'q0, q1, q2'),
+									A4($author$project$View$Panels$codeField, t.cc, model.W, $author$project$Types$SetCodeStates, 'q0, q1, q2'),
 									A4($author$project$View$Panels$codeField, t.N, model.V, $author$project$Types$SetCodeAlphabet, 'a, b'),
-									A4($author$project$View$Panels$codeField, t.bT, model.cj, $author$project$Types$SetCodeStart, 'q0'),
-									A4($author$project$View$Panels$codeField, t.I, model.ci, $author$project$Types$SetCodeAccept, 'q2'),
+									A4($author$project$View$Panels$codeField, t.b8, model.cE, $author$project$Types$SetCodeStart, 'q0'),
+									A4($author$project$View$Panels$codeField, t.I, model.cD, $author$project$Types$SetCodeAccept, 'q2'),
 									A2(
 									$elm$html$Html$div,
 									_List_fromArray(
@@ -7917,7 +8118,7 @@ var $author$project$View$Panels$viewCodePanel = F2(
 										]),
 									_List_fromArray(
 										[
-											$author$project$View$Panels$codeFieldLabel(t.b8),
+											$author$project$View$Panels$codeFieldLabel(t.ct),
 											A2(
 											$elm$html$Html$textarea,
 											_List_fromArray(
@@ -7964,12 +8165,10 @@ var $author$project$Types$PanStart = F2(
 	function (a, b) {
 		return {$: 39, a: a, b: b};
 	});
-var $author$project$Types$Redo = {$: 34};
 var $author$project$Types$ResetView = {$: 44};
 var $author$project$Types$SetDrawTool = function (a) {
 	return {$: 2, a: a};
 };
-var $author$project$Types$Undo = {$: 33};
 var $author$project$Types$ZoomIn = {$: 42};
 var $author$project$Types$ZoomOut = {$: 43};
 var $elm$virtual_dom$VirtualDom$Custom = function (a) {
@@ -7993,6 +8192,14 @@ var $author$project$Types$DeleteTransition = F2(
 	function (a, b) {
 		return {$: 48, a: a, b: b};
 	});
+var $author$project$Types$HoverEnter = function (a) {
+	return {$: 53, a: a};
+};
+var $author$project$Types$HoverLeave = {$: 54};
+var $author$project$Types$HoverTransition = F2(
+	function (a, b) {
+		return {$: 1, a: a, b: b};
+	});
 var $elm$svg$Svg$Attributes$cursor = _VirtualDom_attribute('cursor');
 var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
 var $elm$core$Basics$pow = _Basics_pow;
@@ -8003,13 +8210,13 @@ var $author$project$View$Canvas$ellipseEdge = F5(
 	function (pos, dx, dy, rx, ry) {
 		var dist = $author$project$Helpers$mySqrt((dx * dx) + (dy * dy));
 		if (dist < 0.001) {
-			return _Utils_Tuple2(pos.dC, pos.dD);
+			return _Utils_Tuple2(pos.dY, pos.dZ);
 		} else {
 			var uy = dy / dist;
 			var ux = dx / dist;
 			var denom = $author$project$Helpers$mySqrt(((ux * ux) / (rx * rx)) + ((uy * uy) / (ry * ry)));
 			var scale = 1 / denom;
-			return _Utils_Tuple2(pos.dC + (ux * scale), pos.dD + (uy * scale));
+			return _Utils_Tuple2(pos.dY + (ux * scale), pos.dZ + (uy * scale));
 		}
 	});
 var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
@@ -8019,6 +8226,18 @@ var $elm$svg$Svg$line = $elm$svg$Svg$trustedNode('line');
 var $elm$svg$Svg$Attributes$markerEnd = _VirtualDom_attribute('marker-end');
 var $elm$core$Basics$negate = function (n) {
 	return -n;
+};
+var $elm$svg$Svg$Events$onMouseOut = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mouseout',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$svg$Svg$Events$onMouseOver = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mouseover',
+		$elm$json$Json$Decode$succeed(msg));
 };
 var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
 var $elm$svg$Svg$Attributes$pointerEvents = _VirtualDom_attribute('pointer-events');
@@ -8033,8 +8252,8 @@ var $elm$svg$Svg$Attributes$textAnchor = _VirtualDom_attribute('text-anchor');
 var $elm$svg$Svg$text_ = $elm$svg$Svg$trustedNode('text');
 var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
 var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
-var $author$project$View$Canvas$transLabel = F4(
-	function (x, y, label, isActive) {
+var $author$project$View$Canvas$transLabel = F5(
+	function (x, y, label, isActive, isHovered) {
 		return A2(
 			$elm$svg$Svg$text_,
 			_List_fromArray(
@@ -8048,7 +8267,7 @@ var $author$project$View$Canvas$transLabel = F4(
 					$elm$svg$Svg$Attributes$fontWeight('bold'),
 					$elm$svg$Svg$Attributes$fontFamily('monospace'),
 					$elm$svg$Svg$Attributes$fill(
-					isActive ? '#69f0ae' : '#f48fb1'),
+					isHovered ? '#ef5350' : (isActive ? '#69f0ae' : '#f48fb1')),
 					$elm$svg$Svg$Attributes$pointerEvents('none')
 				]),
 			_List_fromArray(
@@ -8068,109 +8287,125 @@ var $author$project$View$Canvas$drawArrow = function (label) {
 					return function (curved) {
 						return function (isActive) {
 							return function (drawTool) {
-								return function (from) {
-									return function (to) {
-										var strokeW = isActive ? '2.5' : '2';
-										var ry = $author$project$View$Canvas$stateRy;
-										var markerUrl = isActive ? 'url(#arrow-active)' : 'url(#arrow)';
-										var isDeleteMode = drawTool === 3;
-										var strokeColor = isDeleteMode ? '#ef5350' : (isActive ? '#69f0ae' : '#9fa8da');
-										var dy = p2.dD - p1.dD;
-										var dx = p2.dC - p1.dC;
-										var dist = $author$project$Helpers$mySqrt((dx * dx) + (dy * dy));
-										var deleteClick = function (path_) {
-											return isDeleteMode ? _List_fromArray(
-												[
-													A2(
-													$elm$svg$Svg$path,
-													_List_fromArray(
-														[
-															$elm$svg$Svg$Attributes$d(path_),
-															$elm$svg$Svg$Attributes$stroke('transparent'),
-															$elm$svg$Svg$Attributes$strokeWidth('14'),
-															$elm$svg$Svg$Attributes$fill('none'),
-															$elm$svg$Svg$Attributes$cursor('pointer'),
-															A2(
-															$elm$html$Html$Events$custom,
-															'click',
-															$elm$json$Json$Decode$succeed(
-																{
-																	c$: A2($author$project$Types$DeleteTransition, from, to),
-																	dc: false,
-																	dq: true
-																}))
-														]),
-													_List_Nil)
-												]) : _List_Nil;
-										};
-										if (curved) {
-											var offset = 20;
-											var ny = dx / dist;
-											var nx = -(dy / dist);
-											var _v0 = A5($author$project$View$Canvas$ellipseEdge, p1, dx + (nx * offset), dy + (ny * offset), rx1, ry);
-											var sx = _v0.a;
-											var sy = _v0.b;
-											var _v1 = A5($author$project$View$Canvas$ellipseEdge, p2, -(dx - (nx * offset)), -(dy - (ny * offset)), rx2, ry);
-											var ex = _v1.a;
-											var ey = _v1.b;
-											var cpx = ((sx + ex) / 2) + (nx * 35);
-											var lx = ((sx + (2 * cpx)) + ex) / 4;
-											var cpy = ((sy + ey) / 2) + (ny * 35);
-											var ly = (((sy + (2 * cpy)) + ey) / 4) - 8;
-											var pathStr = 'M ' + ($author$project$Helpers$flt(sx) + (' ' + ($author$project$Helpers$flt(sy) + (' Q ' + ($author$project$Helpers$flt(cpx) + (' ' + ($author$project$Helpers$flt(cpy) + (' ' + ($author$project$Helpers$flt(ex) + (' ' + $author$project$Helpers$flt(ey)))))))))));
-											return _Utils_ap(
-												_List_fromArray(
+								return function (hoveredObject) {
+									return function (from) {
+										return function (to) {
+											var strokeW = isActive ? '2.5' : '2';
+											var ry = $author$project$View$Canvas$stateRy;
+											var markerUrl = isActive ? 'url(#arrow-active)' : 'url(#arrow)';
+											var isHovered = _Utils_eq(
+												hoveredObject,
+												$elm$core$Maybe$Just(
+													A2($author$project$Types$HoverTransition, from, to)));
+											var isDeleteMode = drawTool === 3;
+											var strokeColor = (isDeleteMode || isHovered) ? '#ef5350' : (isActive ? '#69f0ae' : '#9fa8da');
+											var hitPath = function (path_) {
+												var clickAttr = isDeleteMode ? _List_fromArray(
+													[
+														A2(
+														$elm$html$Html$Events$custom,
+														'click',
+														$elm$json$Json$Decode$succeed(
+															{
+																dl: A2($author$project$Types$DeleteTransition, from, to),
+																dy: false,
+																dM: true
+															}))
+													]) : _List_Nil;
+												return _List_fromArray(
 													[
 														A2(
 														$elm$svg$Svg$path,
-														_List_fromArray(
-															[
-																$elm$svg$Svg$Attributes$d(pathStr),
-																$elm$svg$Svg$Attributes$stroke(strokeColor),
-																$elm$svg$Svg$Attributes$strokeWidth(strokeW),
-																$elm$svg$Svg$Attributes$fill('none'),
-																$elm$svg$Svg$Attributes$markerEnd(markerUrl),
-																$elm$svg$Svg$Attributes$pointerEvents('none')
-															]),
-														_List_Nil),
-														A4($author$project$View$Canvas$transLabel, lx, ly, label, isActive)
-													]),
-												deleteClick(pathStr));
-										} else {
-											var _v2 = A5($author$project$View$Canvas$ellipseEdge, p1, dx, dy, rx1, ry);
-											var sx = _v2.a;
-											var sy = _v2.b;
-											var _v3 = A5($author$project$View$Canvas$ellipseEdge, p2, -dx, -dy, rx2, ry);
-											var ex = _v3.a;
-											var ey = _v3.b;
-											var mx = (sx + ex) / 2;
-											var my = ((sy + ey) / 2) - 10;
-											var pathStr = 'M ' + ($author$project$Helpers$flt(sx) + (' ' + ($author$project$Helpers$flt(sy) + (' L ' + ($author$project$Helpers$flt(ex) + (' ' + $author$project$Helpers$flt(ey)))))));
-											return _Utils_ap(
-												_List_fromArray(
-													[
-														A2(
-														$elm$svg$Svg$line,
-														_List_fromArray(
-															[
-																$elm$svg$Svg$Attributes$x1(
-																$author$project$Helpers$flt(sx)),
-																$elm$svg$Svg$Attributes$y1(
-																$author$project$Helpers$flt(sy)),
-																$elm$svg$Svg$Attributes$x2(
-																$author$project$Helpers$flt(ex)),
-																$elm$svg$Svg$Attributes$y2(
-																$author$project$Helpers$flt(ey)),
-																$elm$svg$Svg$Attributes$stroke(strokeColor),
-																$elm$svg$Svg$Attributes$strokeWidth(strokeW),
-																$elm$svg$Svg$Attributes$markerEnd(markerUrl),
-																$elm$svg$Svg$Attributes$pointerEvents('none')
-															]),
-														_List_Nil),
-														A4($author$project$View$Canvas$transLabel, mx, my, label, isActive)
-													]),
-												deleteClick(pathStr));
-										}
+														_Utils_ap(
+															_List_fromArray(
+																[
+																	$elm$svg$Svg$Attributes$d(path_),
+																	$elm$svg$Svg$Attributes$stroke('transparent'),
+																	$elm$svg$Svg$Attributes$strokeWidth('14'),
+																	$elm$svg$Svg$Attributes$fill('none'),
+																	$elm$svg$Svg$Attributes$cursor(
+																	isDeleteMode ? 'pointer' : 'default'),
+																	$elm$svg$Svg$Events$onMouseOver(
+																	$author$project$Types$HoverEnter(
+																		A2($author$project$Types$HoverTransition, from, to))),
+																	$elm$svg$Svg$Events$onMouseOut($author$project$Types$HoverLeave)
+																]),
+															clickAttr),
+														_List_Nil)
+													]);
+											};
+											var dy = p2.dZ - p1.dZ;
+											var dx = p2.dY - p1.dY;
+											var dist = $author$project$Helpers$mySqrt((dx * dx) + (dy * dy));
+											if (curved) {
+												var offset = 20;
+												var ny = dx / dist;
+												var nx = -(dy / dist);
+												var _v0 = A5($author$project$View$Canvas$ellipseEdge, p1, dx + (nx * offset), dy + (ny * offset), rx1, ry);
+												var sx = _v0.a;
+												var sy = _v0.b;
+												var _v1 = A5($author$project$View$Canvas$ellipseEdge, p2, -(dx - (nx * offset)), -(dy - (ny * offset)), rx2, ry);
+												var ex = _v1.a;
+												var ey = _v1.b;
+												var cpx = ((sx + ex) / 2) + (nx * 35);
+												var lx = ((sx + (2 * cpx)) + ex) / 4;
+												var cpy = ((sy + ey) / 2) + (ny * 35);
+												var ly = (((sy + (2 * cpy)) + ey) / 4) - 8;
+												var pathStr = 'M ' + ($author$project$Helpers$flt(sx) + (' ' + ($author$project$Helpers$flt(sy) + (' Q ' + ($author$project$Helpers$flt(cpx) + (' ' + ($author$project$Helpers$flt(cpy) + (' ' + ($author$project$Helpers$flt(ex) + (' ' + $author$project$Helpers$flt(ey)))))))))));
+												return _Utils_ap(
+													_List_fromArray(
+														[
+															A2(
+															$elm$svg$Svg$path,
+															_List_fromArray(
+																[
+																	$elm$svg$Svg$Attributes$d(pathStr),
+																	$elm$svg$Svg$Attributes$stroke(strokeColor),
+																	$elm$svg$Svg$Attributes$strokeWidth(strokeW),
+																	$elm$svg$Svg$Attributes$fill('none'),
+																	$elm$svg$Svg$Attributes$markerEnd(markerUrl),
+																	$elm$svg$Svg$Attributes$pointerEvents('none')
+																]),
+															_List_Nil),
+															A5($author$project$View$Canvas$transLabel, lx, ly, label, isActive, isHovered)
+														]),
+													hitPath(pathStr));
+											} else {
+												var _v2 = A5($author$project$View$Canvas$ellipseEdge, p1, dx, dy, rx1, ry);
+												var sx = _v2.a;
+												var sy = _v2.b;
+												var _v3 = A5($author$project$View$Canvas$ellipseEdge, p2, -dx, -dy, rx2, ry);
+												var ex = _v3.a;
+												var ey = _v3.b;
+												var mx = (sx + ex) / 2;
+												var my = ((sy + ey) / 2) - 10;
+												var pathStr = 'M ' + ($author$project$Helpers$flt(sx) + (' ' + ($author$project$Helpers$flt(sy) + (' L ' + ($author$project$Helpers$flt(ex) + (' ' + $author$project$Helpers$flt(ey)))))));
+												return _Utils_ap(
+													_List_fromArray(
+														[
+															A2(
+															$elm$svg$Svg$line,
+															_List_fromArray(
+																[
+																	$elm$svg$Svg$Attributes$x1(
+																	$author$project$Helpers$flt(sx)),
+																	$elm$svg$Svg$Attributes$y1(
+																	$author$project$Helpers$flt(sy)),
+																	$elm$svg$Svg$Attributes$x2(
+																	$author$project$Helpers$flt(ex)),
+																	$elm$svg$Svg$Attributes$y2(
+																	$author$project$Helpers$flt(ey)),
+																	$elm$svg$Svg$Attributes$stroke(strokeColor),
+																	$elm$svg$Svg$Attributes$strokeWidth(strokeW),
+																	$elm$svg$Svg$Attributes$markerEnd(markerUrl),
+																	$elm$svg$Svg$Attributes$pointerEvents('none')
+																]),
+															_List_Nil),
+															A5($author$project$View$Canvas$transLabel, mx, my, label, isActive, isHovered)
+														]),
+													hitPath(pathStr));
+											}
+										};
 									};
 								};
 							};
@@ -8181,67 +8416,80 @@ var $author$project$View$Canvas$drawArrow = function (label) {
 		};
 	};
 };
-var $author$project$View$Canvas$drawSelfLoop = F7(
-	function (label, pos, rx, isActive, drawTool, from, to) {
+var $author$project$View$Canvas$drawSelfLoop = F8(
+	function (label, pos, rx, isActive, drawTool, hoveredObject, from, to) {
 		var strokeW = isActive ? '2.5' : '2';
 		var ry = $author$project$View$Canvas$stateRy;
 		var markerUrl = isActive ? 'url(#arrow-active)' : 'url(#arrow)';
 		var loopR = 13.0;
-		var lcy = ((pos.dD - ry) - loopR) - 1.0;
+		var lcy = ((pos.dZ - ry) - loopR) - 1.0;
 		var ly = (lcy - loopR) - 5;
 		var sy = lcy + loopR;
-		var lcx = pos.dC;
+		var lcx = pos.dY;
 		var lx = lcx;
+		var isHovered = _Utils_eq(
+			hoveredObject,
+			$elm$core$Maybe$Just(
+				A2($author$project$Types$HoverTransition, from, to)));
 		var isDeleteMode = drawTool === 3;
-		var strokeColor = isDeleteMode ? '#ef5350' : (isActive ? '#69f0ae' : '#9fa8da');
+		var strokeColor = (isDeleteMode || isHovered) ? '#ef5350' : (isActive ? '#69f0ae' : '#9fa8da');
 		var gap = 4.0;
 		var sx = lcx + gap;
 		var ey = lcy + loopR;
 		var ex = lcx - gap;
 		var pathD = 'M ' + ($author$project$Helpers$flt(sx) + (' ' + ($author$project$Helpers$flt(sy) + (' A ' + ($author$project$Helpers$flt(loopR) + (' ' + ($author$project$Helpers$flt(loopR) + (' 0 1 0 ' + ($author$project$Helpers$flt(ex) + (' ' + $author$project$Helpers$flt(ey)))))))))));
-		return _Utils_ap(
-			_List_fromArray(
-				[
-					A2(
-					$elm$svg$Svg$path,
-					_List_fromArray(
-						[
-							$elm$svg$Svg$Attributes$d(pathD),
-							$elm$svg$Svg$Attributes$stroke(strokeColor),
-							$elm$svg$Svg$Attributes$strokeWidth(strokeW),
-							$elm$svg$Svg$Attributes$fill('none'),
-							$elm$svg$Svg$Attributes$markerEnd(markerUrl),
-							$elm$svg$Svg$Attributes$pointerEvents('none')
-						]),
-					_List_Nil),
-					A4($author$project$View$Canvas$transLabel, lx, ly, label, isActive)
-				]),
-			isDeleteMode ? _List_fromArray(
-				[
-					A2(
-					$elm$svg$Svg$path,
+		var clickAttr = isDeleteMode ? _List_fromArray(
+			[
+				A2(
+				$elm$html$Html$Events$custom,
+				'click',
+				$elm$json$Json$Decode$succeed(
+					{
+						dl: A2($author$project$Types$DeleteTransition, from, to),
+						dy: false,
+						dM: true
+					}))
+			]) : _List_Nil;
+		return _List_fromArray(
+			[
+				A2(
+				$elm$svg$Svg$path,
+				_List_fromArray(
+					[
+						$elm$svg$Svg$Attributes$d(pathD),
+						$elm$svg$Svg$Attributes$stroke(strokeColor),
+						$elm$svg$Svg$Attributes$strokeWidth(strokeW),
+						$elm$svg$Svg$Attributes$fill('none'),
+						$elm$svg$Svg$Attributes$markerEnd(markerUrl),
+						$elm$svg$Svg$Attributes$pointerEvents('none')
+					]),
+				_List_Nil),
+				A5($author$project$View$Canvas$transLabel, lx, ly, label, isActive, isHovered),
+				A2(
+				$elm$svg$Svg$path,
+				_Utils_ap(
 					_List_fromArray(
 						[
 							$elm$svg$Svg$Attributes$d(pathD),
 							$elm$svg$Svg$Attributes$stroke('transparent'),
 							$elm$svg$Svg$Attributes$strokeWidth('14'),
 							$elm$svg$Svg$Attributes$fill('none'),
-							$elm$svg$Svg$Attributes$cursor('pointer'),
-							A2(
-							$elm$html$Html$Events$custom,
-							'click',
-							$elm$json$Json$Decode$succeed(
-								{
-									c$: A2($author$project$Types$DeleteTransition, from, to),
-									dc: false,
-									dq: true
-								}))
+							$elm$svg$Svg$Attributes$cursor(
+							isDeleteMode ? 'pointer' : 'default'),
+							$elm$svg$Svg$Events$onMouseOver(
+							$author$project$Types$HoverEnter(
+								A2($author$project$Types$HoverTransition, from, to))),
+							$elm$svg$Svg$Events$onMouseOut($author$project$Types$HoverLeave)
 						]),
-					_List_Nil)
-				]) : _List_Nil);
+					clickAttr),
+				_List_Nil)
+			]);
 	});
 var $author$project$Types$ClickedState = function (a) {
 	return {$: 1, a: a};
+};
+var $author$project$Types$HoverState = function (a) {
+	return {$: 0, a: a};
 };
 var $author$project$Types$MouseDownOnState = F3(
 	function (a, b, c) {
@@ -8266,7 +8514,6 @@ var $author$project$View$Canvas$drawState = F7(
 	function (model, name, pos, isStart, isAccept, isCurrent, isPending) {
 		var textFill = isCurrent ? '#69f0ae' : '#e8eaf6';
 		var strokeW = (isCurrent || isPending) ? '4' : '2.5';
-		var strokeColor = isCurrent ? '#69f0ae' : (isPending ? '#ffb74d' : (isAccept ? '#4fc3f7' : (isStart ? '#ffb74d' : '#9fa8da')));
 		var ry = $author$project$View$Canvas$stateRy;
 		var rx = $author$project$View$Canvas$stateRx(name);
 		var startArrow = isStart ? _List_fromArray(
@@ -8276,13 +8523,13 @@ var $author$project$View$Canvas$drawState = F7(
 				_List_fromArray(
 					[
 						$elm$svg$Svg$Attributes$x1(
-						$author$project$Helpers$flt((pos.dC - rx) - 30)),
+						$author$project$Helpers$flt((pos.dY - rx) - 30)),
 						$elm$svg$Svg$Attributes$y1(
-						$author$project$Helpers$flt(pos.dD)),
+						$author$project$Helpers$flt(pos.dZ)),
 						$elm$svg$Svg$Attributes$x2(
-						$author$project$Helpers$flt((pos.dC - rx) - 4)),
+						$author$project$Helpers$flt((pos.dY - rx) - 4)),
 						$elm$svg$Svg$Attributes$y2(
-						$author$project$Helpers$flt(pos.dD)),
+						$author$project$Helpers$flt(pos.dZ)),
 						$elm$svg$Svg$Attributes$stroke('#ffb74d'),
 						$elm$svg$Svg$Attributes$strokeWidth('2.5'),
 						$elm$svg$Svg$Attributes$markerEnd('url(#arrow)'),
@@ -8290,6 +8537,11 @@ var $author$project$View$Canvas$drawState = F7(
 					]),
 				_List_Nil)
 			]) : _List_Nil;
+		var isHovered = _Utils_eq(
+			model.dg,
+			$elm$core$Maybe$Just(
+				$author$project$Types$HoverState(name)));
+		var strokeColor = isCurrent ? '#69f0ae' : (isPending ? '#ffb74d' : (((model.dc === 3) || isHovered) ? '#ef5350' : (isAccept ? '#4fc3f7' : (isStart ? '#ffb74d' : '#9fa8da'))));
 		var innerEllipse = isAccept ? _List_fromArray(
 			[
 				A2(
@@ -8297,9 +8549,9 @@ var $author$project$View$Canvas$drawState = F7(
 				_List_fromArray(
 					[
 						$elm$svg$Svg$Attributes$cx(
-						$author$project$Helpers$flt(pos.dC)),
+						$author$project$Helpers$flt(pos.dY)),
 						$elm$svg$Svg$Attributes$cy(
-						$author$project$Helpers$flt(pos.dD)),
+						$author$project$Helpers$flt(pos.dZ)),
 						$elm$svg$Svg$Attributes$rx(
 						$author$project$Helpers$flt(rx - 5)),
 						$elm$svg$Svg$Attributes$ry(
@@ -8311,15 +8563,15 @@ var $author$project$View$Canvas$drawState = F7(
 					]),
 				_List_Nil)
 			]) : _List_Nil;
-		var fillColor = isCurrent ? '#1b5e20' : ((model.cT === 3) ? 'rgba(239,83,80,0.15)' : (isPending ? 'rgba(255,183,77,0.2)' : (isAccept ? 'rgba(79,195,247,0.15)' : 'rgba(255,255,255,0.07)')));
+		var fillColor = isCurrent ? '#1b5e20' : (((model.dc === 3) || isHovered) ? 'rgba(239,83,80,0.15)' : (isPending ? 'rgba(255,183,77,0.2)' : (isAccept ? 'rgba(79,195,247,0.15)' : 'rgba(255,255,255,0.07)')));
 		var cursorStr = function () {
-			var _v0 = model.cT;
+			var _v0 = model.dc;
 			switch (_v0) {
 				case 0:
-					var _v1 = model.cS;
+					var _v1 = model.db;
 					if (!_v1.$) {
 						var d = _v1.a;
-						return _Utils_eq(d.dp, name) ? 'grabbing' : 'grab';
+						return _Utils_eq(d.dL, name) ? 'grabbing' : 'grab';
 					} else {
 						return 'grab';
 					}
@@ -8341,9 +8593,9 @@ var $author$project$View$Canvas$drawState = F7(
 						_List_fromArray(
 							[
 								$elm$svg$Svg$Attributes$cx(
-								$author$project$Helpers$flt(pos.dC)),
+								$author$project$Helpers$flt(pos.dY)),
 								$elm$svg$Svg$Attributes$cy(
-								$author$project$Helpers$flt(pos.dD)),
+								$author$project$Helpers$flt(pos.dZ)),
 								$elm$svg$Svg$Attributes$rx(
 								$author$project$Helpers$flt(rx)),
 								$elm$svg$Svg$Attributes$ry(
@@ -8352,32 +8604,36 @@ var $author$project$View$Canvas$drawState = F7(
 								$elm$svg$Svg$Attributes$stroke(strokeColor),
 								$elm$svg$Svg$Attributes$strokeWidth(strokeW),
 								$elm$svg$Svg$Attributes$cursor(cursorStr),
+								$elm$svg$Svg$Events$onMouseOver(
+								$author$project$Types$HoverEnter(
+									$author$project$Types$HoverState(name))),
+								$elm$svg$Svg$Events$onMouseOut($author$project$Types$HoverLeave),
 								A2(
 								$elm$html$Html$Events$custom,
 								'click',
 								$elm$json$Json$Decode$succeed(
 									{
-										c$: $author$project$Types$ClickedState(name),
-										dc: false,
-										dq: true
+										dl: $author$project$Types$ClickedState(name),
+										dy: false,
+										dM: true
 									})),
 								A2(
 								$elm$html$Html$Events$custom,
 								'dblclick',
 								$elm$json$Json$Decode$succeed(
 									{
-										c$: $author$project$Types$StartRename(name),
-										dc: false,
-										dq: true
+										dl: $author$project$Types$StartRename(name),
+										dy: false,
+										dM: true
 									})),
 								A2(
 								$elm$html$Html$Events$custom,
 								'mousedown',
 								$elm$json$Json$Decode$succeed(
 									{
-										c$: A3($author$project$Types$MouseDownOnState, name, 0, 0),
-										dc: false,
-										dq: true
+										dl: A3($author$project$Types$MouseDownOnState, name, 0, 0),
+										dy: false,
+										dM: true
 									}))
 							]),
 						_List_Nil)
@@ -8391,9 +8647,9 @@ var $author$project$View$Canvas$drawState = F7(
 							_List_fromArray(
 								[
 									$elm$svg$Svg$Attributes$x(
-									$author$project$Helpers$flt(pos.dC)),
+									$author$project$Helpers$flt(pos.dY)),
 									$elm$svg$Svg$Attributes$y(
-									$author$project$Helpers$flt(pos.dD)),
+									$author$project$Helpers$flt(pos.dZ)),
 									$elm$svg$Svg$Attributes$textAnchor('middle'),
 									$elm$svg$Svg$Attributes$dominantBaseline('middle'),
 									$elm$svg$Svg$Attributes$fontSize('13'),
@@ -8434,7 +8690,7 @@ var $elm$svg$Svg$polygon = $elm$svg$Svg$trustedNode('polygon');
 var $elm$svg$Svg$Attributes$refX = _VirtualDom_attribute('refX');
 var $elm$svg$Svg$Attributes$refY = _VirtualDom_attribute('refY');
 var $author$project$View$Canvas$drawDFA = function (model) {
-	var transitionList = $elm$core$Dict$toList(model.b7);
+	var transitionList = $elm$core$Dict$toList(model.cs);
 	var stateElements = A2(
 		$elm$core$List$concatMap,
 		function (_v6) {
@@ -8445,16 +8701,16 @@ var $author$project$View$Canvas$drawDFA = function (model) {
 				model,
 				name,
 				pos,
-				_Utils_eq(name, model.cD),
-				A2($elm$core$List$member, name, model.cf),
+				_Utils_eq(name, model.cY),
+				A2($elm$core$List$member, name, model.cA),
 				_Utils_eq(
-					model.cQ,
+					model.c9,
 					$elm$core$Maybe$Just(name)),
 				_Utils_eq(
-					model.dy,
+					model.dU,
 					$elm$core$Maybe$Just(name)));
 		},
-		$elm$core$Dict$toList(model.cE));
+		$elm$core$Dict$toList(model.cZ));
 	var hasBidirectional = F2(
 		function (from, to) {
 			return A2(
@@ -8511,14 +8767,14 @@ var $author$project$View$Canvas$drawDFA = function (model) {
 							function (fromPos, toPos) {
 								var toRx = $author$project$View$Canvas$stateRx(to);
 								var isActive = _Utils_eq(
-									model.cQ,
+									model.c9,
 									$elm$core$Maybe$Just(from));
 								var fromRx = $author$project$View$Canvas$stateRx(from);
-								return _Utils_eq(from, to) ? A7($author$project$View$Canvas$drawSelfLoop, label, fromPos, fromRx, isActive, model.cT, from, to) : $author$project$View$Canvas$drawArrow(label)(fromPos)(toPos)(fromRx)(toRx)(
-									A2(hasBidirectional, from, to))(isActive)(model.cT)(from)(to);
+								return _Utils_eq(from, to) ? A8($author$project$View$Canvas$drawSelfLoop, label, fromPos, fromRx, isActive, model.dc, model.dg, from, to) : $author$project$View$Canvas$drawArrow(label)(fromPos)(toPos)(fromRx)(toRx)(
+									A2(hasBidirectional, from, to))(isActive)(model.dc)(model.dg)(from)(to);
 							}),
-						A2($elm$core$Dict$get, from, model.cE),
-						A2($elm$core$Dict$get, to, model.cE));
+						A2($elm$core$Dict$get, from, model.cZ),
+						A2($elm$core$Dict$get, to, model.cZ));
 				} else {
 					return $elm$core$Maybe$Nothing;
 				}
@@ -8788,7 +9044,7 @@ var $author$project$View$Panels$viewStateRow = F3(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'border-left',
-					'3px solid ' + (_Utils_eq(state, model.cD) ? '#ffb74d' : (A2($elm$core$List$member, state, model.cf) ? '#4fc3f7' : '#444'))),
+					'3px solid ' + (_Utils_eq(state, model.cY) ? '#ffb74d' : (A2($elm$core$List$member, state, model.cA) ? '#4fc3f7' : '#444'))),
 					A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.03)')
 				]),
 			_List_fromArray(
@@ -8823,13 +9079,13 @@ var $author$project$View$Panels$viewStateRow = F3(
 							$author$project$View$Widgets$miniBtn,
 							'S',
 							$author$project$Types$SetStartState(state),
-							_Utils_eq(state, model.cD),
+							_Utils_eq(state, model.cY),
 							'#ffb74d'),
 							A4(
 							$author$project$View$Widgets$miniBtn,
 							'A',
 							$author$project$Types$ToggleAcceptState(state),
-							A2($elm$core$List$member, state, model.cf),
+							A2($elm$core$List$member, state, model.cA),
 							'#4fc3f7'),
 							A4(
 							$author$project$View$Widgets$miniBtn,
@@ -8856,11 +9112,11 @@ var $author$project$View$Panels$viewStateList = F2(
 				[
 					A3(
 					$author$project$View$Widgets$collapsibleHeader,
-					t.bW(
-						$elm$core$Dict$size(model.cE)),
-					model.$7,
+					t.cb(
+						$elm$core$Dict$size(model.cZ)),
+					model.dK,
 					$author$project$Types$ToggleStateList),
-					model.$7 ? $elm$html$Html$text('') : A2(
+					model.dK ? $elm$html$Html$text('') : A2(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
@@ -8882,13 +9138,13 @@ var $author$project$View$Panels$viewStateList = F2(
 									]),
 								_List_fromArray(
 									[
-										$elm$html$Html$text(t.bV)
+										$elm$html$Html$text(t.ca)
 									]))
 							]),
 						A2(
 							$elm$core$List$map,
 							A2($author$project$View$Panels$viewStateRow, t, model),
-							$elm$core$Dict$keys(model.cE))))
+							$elm$core$Dict$keys(model.cZ))))
 				]));
 	});
 var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
@@ -8918,7 +9174,7 @@ var $author$project$View$viewDiagramPanel = F2(
 						]),
 					_List_fromArray(
 						[
-							$author$project$View$Widgets$panelTitle(t.bU)
+							$author$project$View$Widgets$panelTitle(t.b9)
 						])),
 					A2(
 					$elm$html$Html$div,
@@ -8942,17 +9198,17 @@ var $author$project$View$viewDiagramPanel = F2(
 									$elm$svg$Svg$Attributes$height('100%'),
 									$elm$svg$Svg$Attributes$style(
 									'display:block; cursor: ' + function () {
-										if (model.cZ) {
+										if (model.dj) {
 											return 'grabbing';
 										} else {
-											var _v0 = model.cT;
+											var _v0 = model.dc;
 											switch (_v0) {
 												case 1:
 													return 'crosshair';
 												case 2:
 													return 'cell';
 												case 0:
-													var _v1 = model.cS;
+													var _v1 = model.db;
 													if (!_v1.$) {
 														return 'grabbing';
 													} else {
@@ -8970,7 +9226,7 @@ var $author$project$View$viewDiagramPanel = F2(
 										$elm$json$Json$Decode$map2,
 										F2(
 											function (ox, oy) {
-												return model.cZ ? A2($author$project$Types$PanMove, ox, oy) : A2($author$project$Types$MouseMove, (ox - model.ds) / model.du, (oy - model.dt) / model.du);
+												return model.dj ? A2($author$project$Types$PanMove, ox, oy) : A2($author$project$Types$MouseMove, (ox - model.dO) / model.dQ, (oy - model.dP) / model.dQ);
 											}),
 										A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$float),
 										A2($elm$json$Json$Decode$field, 'offsetY', $elm$json$Json$Decode$float))),
@@ -8998,9 +9254,9 @@ var $author$project$View$viewDiagramPanel = F2(
 												F2(
 													function (ox, oy) {
 														return {
-															c$: A2($author$project$Types$ClickedCanvas, (ox - model.ds) / model.du, (oy - model.dt) / model.du),
-															dc: false,
-															dq: false
+															dl: A2($author$project$Types$ClickedCanvas, (ox - model.dO) / model.dQ, (oy - model.dP) / model.dQ),
+															dy: false,
+															dM: false
 														};
 													}),
 												A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$float),
@@ -9020,7 +9276,7 @@ var $author$project$View$viewDiagramPanel = F2(
 									_List_fromArray(
 										[
 											$elm$svg$Svg$Attributes$transform(
-											'translate(' + ($author$project$Helpers$flt(model.ds) + (',' + ($author$project$Helpers$flt(model.dt) + (') scale(' + ($author$project$Helpers$flt(model.du) + ')'))))))
+											'translate(' + ($author$project$Helpers$flt(model.dO) + (',' + ($author$project$Helpers$flt(model.dP) + (') scale(' + ($author$project$Helpers$flt(model.dQ) + ')'))))))
 										]),
 									$author$project$View$Canvas$drawDFA(model))
 								]))
@@ -9044,25 +9300,25 @@ var $author$project$View$viewDiagramPanel = F2(
 									A4(
 									$author$project$View$Widgets$toolBtn,
 									'✋',
-									!model.cT,
+									!model.dc,
 									$author$project$Types$SetDrawTool(0),
-									t.by),
+									t.bI),
 									A4(
 									$author$project$View$Widgets$toolBtn,
 									'⊕',
-									model.cT === 1,
+									model.dc === 1,
 									$author$project$Types$SetDrawTool(1),
 									t.L),
 									A4(
 									$author$project$View$Widgets$toolBtn,
 									'→',
-									model.cT === 2,
+									model.dc === 2,
 									$author$project$Types$SetDrawTool(2),
 									t.M),
 									A4(
 									$author$project$View$Widgets$toolBtn,
 									'X',
-									model.cT === 3,
+									model.dc === 3,
 									$author$project$Types$SetDrawTool(3),
 									t.Y)
 								])),
@@ -9075,23 +9331,23 @@ var $author$project$View$viewDiagramPanel = F2(
 									$author$project$View$Widgets$undoRedoBtn,
 									'↩',
 									$author$project$Types$Undo,
-									!_Utils_eq(model.dz, _List_Nil),
-									t.b9),
+									!_Utils_eq(model.dV, _List_Nil),
+									t.cu),
 									A4(
 									$author$project$View$Widgets$undoRedoBtn,
 									'↪',
 									$author$project$Types$Redo,
-									!_Utils_eq(model.dd, _List_Nil),
-									t.br)
+									!_Utils_eq(model.dz, _List_Nil),
+									t.bB)
 								])),
 							A2(
 							$author$project$View$Widgets$toolGroup,
-							t.ca,
+							t.cv,
 							_List_fromArray(
 								[
-									A4($author$project$View$Widgets$toolBtn, '+', false, $author$project$Types$ZoomIn, t.cd),
-									A4($author$project$View$Widgets$toolBtn, '−', false, $author$project$Types$ZoomOut, t.ce),
-									A4($author$project$View$Widgets$toolBtn, '⌂', false, $author$project$Types$ResetView, t.bv),
+									A4($author$project$View$Widgets$toolBtn, '+', false, $author$project$Types$ZoomIn, t.cy),
+									A4($author$project$View$Widgets$toolBtn, '−', false, $author$project$Types$ZoomOut, t.cz),
+									A4($author$project$View$Widgets$toolBtn, '⌂', false, $author$project$Types$ResetView, t.bF),
 									A2(
 									$elm$html$Html$div,
 									_List_fromArray(
@@ -9107,14 +9363,13 @@ var $author$project$View$viewDiagramPanel = F2(
 										[
 											$elm$html$Html$text(
 											$elm$core$String$fromInt(
-												$elm$core$Basics$round(model.du * 100)) + '%')
+												$elm$core$Basics$round(model.dQ * 100)) + '%')
 										]))
 								]))
 						])),
-					(!$elm$core$Dict$isEmpty(model.cE)) ? A2($author$project$View$Panels$viewStateList, t, model) : $elm$html$Html$text('')
+					(!$elm$core$Dict$isEmpty(model.cZ)) ? A2($author$project$View$Panels$viewStateList, t, model) : $elm$html$Html$text('')
 				]));
 	});
-var $author$project$Types$NoOp = {$: 32};
 var $author$project$Types$ToggleFeedback = {$: 30};
 var $elm$html$Html$a = _VirtualDom_node('a');
 var $elm$html$Html$h3 = _VirtualDom_node('h3');
@@ -9157,7 +9412,7 @@ var $author$project$View$Panels$viewFeedbackModal = function (t) {
 						$elm$html$Html$Events$custom,
 						'click',
 						$elm$json$Json$Decode$succeed(
-							{c$: $author$project$Types$NoOp, dc: false, dq: true}))
+							{dl: $author$project$Types$NoOp, dy: false, dM: true}))
 					]),
 				_List_fromArray(
 					[
@@ -9205,7 +9460,7 @@ var $author$project$View$Panels$viewFeedbackModal = function (t) {
 							]),
 						_List_fromArray(
 							[
-								$elm$html$Html$text(t.bp)
+								$elm$html$Html$text(t.bz)
 							])),
 						A2(
 						$elm$html$Html$a,
@@ -9348,7 +9603,7 @@ var $author$project$View$Panels$statusExplain = F6(
 										]),
 									_List_fromArray(
 										[
-											$elm$html$Html$text(t.b$)
+											$elm$html$Html$text(t.cg)
 										])),
 									A2(
 									$elm$html$Html$span,
@@ -9376,7 +9631,7 @@ var $author$project$View$Panels$statusExplain = F6(
 										]),
 									_List_fromArray(
 										[
-											$elm$html$Html$text(t.bY)
+											$elm$html$Html$text(t.cd)
 										])),
 									A2(
 									$elm$html$Html$span,
@@ -9404,7 +9659,7 @@ var $author$project$View$Panels$statusExplain = F6(
 										]),
 									_List_fromArray(
 										[
-											$elm$html$Html$text(t.bZ)
+											$elm$html$Html$text(t.ce)
 										])),
 									A2(
 									$elm$html$Html$span,
@@ -9454,7 +9709,7 @@ var $author$project$View$Panels$viewHelpModal = function (t) {
 						$elm$html$Html$Events$custom,
 						'click',
 						$elm$json$Json$Decode$succeed(
-							{c$: $author$project$Types$NoOp, dc: false, dq: true}))
+							{dl: $author$project$Types$NoOp, dy: false, dM: true}))
 					]),
 				_List_fromArray(
 					[
@@ -9496,7 +9751,7 @@ var $author$project$View$Panels$viewHelpModal = function (t) {
 									]),
 								_List_fromArray(
 									[
-										$elm$html$Html$text(t.cb)
+										$elm$html$Html$text(t.cw)
 									])),
 								A2(
 								$elm$html$Html$p,
@@ -9506,7 +9761,7 @@ var $author$project$View$Panels$viewHelpModal = function (t) {
 									]),
 								_List_fromArray(
 									[
-										$elm$html$Html$text(t.cc)
+										$elm$html$Html$text(t.cx)
 									]))
 							])),
 						$author$project$View$Panels$helpSectionTitle(t.a0),
@@ -9614,7 +9869,7 @@ var $author$project$View$Panels$viewRenamePopup = F3(
 							_List_fromArray(
 								[
 									$elm$html$Html$text(
-									_Utils_ap(t.bt, stateName))
+									_Utils_ap(t.bD, stateName))
 								])),
 							A2(
 							$elm$html$Html$input,
@@ -9653,7 +9908,7 @@ var $author$project$View$Panels$viewRenamePopup = F3(
 								]),
 							_List_fromArray(
 								[
-									A5($author$project$View$Widgets$styledBtn, t.bs, $author$project$Types$ConfirmRename, $author$project$View$Widgets$purpleGrad, '50%', '8px 0'),
+									A5($author$project$View$Widgets$styledBtn, t.bC, $author$project$Types$ConfirmRename, $author$project$View$Widgets$purpleGrad, '50%', '8px 0'),
 									A5($author$project$View$Widgets$styledBtn, t.Q, $author$project$Types$CancelRename, 'rgba(255,255,255,0.1)', '50%', '8px 0')
 								]))
 						]))
@@ -9683,11 +9938,11 @@ var $author$project$View$Widgets$autoRunBtn = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'background',
-					model.cL ? 'linear-gradient(135deg, #388e3c, #66bb6a)' : 'rgba(255,255,255,0.07)'),
+					model.c4 ? 'linear-gradient(135deg, #388e3c, #66bb6a)' : 'rgba(255,255,255,0.07)'),
 					A2(
 					$elm$html$Html$Attributes$style,
 					'border',
-					model.cL ? '1px solid #66bb6a' : '1px solid rgba(255,255,255,0.1)'),
+					model.c4 ? '1px solid #66bb6a' : '1px solid rgba(255,255,255,0.1)'),
 					A2($elm$html$Html$Attributes$style, 'border-radius', '8px'),
 					A2($elm$html$Html$Attributes$style, 'padding', '7px 10px'),
 					A2($elm$html$Html$Attributes$style, 'font-size', '0.78rem'),
@@ -9696,12 +9951,12 @@ var $author$project$View$Widgets$autoRunBtn = F2(
 					A2(
 					$elm$html$Html$Attributes$style,
 					'color',
-					model.cL ? '#fff' : '#9fa8da'),
+					model.c4 ? '#fff' : '#9fa8da'),
 					A2($elm$html$Html$Attributes$style, 'font-family', 'inherit')
 				]),
 			_List_fromArray(
 				[
-					$elm$html$Html$text(t.bw)
+					$elm$html$Html$text(t.bG)
 				]));
 	});
 var $author$project$Types$StopAutoRun = {$: 36};
@@ -9725,7 +9980,7 @@ var $author$project$View$Widgets$autoStopBtn = F2(
 				]),
 			_List_fromArray(
 				[
-					$elm$html$Html$text(t.b2)
+					$elm$html$Html$text(t.cj)
 				]));
 	});
 var $elm$html$Html$Attributes$max = $elm$html$Html$Attributes$stringProperty('max');
@@ -9779,8 +10034,8 @@ var $author$project$View$Panels$viewTestStringPanel = F2(
 			_List_Nil,
 			_List_fromArray(
 				[
-					A3($author$project$View$Widgets$collapsibleHeader, t.b3, model.dv, $author$project$Types$ToggleTestPanel),
-					model.dv ? $elm$html$Html$text('') : A2(
+					A3($author$project$View$Widgets$collapsibleHeader, t.ck, model.dR, $author$project$Types$ToggleTestPanel),
+					model.dR ? $elm$html$Html$text('') : A2(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
@@ -9799,7 +10054,7 @@ var $author$project$View$Panels$viewTestStringPanel = F2(
 							$elm$html$Html$input,
 							_List_fromArray(
 								[
-									$elm$html$Html$Attributes$value(model.b4),
+									$elm$html$Html$Attributes$value(model.cl),
 									$elm$html$Html$Events$onInput($author$project$Types$SetTestWord),
 									$elm$html$Html$Attributes$placeholder(t._),
 									A2($elm$html$Html$Attributes$style, 'width', '100%'),
@@ -9857,7 +10112,7 @@ var $author$project$View$Panels$viewTestStringPanel = F2(
 												]),
 											_List_fromArray(
 												[
-													$elm$html$Html$text(t.bS)
+													$elm$html$Html$text(t.b7)
 												])),
 											A2(
 											$elm$html$Html$span,
@@ -9871,7 +10126,7 @@ var $author$project$View$Panels$viewTestStringPanel = F2(
 												[
 													$elm$html$Html$text(
 													function () {
-														var tenths = $elm$core$Basics$round((2100 - model.cM) / 100);
+														var tenths = $elm$core$Basics$round((2100 - model.c5) / 100);
 														var whole = (tenths / 10) | 0;
 														var frac = tenths % 10;
 														return $elm$core$String$fromInt(whole) + ('.' + ($elm$core$String$fromInt(frac) + ' s/step'));
@@ -9907,7 +10162,7 @@ var $author$project$View$Panels$viewTestStringPanel = F2(
 													$elm$html$Html$Attributes$max('2000'),
 													$elm$html$Html$Attributes$step('100'),
 													$elm$html$Html$Attributes$value(
-													$elm$core$String$fromInt(model.cM)),
+													$elm$core$String$fromInt(model.c5)),
 													$elm$html$Html$Events$onInput(
 													function (v) {
 														return $author$project$Types$SetAutoSpeed(
@@ -9933,7 +10188,7 @@ var $author$project$View$Panels$viewTestStringPanel = F2(
 												]))
 										]))
 								])),
-							$author$project$View$Widgets$rowLabel(t.b1),
+							$author$project$View$Widgets$rowLabel(t.ci),
 							A2(
 							$elm$html$Html$div,
 							_List_fromArray(
@@ -9944,10 +10199,10 @@ var $author$project$View$Panels$viewTestStringPanel = F2(
 								]),
 							_List_fromArray(
 								[
-									A2($author$project$View$Widgets$stepBtn, t.bu, $author$project$Types$ResetSim),
+									A2($author$project$View$Widgets$stepBtn, t.bE, $author$project$Types$ResetSim),
 									A2($author$project$View$Widgets$stepBtn, t.P, $author$project$Types$StepBack),
-									A2($author$project$View$Widgets$stepBtn, t.b0, $author$project$Types$StepForward),
-									A2($author$project$View$Widgets$stepBtn, t.bq, $author$project$Types$RunAll)
+									A2($author$project$View$Widgets$stepBtn, t.ch, $author$project$Types$StepForward),
+									A2($author$project$View$Widgets$stepBtn, t.bA, $author$project$Types$RunAll)
 								])),
 							A2(
 							$elm$html$Html$div,
@@ -9963,7 +10218,7 @@ var $author$project$View$Panels$viewTestStringPanel = F2(
 									A2(
 									$elm$html$Html$Attributes$style,
 									'border-left',
-									A2($elm$core$String$contains, 'ACCEPTED', model.dl) ? '3px solid #69f0ae' : (A2($elm$core$String$contains, 'REJECTED', model.dl) ? '3px solid #ef5350' : '3px solid #7c4dff'))
+									A2($elm$core$String$contains, 'ACCEPTED', model.dH) ? '3px solid #69f0ae' : (A2($elm$core$String$contains, 'REJECTED', model.dH) ? '3px solid #ef5350' : '3px solid #7c4dff'))
 								]),
 							_List_fromArray(
 								[
@@ -9980,7 +10235,7 @@ var $author$project$View$Panels$viewTestStringPanel = F2(
 												]),
 											_List_fromArray(
 												[
-													$elm$html$Html$text(t.b_)
+													$elm$html$Html$text(t.cf)
 												])),
 											A2(
 											$elm$html$Html$span,
@@ -9991,7 +10246,7 @@ var $author$project$View$Panels$viewTestStringPanel = F2(
 												]),
 											_List_fromArray(
 												[
-													$elm$html$Html$text(model.dl)
+													$elm$html$Html$text(model.dH)
 												]))
 										])),
 									A2(
@@ -10015,8 +10270,8 @@ var $author$project$View$Panels$viewTestStringPanel = F2(
 											_List_fromArray(
 												[
 													$elm$html$Html$text(
-													$elm$core$String$fromInt(model.dm) + (' / ' + $elm$core$String$fromInt(
-														$elm$core$String$length(model.b4))))
+													$elm$core$String$fromInt(model.dI) + (' / ' + $elm$core$String$fromInt(
+														$elm$core$String$length(model.cl))))
 												]))
 										])),
 									A2(
@@ -10040,7 +10295,7 @@ var $author$project$View$Panels$viewTestStringPanel = F2(
 											_List_fromArray(
 												[
 													$elm$html$Html$text(
-													A2($elm$core$Maybe$withDefault, '—', model.cQ))
+													A2($elm$core$Maybe$withDefault, '—', model.c9))
 												]))
 										]))
 								]))
@@ -10175,7 +10430,7 @@ var $author$project$View$viewTopBar = F2(
 					_List_fromArray(
 						[
 							$author$project$View$langToggleBtn(lang),
-							A2($author$project$View$Widgets$topBarBtn, t.bx, $author$project$Types$RequestSave),
+							A2($author$project$View$Widgets$topBarBtn, t.bH, $author$project$Types$RequestSave),
 							A2($author$project$View$Widgets$topBarBtn, t.bl, $author$project$Types$RequestLoad),
 							A2($author$project$View$Widgets$topBarBtn, t.af, $author$project$Types$ToggleHelp),
 							A2($author$project$View$Widgets$topBarBtn, t.aa, $author$project$Types$ToggleFeedback),
@@ -10227,7 +10482,7 @@ var $author$project$View$Panels$viewTransCharPopup = F2(
 								]),
 							_List_fromArray(
 								[
-									$elm$html$Html$text(t.b6 + (model.da + (' → ' + model.db)))
+									$elm$html$Html$text(t.cr + (model.dw + (' → ' + model.dx)))
 								])),
 							A2(
 							$elm$html$Html$div,
@@ -10239,13 +10494,13 @@ var $author$project$View$Panels$viewTransCharPopup = F2(
 								]),
 							_List_fromArray(
 								[
-									$elm$html$Html$text(t.b5)
+									$elm$html$Html$text(t.cq)
 								])),
 							A2(
 							$elm$html$Html$input,
 							_List_fromArray(
 								[
-									$elm$html$Html$Attributes$value(model.dx),
+									$elm$html$Html$Attributes$value(model.dT),
 									$elm$html$Html$Events$onInput($author$project$Types$SetTransitionChar),
 									$elm$html$Html$Attributes$placeholder('e.g.  a'),
 									A2(
@@ -10286,7 +10541,7 @@ var $author$project$View$Panels$viewTransCharPopup = F2(
 				]));
 	});
 var $author$project$View$view = function (model) {
-	var t = $author$project$Lang$translations(model.c_);
+	var t = $author$project$Lang$translations(model.dk);
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -10305,7 +10560,7 @@ var $author$project$View$view = function (model) {
 			]),
 		_List_fromArray(
 			[
-				A2($author$project$View$viewTopBar, t, model.c_),
+				A2($author$project$View$viewTopBar, t, model.dk),
 				A2(
 				$elm$html$Html$div,
 				_List_fromArray(
@@ -10338,21 +10593,21 @@ var $author$project$View$view = function (model) {
 							])),
 						A2($author$project$View$viewDiagramPanel, t, model)
 					])),
-				model.dj ? A2($author$project$View$Panels$viewTransCharPopup, t, model) : $elm$html$Html$text(''),
+				model.dF ? A2($author$project$View$Panels$viewTransCharPopup, t, model) : $elm$html$Html$text(''),
 				function () {
-				var _v0 = model.df;
+				var _v0 = model.dB;
 				if (!_v0.$) {
 					var stateName = _v0.a;
-					return A3($author$project$View$Panels$viewRenamePopup, t, stateName, model.de);
+					return A3($author$project$View$Panels$viewRenamePopup, t, stateName, model.dA);
 				} else {
 					return $elm$html$Html$text('');
 				}
 			}(),
-				model.di ? $author$project$View$Panels$viewHelpModal(t) : $elm$html$Html$text(''),
-				model.dh ? $author$project$View$Panels$viewFeedbackModal(t) : $elm$html$Html$text('')
+				model.dE ? $author$project$View$Panels$viewHelpModal(t) : $elm$html$Html$text(''),
+				model.dD ? $author$project$View$Panels$viewFeedbackModal(t) : $elm$html$Html$text('')
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
-	{cY: $author$project$Main$init, dr: $author$project$Main$subscriptions, dA: $author$project$Main$updateWithPorts, ca: $author$project$View$view});
+	{di: $author$project$Main$init, dN: $author$project$Main$subscriptions, dW: $author$project$Main$updateWithPorts, cv: $author$project$View$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
 	$elm$json$Json$Decode$succeed(0))(0)}});}(this));
