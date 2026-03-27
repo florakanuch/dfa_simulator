@@ -133,10 +133,10 @@ drawDFA model =
                                             toRx = stateRx to
                                         in
                                         if from == to then
-                                            drawSelfLoop label fromPos fromRx isActive model.drawTool from to
+                                            drawSelfLoop label fromPos fromRx isActive model.drawTool model.hoveredObject from to
 
                                         else
-                                            drawArrow label fromPos toPos fromRx toRx (hasBidirectional from to) isActive model.drawTool from to
+                                            drawArrow label fromPos toPos fromRx toRx (hasBidirectional from to) isActive model.drawTool model.hoveredObject from to
                                     )
                                     (Dict.get from model.statePositions)
                                     (Dict.get to model.statePositions)
@@ -169,11 +169,14 @@ drawState model name pos isStart isAccept isCurrent isPending =
 
         ry = stateRy
 
+        isHovered =
+            model.hoveredObject == Just (HoverState name)
+
         fillColor =
             if isCurrent then
                 "#1b5e20"
 
-            else if model.drawTool == DeleteTool then
+            else if model.drawTool == DeleteTool || isHovered then
                 "rgba(239,83,80,0.15)"
 
             else if isPending then
@@ -191,6 +194,9 @@ drawState model name pos isStart isAccept isCurrent isPending =
 
             else if isPending then
                 "#ffb74d"
+
+            else if model.drawTool == DeleteTool || isHovered then
+                "#ef5350"
 
             else if isAccept then
                 "#4fc3f7"
@@ -272,6 +278,8 @@ drawState model name pos isStart isAccept isCurrent isPending =
                 , SvgAttr.stroke strokeColor
                 , SvgAttr.strokeWidth strokeW
                 , SvgAttr.cursor cursorStr
+                , SvgEvents.onMouseOver (HoverEnter (HoverState name))
+                , SvgEvents.onMouseOut HoverLeave
                 , custom "click"
                     (Decode.succeed
                         { message = ClickedState name
@@ -312,8 +320,8 @@ drawState model name pos isStart isAccept isCurrent isPending =
            ]
 
 
-drawArrow : String -> StatePos -> StatePos -> Float -> Float -> Bool -> Bool -> DrawTool -> String -> String -> List (Svg Msg)
-drawArrow label p1 p2 rx1 rx2 curved isActive drawTool from to =
+drawArrow : String -> StatePos -> StatePos -> Float -> Float -> Bool -> Bool -> DrawTool -> Maybe HoverTarget -> String -> String -> List (Svg Msg)
+drawArrow label p1 p2 rx1 rx2 curved isActive drawTool hoveredObject from to =
     let
         dx = p2.x - p1.x
 
@@ -323,8 +331,10 @@ drawArrow label p1 p2 rx1 rx2 curved isActive drawTool from to =
 
         isDeleteMode = drawTool == DeleteTool
 
+        isHovered = hoveredObject == Just (HoverTransition from to)
+
         strokeColor =
-            if isDeleteMode then "#ef5350"
+            if isDeleteMode || isHovered then "#ef5350"
             else if isActive then "#69f0ae"
             else "#9fa8da"
 
@@ -334,26 +344,32 @@ drawArrow label p1 p2 rx1 rx2 curved isActive drawTool from to =
 
         ry = stateRy
 
-        deleteClick path_ =
-            if isDeleteMode then
-                [ Svg.path
-                    [ SvgAttr.d path_
-                    , SvgAttr.stroke "transparent"
-                    , SvgAttr.strokeWidth "14"
-                    , SvgAttr.fill "none"
-                    , SvgAttr.cursor "pointer"
-                    , custom "click"
-                        (Decode.succeed
-                            { message = DeleteTransition from to
-                            , stopPropagation = True
-                            , preventDefault = False
-                            }
-                        )
-                    ]
-                    []
-                ]
-            else
+        hitPath path_ =
+            let
+                clickAttr =
+                    if isDeleteMode then
+                        [ custom "click"
+                            (Decode.succeed
+                                { message = DeleteTransition from to
+                                , stopPropagation = True
+                                , preventDefault = False
+                                }
+                            )
+                        ]
+                    else
+                        []
+            in
+            [ Svg.path
+                ([ SvgAttr.d path_
+                 , SvgAttr.stroke "transparent"
+                 , SvgAttr.strokeWidth "14"
+                 , SvgAttr.fill "none"
+                 , SvgAttr.cursor (if isDeleteMode then "pointer" else "default")
+                 , SvgEvents.onMouseOver (HoverEnter (HoverTransition from to))
+                 , SvgEvents.onMouseOut HoverLeave
+                 ] ++ clickAttr)
                 []
+            ]
 
     in
     if curved then
@@ -390,8 +406,8 @@ drawArrow label p1 p2 rx1 rx2 curved isActive drawTool from to =
             , SvgAttr.pointerEvents "none"
             ]
             []
-        , transLabel lx ly label isActive
-        ] ++ deleteClick pathStr
+        , transLabel lx ly label isActive isHovered
+        ] ++ hitPath pathStr
 
     else
         let
@@ -417,19 +433,21 @@ drawArrow label p1 p2 rx1 rx2 curved isActive drawTool from to =
             , SvgAttr.pointerEvents "none"
             ]
             []
-        , transLabel mx my label isActive
-        ] ++ deleteClick pathStr
+        , transLabel mx my label isActive isHovered
+        ] ++ hitPath pathStr
 
 
-drawSelfLoop : String -> StatePos -> Float -> Bool -> DrawTool -> String -> String -> List (Svg Msg)
-drawSelfLoop label pos rx isActive drawTool from to =
+drawSelfLoop : String -> StatePos -> Float -> Bool -> DrawTool -> Maybe HoverTarget -> String -> String -> List (Svg Msg)
+drawSelfLoop label pos rx isActive drawTool hoveredObject from to =
     let
         ry = stateRy
 
         isDeleteMode = drawTool == DeleteTool
 
+        isHovered = hoveredObject == Just (HoverTransition from to)
+
         strokeColor =
-            if isDeleteMode then "#ef5350"
+            if isDeleteMode || isHovered then "#ef5350"
             else if isActive then "#69f0ae"
             else "#9fa8da"
 
@@ -454,6 +472,19 @@ drawSelfLoop label pos rx isActive drawTool from to =
 
         lx = lcx
         ly = lcy - loopR - 5
+
+        clickAttr =
+            if isDeleteMode then
+                [ custom "click"
+                    (Decode.succeed
+                        { message = DeleteTransition from to
+                        , stopPropagation = True
+                        , preventDefault = False
+                        }
+                    )
+                ]
+            else
+                []
     in
     [ Svg.path
         [ SvgAttr.d pathD
@@ -464,32 +495,22 @@ drawSelfLoop label pos rx isActive drawTool from to =
         , SvgAttr.pointerEvents "none"
         ]
         []
-    , transLabel lx ly label isActive
+    , transLabel lx ly label isActive isHovered
+    , Svg.path
+        ([ SvgAttr.d pathD
+         , SvgAttr.stroke "transparent"
+         , SvgAttr.strokeWidth "14"
+         , SvgAttr.fill "none"
+         , SvgAttr.cursor (if isDeleteMode then "pointer" else "default")
+         , SvgEvents.onMouseOver (HoverEnter (HoverTransition from to))
+         , SvgEvents.onMouseOut HoverLeave
+         ] ++ clickAttr)
+        []
     ]
-    ++ ( if isDeleteMode then
-            [ Svg.path
-                [ SvgAttr.d pathD
-                , SvgAttr.stroke "transparent"
-                , SvgAttr.strokeWidth "14"
-                , SvgAttr.fill "none"
-                , SvgAttr.cursor "pointer"
-                , custom "click"
-                    (Decode.succeed
-                        { message = DeleteTransition from to
-                        , stopPropagation = True
-                        , preventDefault = False
-                        }
-                    )
-                ]
-                []
-            ]
-         else
-            []
-       )
 
 
-transLabel : Float -> Float -> String -> Bool -> Svg Msg
-transLabel x y label isActive =
+transLabel : Float -> Float -> String -> Bool -> Bool -> Svg Msg
+transLabel x y label isActive isHovered =
     Svg.text_
         [ SvgAttr.x (flt x)
         , SvgAttr.y (flt y)
@@ -497,7 +518,10 @@ transLabel x y label isActive =
         , SvgAttr.fontSize "12"
         , SvgAttr.fontWeight "bold"
         , SvgAttr.fontFamily "monospace"
-        , SvgAttr.fill (if isActive then "#69f0ae" else "#f48fb1")
+        , SvgAttr.fill
+            (if isHovered then "#ef5350"
+             else if isActive then "#69f0ae"
+             else "#f48fb1")
         , SvgAttr.pointerEvents "none"
         ]
         [ Svg.text label ]
