@@ -257,6 +257,18 @@ viewStateList t model =
                     [ text t.stateListHint ]
                  ]
                     ++ (Dict.keys model.statePositions
+                            |> List.sortWith
+                                (\a b ->
+                                    let
+                                        idx s =
+                                            if String.startsWith "q" s then
+                                                String.toInt (String.dropLeft 1 s)
+                                                    |> Maybe.withDefault -1
+                                            else
+                                                -1
+                                    in
+                                    compare (idx a) (idx b)
+                                )
                             |> List.map (viewStateRow t model)
                        )
                 )
