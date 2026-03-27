@@ -194,6 +194,11 @@ type alias Translations =
     , toastLoaded : String -> String
     , toastDeleted : String
     , toastNothingToSave : String
+   
+    , settingsTitle : String
+    , settingsLanguage : String
+    , settingsAutoReorder : String
+    , settingsAutoReorderDesc : String
     }
 
 
@@ -246,7 +251,7 @@ translations lang =
             , rename = "Rename"
             , cancel = "Cancel"
             , transitionLabel = "Transition: "
-            , transitionCharHint = "Character for this transition:"
+            , transitionCharHint = "Character(s) for this transition (use | for multiple, e.g. a|b|c): "
             , add = "Add"
             , helpTitle = "📖 Help & Controls"
             , whatIsApp = "What is this app?"
@@ -367,6 +372,10 @@ translations lang =
             , toastLoaded = \n -> "Loaded \"" ++ n ++ "\""
             , toastDeleted = "Deleted"
             , toastNothingToSave = "Nothing to save yet."
+            , settingsTitle = "Settings"
+            , settingsLanguage = "Language"
+            , settingsAutoReorder = "Auto-renumber states on delete"
+            , settingsAutoReorderDesc = "When deleting q2, all higher states (q3, q4…) are renamed down by one."
             }
 
         SK ->
@@ -415,7 +424,7 @@ translations lang =
             , rename = "Premenovať"
             , cancel = "Zrušiť"
             , transitionLabel = "Prechod: "
-            , transitionCharHint = "Znak pre tento prechod:"
+            , transitionCharHint = "Znak(y) pre tento prechod(použi | pre viac, napr. a|b|c):"
             , add = "Pridať"
             , helpTitle = "📖 Návod a ovládanie"
             , whatIsApp = "Čo je táto aplikácia?"
@@ -536,4 +545,8 @@ translations lang =
             , toastLoaded = \n -> "Načítané \"" ++ n ++ "\""
             , toastDeleted = "Odstránené"
             , toastNothingToSave = "Zatiaľ nič na uloženie."
+            , settingsTitle = "Nastavenia"
+            , settingsLanguage = "Jazyk"
+            , settingsAutoReorder = "Automatické prečíslovanie stavov pri vymazaní"
+            , settingsAutoReorderDesc = "Pri vymazaní q2 sa všetky vyššie stavy (q3, q4…) premenujú o jedna nadol."
             }

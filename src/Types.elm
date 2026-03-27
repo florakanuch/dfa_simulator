@@ -87,6 +87,8 @@ type alias Model =
     , stateListCollapsed : Bool
     , language : Language
     , hoveredObject : Maybe HoverTarget
+    , showSettings : Bool
+    , autoReorderOnDelete : Bool
     }
 
 
@@ -149,3 +151,5 @@ type Msg
     | KeyDelete
     | KeyUndo
     | KeyRedo
+    | ToggleSettings
+    | ToggleAutoReorder

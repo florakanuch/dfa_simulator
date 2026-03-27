@@ -56,6 +56,8 @@ defaultModel =
     , stateListCollapsed = False
     , language = EN
     , hoveredObject = Nothing
+    , showSettings = False
+    , autoReorderOnDelete = False
     }
 
 
@@ -90,12 +92,88 @@ applySnapshot snap model =
     }
 
 
+-- Renames a state everywhere (positions, transitions, acceptStates, startState).
+renameStateEverywhere : String -> String -> Model -> Model
+renameStateEverywhere old new model =
+    let
+        renameKey k = if k == old then new else k
+
+        newPositions =
+            model.statePositions
+                |> Dict.toList
+                |> List.map (\( k, v ) -> ( renameKey k, v ))
+                |> Dict.fromList
+
+        newTransitions =
+            model.transitions
+                |> Dict.toList
+                |> List.map (\( ( fr, ch ), to ) -> ( ( renameKey fr, ch ), renameKey to ))
+                |> Dict.fromList
+
+        newAccept = List.map renameKey model.acceptStates
+
+        newStart = renameKey model.startState
+    in
+    { model
+        | statePositions = newPositions
+        , transitions = newTransitions
+        , acceptStates = newAccept
+        , startState = newStart
+    }
+
+
+
+reorderAfterDelete : String -> Model -> Model
+reorderAfterDelete deleted model =
+    case String.toInt (String.dropLeft 1 deleted) of
+        Nothing ->
+            model
+
+        Just deletedIdx ->
+            let
+                maxIdx =
+                    Dict.keys model.statePositions
+                        |> List.filterMap (\k -> String.toInt (String.dropLeft 1 k))
+                        |> List.maximum
+                        |> Maybe.withDefault -1
+
+                
+                indicesToShift =
+                    List.range (deletedIdx + 1) (maxIdx + 1)
+            in
+            List.foldl
+                (\idx m ->
+                    let
+                        oldName = "q" ++ String.fromInt idx
+                        newName = "q" ++ String.fromInt (idx - 1)
+                    in
+                    if Dict.member oldName m.statePositions then
+                        renameStateEverywhere oldName newName m
+                    else
+                        m
+                )
+                model
+                indicesToShift
+
+
 -------------------------------------------UPDATE-------------------------
 
 update : Msg -> Model -> Model
 update msg model =
     let
         t = translations model.language
+
+       
+        loadedModel =
+            if model.currentState /= Nothing then
+                model
+            else
+                { model
+                    | currentState = Just model.startState
+                    , simPosition = 0
+                    , simHistory = [ ( model.startState, 0 ) ]
+                    , simMessage = t.simLoaded model.testWord
+                }
     in
     case msg of
         ToggleLanguage ->
@@ -124,7 +202,20 @@ update msg model =
                     let
                         m0 = saveUndo model
 
-                        name = "q" ++ String.fromInt m0.stateCounter
+                        nextIdx =
+                            Dict.keys m0.statePositions
+                                |> List.filterMap
+                                    (\k ->
+                                        if String.startsWith "q" k then
+                                            String.toInt (String.dropLeft 1 k)
+                                        else
+                                            Nothing
+                                    )
+                                |> List.maximum
+                                |> Maybe.map (\n -> n + 1)
+                                |> Maybe.withDefault 0
+
+                        name = "q" ++ String.fromInt nextIdx
 
                         newPositions = Dict.insert name { x = x, y = y } m0.statePositions
 
@@ -132,7 +223,7 @@ update msg model =
                     in
                     { m0
                         | statePositions = newPositions
-                        , stateCounter = m0.stateCounter + 1
+                        , stateCounter = nextIdx + 1
                         , startState = newStart
                         , simMessage = t.simAdded name
                     }
@@ -168,14 +259,16 @@ update msg model =
                         newTrans = Dict.filter (\( fr, _ ) to -> fr /= stateName && to /= stateName) m0.transitions
                         newAccept = List.filter ((/=) stateName) m0.acceptStates
                         newStart = if m0.startState == stateName then "" else m0.startState
+                        m1 =
+                            { m0
+                                | statePositions = newPos
+                                , transitions = newTrans
+                                , acceptStates = newAccept
+                                , startState = newStart
+                                , simMessage = t.simDeleted stateName
+                            }
                     in
-                    { m0
-                        | statePositions = newPos
-                        , transitions = newTrans
-                        , acceptStates = newAccept
-                        , startState = newStart
-                        , simMessage = t.simDeleted stateName
-                    }
+                    (if model.autoReorderOnDelete then reorderAfterDelete stateName m1 else m1)
                         |> syncCodeFromDiagram
 
                 SelectTool -> model
@@ -396,14 +489,17 @@ update msg model =
                 newAccept = List.filter ((/=) state) m0.acceptStates
 
                 newStart = if m0.startState == state then "" else m0.startState
+
+                m1 =
+                    { m0
+                        | statePositions = newPos
+                        , transitions = newTrans
+                        , acceptStates = newAccept
+                        , startState = newStart
+                        , simMessage = t.simDeleted state
+                    }
             in
-            { m0
-                | statePositions = newPos
-                , transitions = newTrans
-                , acceptStates = newAccept
-                , startState = newStart
-                , simMessage = t.simDeleted state
-            }
+            (if model.autoReorderOnDelete then reorderAfterDelete state m1 else m1)
                 |> syncCodeFromDiagram
 
         SetTransitionChar c ->
@@ -413,16 +509,24 @@ update msg model =
             let
                 m0 = saveUndo model
 
+                chars =
+                    model.transitionChar
+                        |> String.split "|"
+                        |> List.map String.trim
+                        |> List.filter ((/=) "")
+
                 newTrans =
-                    Dict.insert
-                        ( m0.pendingTransFrom, m0.transitionChar )
-                        m0.pendingTransTo
+                    List.foldl
+                        (\ch acc -> Dict.insert ( m0.pendingTransFrom, ch ) m0.pendingTransTo acc)
                         m0.transitions
+                        chars
+
+                charDisplay = String.join "|" chars
             in
             { m0
                 | transitions = newTrans
                 , showTransCharPopup = False
-                , simMessage = t.simTransAdded model.pendingTransFrom model.transitionChar model.pendingTransTo
+                , simMessage = t.simTransAdded model.pendingTransFrom charDisplay model.pendingTransTo
             }
                 |> syncCodeFromDiagram
 
@@ -440,18 +544,18 @@ update msg model =
                 , simMessage = t.simLoaded model.testWord
             }
 
-        StepForward -> stepOnce t model
+        StepForward -> stepOnce t loadedModel
 
-        StepBack -> stepBack t model
+        StepBack -> stepBack t loadedModel
 
-        RunAll -> runToEnd t model
+        RunAll -> runToEnd t loadedModel
 
         ResetSim ->
             { model
-                | currentState = Nothing
+                | currentState = Just model.startState
                 , simPosition = 0
-                , simHistory = []
-                , simMessage = t.simReset
+                , simHistory = [ ( model.startState, 0 ) ]
+                , simMessage = t.simLoaded model.testWord
                 , autoRunning = False
             }
 
@@ -483,7 +587,7 @@ update msg model =
             { model | showFeedback = not model.showFeedback }
 
         ClearAll ->
-            { defaultModel | simMessage = (translations model.language).simCleared, language = model.language }
+            { defaultModel | simMessage = (translations model.language).simCleared, language = model.language , showSettings = model.showSettings, autoReorderOnDelete = model.autoReorderOnDelete}
 
         NoOp ->
             model
@@ -517,16 +621,7 @@ update msg model =
                         |> syncCodeFromDiagram
 
         StartAutoRun ->
-            if model.currentState == Nothing then
-                { model
-                    | currentState = Just model.startState
-                    , simPosition = 0
-                    , simHistory = [ ( model.startState, 0 ) ]
-                    , autoRunning = True
-                    , simMessage = t.simAutoStarted
-                }
-            else
-                { model | autoRunning = True, simMessage = t.simAutoResumed }
+            { loadedModel | autoRunning = True, simMessage = t.simAutoStarted }
 
         StopAutoRun ->
             { model | autoRunning = False, simMessage = t.simPaused }
@@ -555,16 +650,18 @@ update msg model =
                         newTrans = Dict.filter (\( fr, _ ) to -> fr /= name && to /= name) m0.transitions
                         newAccept = List.filter ((/=) name) m0.acceptStates
                         newStart = if m0.startState == name then "" else m0.startState
+                        m1 =
+                            { m0
+                                | statePositions = newPositions
+                                , transitions = newTrans
+                                , acceptStates = newAccept
+                                , startState = newStart
+                                , hoveredObject = Nothing
+                                , simMessage = t.simDeleted name
+                            }
                     in
-                    { m0
-                        | statePositions = newPositions
-                        , transitions = newTrans
-                        , acceptStates = newAccept
-                        , startState = newStart
-                        , hoveredObject = Nothing
-                        , simMessage = t.simDeleted name
-                    }
-                    |> syncCodeFromDiagram
+                    (if model.autoReorderOnDelete then reorderAfterDelete name m1 else m1)
+                        |> syncCodeFromDiagram
 
                 Just (HoverTransition from to) ->
                     let
@@ -586,6 +683,12 @@ update msg model =
 
         KeyRedo ->
             update Redo model
+
+        ToggleSettings ->
+            { model | showSettings = not model.showSettings }
+
+        ToggleAutoReorder ->
+            { model | autoReorderOnDelete = not model.autoReorderOnDelete }
 
         AutoTick _ ->
             if not model.autoRunning then

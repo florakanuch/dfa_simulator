@@ -37,7 +37,7 @@ view model =
         , style "color" "#e8eaf6"
         , Html.Events.on "mouseup" (Decode.succeed MouseUp)
         ]
-        [ viewTopBar t model.language
+        [ viewTopBar t model
         , div
             [ style "display" "grid"
             , style "grid-template-columns" "360px 1fr"
@@ -84,8 +84,8 @@ view model =
 
 ---------------------------- TOP BAR ------------------------------------------------
 
-viewTopBar : Translations -> Language -> Html Msg
-viewTopBar t lang =
+viewTopBar : Translations -> Model -> Html Msg
+viewTopBar t model =
     div
         [ style "background" "linear-gradient(135deg, #4a0080, #6a0dad, #7c4dff)"
         , style "padding" "12px 28px"
@@ -93,6 +93,7 @@ viewTopBar t lang =
         , style "align-items" "center"
         , style "justify-content" "space-between"
         , style "box-shadow" "0 2px 20px rgba(124,77,255,0.5)"
+        , style "position" "relative"
         ]
         [ h1
             [ style "font-family" "monospace"
@@ -102,8 +103,8 @@ viewTopBar t lang =
             , style "letter-spacing" "1px"
             ]
             [ text "DFA Simulator" ]
-        , div [ style "display" "flex", style "gap" "10px" ]
-            [ langToggleBtn lang
+        , div [ style "display" "flex", style "gap" "10px", style "align-items" "center" ]
+            [ settingsBtn t model
             , topBarBtn t.save RequestSave
             , topBarBtn t.load RequestLoad
             , topBarBtn t.guide ToggleHelp
@@ -113,39 +114,159 @@ viewTopBar t lang =
         ]
 
 
-langToggleBtn : Language -> Html Msg
-langToggleBtn lang =
-    button
-        [ onClick ToggleLanguage
-        , style "background" "rgba(255,255,255,0.12)"
-        , style "border" "1px solid rgba(255,255,255,0.35)"
-        , style "color" "white"
-        , style "padding" "7px 14px"
-        , style "border-radius" "20px"
-        , style "cursor" "pointer"
-        , style "font-family" "inherit"
-        , style "font-size" "0.85rem"
-        , style "font-weight" "600"
+settingsBtn : Translations -> Model -> Html Msg
+settingsBtn t model =
+    div [ style "position" "relative" ]
+        [ button
+            [ onClick ToggleSettings
+            , style "background"
+                (if model.showSettings then
+                    "rgba(124,77,255,0.5)"
+                 else
+                    "rgba(255,255,255,0.12)"
+                )
+            , style "border" "1px solid rgba(255,255,255,0.35)"
+            , style "color" "white"
+            , style "padding" "7px 14px"
+            , style "border-radius" "20px"
+            , style "cursor" "pointer"
+            , style "font-family" "inherit"
+            , style "font-size" "0.85rem"
+            , style "font-weight" "600"
+            , style "display" "flex"
+            , style "align-items" "center"
+            , style "gap" "6px"
+            ]
+            [ text "⚙️"
+            , span [] [ text t.settingsTitle ]
+            ]
+        , if model.showSettings then
+            settingsDropdown t model
+          else
+            text ""
+        ]
+
+
+settingsDropdown : Translations -> Model -> Html Msg
+settingsDropdown t model =
+    div
+        [ style "position" "absolute"
+        , style "top" "calc(100% + 8px)"
+        , style "right" "0"
+        , style "background" "#1e1e3a"
+        , style "border" "1px solid rgba(124,77,255,0.4)"
+        , style "border-radius" "14px"
+        , style "padding" "18px 20px"
+        , style "min-width" "300px"
+        , style "box-shadow" "0 8px 32px rgba(0,0,0,0.6)"
+        , style "z-index" "9000"
         , style "display" "flex"
-        , style "align-items" "center"
-        , style "gap" "6px"
+        , style "flex-direction" "column"
+        , style "gap" "16px"
         ]
-        [ span [] [ text "🌐" ]
-        , span []
-            [ text
-                (case lang of
-                    EN -> "EN"
-                    SK -> "SK"
-                )
+        [ 
+          div []
+            [ div
+                [ style "font-size" "0.72rem"
+                , style "color" "#7986cb"
+                , style "letter-spacing" "0.5px"
+                , style "text-transform" "uppercase"
+                , style "font-weight" "600"
+                , style "margin-bottom" "8px"
+                ]
+                [ text t.settingsLanguage ]
+            , div [ style "display" "flex", style "gap" "8px" ]
+                [ langChoiceBtn model.language EN "EN"
+                , langChoiceBtn model.language SK "SK"
+                ]
             ]
-        , span [ style "font-size" "0.7rem", style "opacity" "0.7" ]
-            [ text
-                (case lang of
-                    EN -> "→ SK"
-                    SK -> "→ EN"
-                )
+        , div
+            [ style "height" "1px"
+            , style "background" "rgba(255,255,255,0.08)"
+            ]
+            []
+        ,
+          div
+            [ style "display" "flex"
+            , style "align-items" "flex-start"
+            , style "gap" "12px"
+            , style "cursor" "pointer"
+            , onClick ToggleAutoReorder
+            ]
+            [ 
+              div
+                [ style "width" "36px"
+                , style "height" "20px"
+                , style "border-radius" "10px"
+                , style "background"
+                    (if model.autoReorderOnDelete then
+                        "linear-gradient(135deg,#7c4dff,#e040fb)"
+                     else
+                        "rgba(255,255,255,0.15)"
+                    )
+                , style "position" "relative"
+                , style "flex-shrink" "0"
+                , style "margin-top" "1px"
+                , style "transition" "background 0.2s"
+                ]
+                [ div
+                    [ style "position" "absolute"
+                    , style "top" "3px"
+                    , style "left"
+                        (if model.autoReorderOnDelete then "19px" else "3px")
+                    , style "width" "14px"
+                    , style "height" "14px"
+                    , style "border-radius" "50%"
+                    , style "background" "#fff"
+                    , style "transition" "left 0.2s"
+                    ]
+                    []
+                ]
+            , div []
+                [ div
+                    [ style "font-size" "0.88rem"
+                    , style "font-weight" "600"
+                    , style "color" "#e8eaf6"
+                    , style "margin-bottom" "3px"
+                    ]
+                    [ text t.settingsAutoReorder ]
+                , div
+                    [ style "font-size" "0.74rem"
+                    , style "color" "#7986cb"
+                    , style "line-height" "1.4"
+                    ]
+                    [ text t.settingsAutoReorderDesc ]
+                ]
             ]
         ]
+
+
+langChoiceBtn : Language -> Language -> String -> Html Msg
+langChoiceBtn current target label =
+    button
+        [ onClick
+            (if current == target then NoOp else ToggleLanguage)
+        , style "background"
+            (if current == target then
+                "linear-gradient(135deg,#7c4dff,#e040fb)"
+             else
+                "rgba(255,255,255,0.08)"
+            )
+        , style "border"
+            (if current == target then
+                "1.5px solid #7c4dff"
+             else
+                "1.5px solid rgba(255,255,255,0.2)"
+            )
+        , style "color" "#fff"
+        , style "padding" "6px 18px"
+        , style "border-radius" "20px"
+        , style "cursor" (if current == target then "default" else "pointer")
+        , style "font-family" "inherit"
+        , style "font-size" "0.83rem"
+        , style "font-weight" "600"
+        ]
+        [ text label ]
 
 
 
