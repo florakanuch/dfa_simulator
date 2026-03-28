@@ -5440,7 +5440,7 @@ var $author$project$Lang$translations = function (lang) {
 			Z: 'Kresliť',
 			_: 'Zadaj testové slovo…',
 			aa: '💬 Spätná väzba',
-			ab: 'Rád/a si vypočujem vaše názory! Vyplňte môj krátky formulár alebo mi napíšte e-mail.',
+			ab: 'Rada si vypočujem vaše názory! Vyplňte môj krátky formulár alebo mi napíšte e-mail.',
 			ac: '💬 Spätná väzba',
 			ad: 'Generovať diagram',
 			ae: 'Rozumiem!',
