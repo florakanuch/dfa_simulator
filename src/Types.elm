@@ -89,6 +89,8 @@ type alias Model =
     , hoveredObject : Maybe HoverTarget
     , showSettings : Bool
     , autoReorderOnDelete : Bool
+    , leftPanelWidth : Float
+    , isDraggingSidebar : Bool
     }
 
 
@@ -153,3 +155,6 @@ type Msg
     | KeyRedo
     | ToggleSettings
     | ToggleAutoReorder
+    | DragSidebarStart
+    | DragSidebarMove Float
+    | DragSidebarEnd

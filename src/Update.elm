@@ -58,6 +58,8 @@ defaultModel =
     , hoveredObject = Nothing
     , showSettings = False
     , autoReorderOnDelete = False
+    , leftPanelWidth = 360
+    , isDraggingSidebar = False
     }
 
 
@@ -92,7 +94,7 @@ applySnapshot snap model =
     }
 
 
--- Renames a state everywhere (positions, transitions, acceptStates, startState).
+
 renameStateEverywhere : String -> String -> Model -> Model
 renameStateEverywhere old new model =
     let
@@ -587,7 +589,7 @@ update msg model =
             { model | showFeedback = not model.showFeedback }
 
         ClearAll ->
-            { defaultModel | simMessage = (translations model.language).simCleared, language = model.language , showSettings = model.showSettings, autoReorderOnDelete = model.autoReorderOnDelete}
+            { defaultModel | simMessage = (translations model.language).simCleared, language = model.language , showSettings = model.showSettings, autoReorderOnDelete = model.autoReorderOnDelete, leftPanelWidth = model.leftPanelWidth}
 
         NoOp ->
             model
@@ -690,6 +692,18 @@ update msg model =
         ToggleAutoReorder ->
             { model | autoReorderOnDelete = not model.autoReorderOnDelete }
 
+        DragSidebarStart ->
+            { model | isDraggingSidebar = True }
+
+        DragSidebarMove x ->
+            if model.isDraggingSidebar then
+                { model | leftPanelWidth = max 40 (min 700 x) }
+            else
+                model
+
+        DragSidebarEnd ->
+            { model | isDraggingSidebar = False }
+        
         AutoTick _ ->
             if not model.autoRunning then
                 model

@@ -26,6 +26,17 @@ view : Model -> Html Msg
 view model =
     let
         t = translations model.language
+
+        bothCollapsed = model.testCollapsed && model.codeCollapsed
+
+        sidebarWidth =
+            if bothCollapsed then 44
+            else model.leftPanelWidth
+
+        gridCols = 
+            if bothCollapsed then "44px 1fr"
+            else 
+                String.fromFloat sidebarWidth ++ "px 6px 1fr"
     in
     div
         [ style "font-family" "'Segoe UI', Arial, sans-serif"
@@ -36,28 +47,71 @@ view model =
         , style "overflow" "hidden"
         , style "color" "#e8eaf6"
         , Html.Events.on "mouseup" (Decode.succeed MouseUp)
+        , Html.Events.on "mouseup" (Decode.succeed DragSidebarEnd)
+        , Html.Events.on "mousemove"
+            (Decode.field "clientX" Decode.float
+                |> Decode.map DragSidebarMove
+            )
         ]
         [ viewTopBar t model
         , div
             [ style "display" "grid"
-            , style "grid-template-columns" "360px 1fr"
+            , style "grid-template-columns" gridCols
             , style "grid-template-rows" "1fr"
-            , style "gap" "14px"
+            , style "gap" "0"
             , style "padding" "0 14px 14px 14px"
             , style "flex" "1"
             , style "min-height" "0"
             ]
-            [ div
-                [ style "display" "flex"
-                , style "flex-direction" "column"
-                , style "gap" "8px"
-                , style "min-height" "0"
-                , style "overflow-y" "auto"
-                , style "padding-right" "2px"
-                ]
-                [ viewTestStringPanel t model
-                , viewCodePanel t model
-                ]
+            [ if bothCollapsed then
+                viewCollapsedStrip t model
+              else
+                div
+                    [ style "display" "flex"
+                    , style "flex-direction" "column"
+                    , style "gap" "8px"
+                    , style "min-height" "0"
+                    , style "overflow-y" "auto"
+                    , style "padding-right" "2px"
+                    , style "overflow-x" "hidden"
+                    ]
+                    [ if model.testCollapsed then
+                        collapsedPanelBtn "📝" t.testString ToggleTestPanel
+                      else
+                        viewTestStringPanel t model
+                    , if model.codeCollapsed then
+                        collapsedPanelBtn "{ }" t.code ToggleCodePanel
+                      else
+                        viewCodePanel t model
+                    ]
+            , 
+              if bothCollapsed then
+                text ""
+              else
+                div
+                    [ style "width" "6px"
+                    , style "cursor" "col-resize"
+                    , style "display" "flex"
+                    , style "align-items" "center"
+                    , style "justify-content" "center"
+                    , style "margin" "0 4px"
+                    , style "flex-shrink" "0"
+                    , Html.Events.on "mousedown" (Decode.succeed DragSidebarStart)
+                    ]
+                    [ div
+                        [ style "width" "3px"
+                        , style "height" "48px"
+                        , style "border-radius" "2px"
+                        , style "background"
+                            (if model.isDraggingSidebar then
+                                "rgba(124,77,255,0.9)"
+                             else
+                                "rgba(255,255,255,0.18)"
+                            )
+                        , style "transition" "background 0.15s"
+                        ]
+                        []
+                    ]
             , viewDiagramPanel t model
             ]
         , if model.showTransCharPopup then
@@ -80,6 +134,69 @@ view model =
             text ""
         ]
 
+
+collapsedPanelBtn : String -> String -> Msg -> Html Msg
+collapsedPanelBtn icon label msg =
+    button
+        [ onClick msg
+        , title label
+        , style "display" "flex"
+        , style "align-items" "center"
+        , style "gap" "8px"
+        , style "width" "100%"
+        , style "padding" "8px 12px"
+        , style "border-radius" "10px"
+        , style "background" "rgba(124,77,255,0.15)"
+        , style "border" "1px solid rgba(124,77,255,0.35)"
+        , style "color" "#ce93d8"
+        , style "font-size" "0.82rem"
+        , style "font-weight" "600"
+        , style "cursor" "pointer"
+        , style "font-family" "inherit"
+        , style "flex-shrink" "0"
+        ]
+        [ span [ style "font-family" "monospace" ] [ text icon ]
+        , span [] [ text label ]
+        , span [ style "margin-left" "auto", style "opacity" "0.6", style "font-size" "0.7rem" ] [ text "▶" ]
+        ]
+
+
+
+viewCollapsedStrip : Translations -> Model -> Html Msg
+viewCollapsedStrip t model =
+    div
+        [ style "display" "flex"
+        , style "flex-direction" "column"
+        , style "align-items" "center"
+        , style "gap" "6px"
+        , style "padding-top" "8px"
+        , style "width" "44px"
+        , style "flex-shrink" "0"
+        ]
+        [ stripIconBtn "📝" t.testString ToggleTestPanel
+        , stripIconBtn "{ }" t.code ToggleCodePanel
+        ]
+
+
+stripIconBtn : String -> String -> Msg -> Html Msg
+stripIconBtn icon tooltip msg =
+    button
+        [ onClick msg
+        , title tooltip
+        , style "width" "36px"
+        , style "height" "36px"
+        , style "border-radius" "10px"
+        , style "background" "rgba(124,77,255,0.25)"
+        , style "border" "1px solid rgba(124,77,255,0.4)"
+        , style "color" "#ce93d8"
+        , style "font-size" "0.85rem"
+        , style "cursor" "pointer"
+        , style "display" "flex"
+        , style "align-items" "center"
+        , style "justify-content" "center"
+        , style "font-family" "monospace"
+        ]
+        [ text icon ]
 
 
 ---------------------------- TOP BAR ------------------------------------------------
@@ -276,11 +393,10 @@ langChoiceBtn current target label =
 viewDiagramPanel : Translations -> Model -> Html Msg
 viewDiagramPanel t model =
     panel
-        [ style "grid-column" "2"
-        , style "grid-row" "1"
-        , style "display" "flex"
+        [ style "display" "flex"
         , style "flex-direction" "column"
         , style "min-height" "0"
+        , style "min-width" "0"
         ]
         [ div
             [ style "display" "flex"
