@@ -515,6 +515,7 @@ viewHelpModal t =
             , helpLine t.helpSAX t.helpSAXBody
             , helpLine t.helpPan t.helpPanBody
             , helpLine t.helpZoom t.helpZoomBody
+            , helpLine t.helpSVG t.helpSVGBtn
 
          
             , helpSectionTitle t.helpUndoRedo
