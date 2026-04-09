@@ -1,4 +1,5 @@
 module Lang exposing (Language(..), Translations, translations)
+-- import Types exposing (Msg(..))
 
 
 type Language
@@ -141,6 +142,8 @@ type alias Translations =
     , statusCodeLabel : String
     , statusDiagLabel : String
     , gotIt : String
+    , helpSVG : String
+    , helpSVGBtn : String
 
   
     , feedbackTitle : String
@@ -195,6 +198,17 @@ type alias Translations =
     , toastDeleted : String
     , toastNothingToSave : String
    
+    , exportDfaBtn : String
+    , exportSvgBtn : String
+    , importDfaBtn : String
+    , importHint : String
+    , toastExported : String -> String
+    , toastImported : String -> String
+    , toastImportFailed : String
+    , renameDiagramTitle : String
+    , statsSuffix : Int -> Int -> String
+
+
     , settingsTitle : String
     , settingsLanguage : String
     , settingsAutoReorder : String
@@ -258,9 +272,9 @@ translations lang =
             , whatIsAppBody = "This tool is an interactive Deterministic Finite Automaton (DFA) simulator designed for college and university students. The goal is to help learners visually and interactively understand how automata work during theoretical computer science classes — how a DFA processes an input word, when it accepts, and when it rejects."
             , helpSaveLoad = " Save and Load"
             , helpSave = "Save"
-            , helpSaveBody = "Save the current diagram to future use. You can rename the saved sloth and also delete it."
+            , helpSaveBody = "Save the current diagram to future use. You can rename the saved sloth, export to a .dfa file and also delete it."
             , helpLoad = "Load"
-            , helpLoadBody = "Choose one sloth from SAVED DIAGRAMS and it will be loaded. You can add the start state through the CODE PANEL or mark it at the STATES list if the start state does not load. The loaded diagram and code can be edited but it needs to be saved again separately after the editing."
+            , helpLoadBody = "Choose one sloth from SAVED DIAGRAMS or import a .dfa file and it will be loaded. The loaded diagram and code can be edited but it needs to be saved again separately after the editing."
             , helpEditing = " Editing the Diagram"
             , helpSelect = "✋ Select"
             , helpSelectBody = "Drag states to move them. Double-click a state to rename it."
@@ -372,6 +386,17 @@ translations lang =
             , toastLoaded = \n -> "Loaded \"" ++ n ++ "\""
             , toastDeleted = "Deleted"
             , toastNothingToSave = "Nothing to save yet."
+            , exportDfaBtn = "💾 .dfa"
+            , exportSvgBtn = "Download SVG"
+            , helpSVG = "Download SVG"
+            , helpSVGBtn = "Download an .svg image of the state diagram."
+            , importDfaBtn = "📂 Import .dfa file"
+            , importHint = "Load a diagram from your computer"
+            , toastExported = \n -> "Exported \"" ++ n ++ ".dfa\""
+            , toastImported = \n -> "Imported \"" ++ n ++ "\""
+            , toastImportFailed = "Failed to read file."
+            , renameDiagramTitle = "Rename"
+            , statsSuffix = \sc tc -> String.fromInt sc ++ " state" ++ (if sc /= 1 then "s" else "") ++ "  ·  " ++ String.fromInt tc ++ " transition" ++ (if tc /= 1 then "s" else "")
             , settingsTitle = "Settings"
             , settingsLanguage = "Language"
             , settingsAutoReorder = "Auto-renumber states on delete"
@@ -431,9 +456,9 @@ translations lang =
             , whatIsAppBody = "Tento nástroj je interaktívny simulátor Deterministického Konečného Automatu (DKA) určený pre študentov vysokých škôl. Cieľom je pomôcť študentom vizuálne a interaktívne pochopiť, ako automaty fungujú v rámci predmetov teoretickej informatiky — ako DKA spracúva vstupné slovo, kedy ho prijme a kedy odmietne."
             , helpSaveLoad = " Uložiť a načítať"
             , helpSave = "Uložiť"
-            , helpSaveBody = "Uloží aktuálny diagram na neskoršie použitie. Môžeš ho premenovať alebo odstrániť."
+            , helpSaveBody = "Uloží aktuálny diagram na neskoršie použitie. Môžeš ho premenovať, stiahnúť ako .dfa súbor alebo odstrániť."
             , helpLoad = "Načítať"
-            , helpLoadBody = "Vyber diagram zo ULOŽENÝCH DIAGRAMOV a bude načítaný. Ak sa začiatočný stav nenačíta, môžeš ho nastaviť cez PANEL KÓDU alebo v zozname STAVOV. Načítaný diagram a kód možno upravovať, ale treba ich znova uložiť."
+            , helpLoadBody = "Vyber diagram zo ULOŽENÝCH DIAGRAMOV alebo načítať .dfa súbor a bude načítaný. Načítaný diagram a kód možno upravovať, ale treba ich znova uložiť."
             , helpEditing = " Úprava diagramu"
             , helpSelect = "✋ Vybrať"
             , helpSelectBody = "Ťahaj stavy na presun. Dvojklikom na stav ho premenuj."
@@ -545,6 +570,17 @@ translations lang =
             , toastLoaded = \n -> "Načítané \"" ++ n ++ "\""
             , toastDeleted = "Odstránené"
             , toastNothingToSave = "Zatiaľ nič na uloženie."
+            , exportDfaBtn = "💾 .dfa"
+            , helpSVG = "Stiahnúť SVG"
+            , helpSVGBtn = "Stiahne stavový diagram ako .svg súbor."
+            , exportSvgBtn = "Stiahnúť SVG"
+            , importDfaBtn = "📂 Importovať .dfa súbor"
+            , importHint = "Načítať diagram z počítača"
+            , toastExported = \n -> "Exportované \"" ++ n ++ ".dfa\""
+            , toastImported = \n -> "Importované \"" ++ n ++ "\""
+            , toastImportFailed = "Nepodarilo sa načítať súbor."
+            , renameDiagramTitle = "Premenovať"
+            , statsSuffix = \sc tc -> String.fromInt sc ++ " stav" ++ (if sc == 1 then "" else "y") ++ "  ·  " ++ String.fromInt tc ++ " prechod" ++ (if tc == 1 then "" else "y")
             , settingsTitle = "Nastavenia"
             , settingsLanguage = "Jazyk"
             , settingsAutoReorder = "Automatické prečíslovanie stavov pri vymazaní"

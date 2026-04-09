@@ -42,6 +42,23 @@ type alias DiagramSnapshot =
     }
 
 
+type alias DiagramData =
+    { states : String
+    , alphabet : String
+    , start : String
+    , accept : String
+    , transitions : String
+    }
+
+
+type alias SavedDiagram =
+    { id : String
+    , name : String
+    , savedAt : String
+    , data : DiagramData
+    }
+
+
 
 type alias Model =
     { statePositions : Dict String StatePos
@@ -91,6 +108,14 @@ type alias Model =
     , autoReorderOnDelete : Bool
     , leftPanelWidth : Float
     , isDraggingSidebar : Bool
+    , showSaveModal : Bool
+    , showLoadModal : Bool
+    , savedDiagrams : List SavedDiagram
+    , saveNameInput : String
+    , renamingDiagramId : Maybe String
+    , renameDialogValue : String
+    , toastMessage : String
+    , toastVisible : Bool
     }
 
 
@@ -146,8 +171,6 @@ type Msg
     | DeleteTransition String String
     | ToggleLanguage
     | LoadDFAFromSave String String String String String
-    | RequestSave
-    | RequestLoad
     | HoverEnter HoverTarget
     | HoverLeave
     | KeyDelete
@@ -158,3 +181,22 @@ type Msg
     | DragSidebarStart
     | DragSidebarMove Float
     | DragSidebarEnd
+    | OpenSaveModal
+    | CloseSaveModal
+    | OpenLoadModal
+    | CloseLoadModal
+    | SetSaveNameInput String
+    | ConfirmSave
+    | DeleteSavedDiagram String
+    | LoadSavedDiagram String
+    | StartRenameDiagram String
+    | SetRenameDiagramValue String
+    | ConfirmRenameDiagram
+    | CancelRenameDiagram
+    | ExportDiagram String
+    | RequestImportFile
+    | ImportFileContent String
+    | StorageLoaded (List SavedDiagram)
+    | DismissToast
+    | ToastTimeout
+    | ExportSvg

@@ -1,4 +1,4 @@
-module Update exposing (update, defaultModel)
+module Update exposing (update, defaultModel, formatDfaText, diagramDataFromModel, parseDfaText)
 
 import Dict
 import Types exposing (..)
@@ -60,6 +60,14 @@ defaultModel =
     , autoReorderOnDelete = False
     , leftPanelWidth = 360
     , isDraggingSidebar = False
+    , showSaveModal = False
+    , showLoadModal = False
+    , savedDiagrams = []
+    , saveNameInput = ""
+    , renamingDiagramId = Nothing
+    , renameDialogValue = ""
+    , toastMessage = ""
+    , toastVisible = False
     }
 
 
@@ -96,9 +104,9 @@ applySnapshot snap model =
 
 
 renameStateEverywhere : String -> String -> Model -> Model
-renameStateEverywhere old new model =
+renameStateEverywhere old newStateName model =
     let
-        renameKey k = if k == old then new else k
+        renameKey k = if k == old then newStateName else k
 
         newPositions =
             model.statePositions
@@ -589,7 +597,7 @@ update msg model =
             { model | showFeedback = not model.showFeedback }
 
         ClearAll ->
-            { defaultModel | simMessage = (translations model.language).simCleared, language = model.language , showSettings = model.showSettings, autoReorderOnDelete = model.autoReorderOnDelete, leftPanelWidth = model.leftPanelWidth}
+            { defaultModel | simMessage = (translations model.language).simCleared, language = model.language , showSettings = model.showSettings, autoReorderOnDelete = model.autoReorderOnDelete, leftPanelWidth = model.leftPanelWidth, savedDiagrams = model.savedDiagrams}
 
         NoOp ->
             model
@@ -630,12 +638,6 @@ update msg model =
 
         SetAutoSpeed ms ->
             { model | autoSpeed = ms }
-
-        RequestSave ->
-            model
-
-        RequestLoad ->
-            model
 
         HoverEnter target ->
             { model | hoveredObject = Just target }
@@ -704,6 +706,136 @@ update msg model =
         DragSidebarEnd ->
             { model | isDraggingSidebar = False }
         
+        
+        OpenSaveModal ->
+            { model
+                | showSaveModal = True
+                , showSettings = False
+                , saveNameInput =
+                    if model.saveNameInput == "" then
+                        "DFA"
+                    else
+                        model.saveNameInput
+            }
+
+        CloseSaveModal ->
+            { model | showSaveModal = False, renamingDiagramId = Nothing }
+
+        SetSaveNameInput s ->
+            { model | saveNameInput = s }
+
+        ConfirmSave ->
+            let
+                name = String.trim model.saveNameInput
+                data = diagramDataFromModel model
+                newSave =
+                    { id = String.fromInt (List.length model.savedDiagrams) ++ model.saveNameInput
+                    , name = if name == "" then "DFA" else name
+                    , savedAt = ""      
+                    , data = data
+                    }
+            in
+            if model.codeStates == "" && model.codeTransitions == "" then
+                showToast (translations model.language).toastNothingToSave model
+            else
+                { model
+                    | savedDiagrams = model.savedDiagrams ++ [ newSave ]
+                    , saveNameInput = ""
+                }
+                    |> showToast ((translations model.language).toastSaved newSave.name)
+
+        DeleteSavedDiagram id ->
+            { model
+                | savedDiagrams = List.filter (\s -> s.id /= id) model.savedDiagrams
+            }
+                |> showToast (translations model.language).toastDeleted
+
+        LoadSavedDiagram id ->
+            case List.filter (\s -> s.id == id) model.savedDiagrams |> List.head of
+                Nothing ->
+                    model
+
+                Just saved ->
+                    { model | showLoadModal = False }
+                        |> update (LoadDFAFromSave
+                                saved.data.states
+                                saved.data.alphabet
+                                saved.data.start
+                                saved.data.accept
+                                saved.data.transitions)
+                        |> showToast ((translations model.language).toastLoaded saved.name)
+
+        OpenLoadModal ->
+            { model | showLoadModal = True, showSettings = False }
+
+        CloseLoadModal ->
+            { model | showLoadModal = False }
+
+        StartRenameDiagram id ->
+            let
+                current =
+                    model.savedDiagrams
+                        |> List.filter (\s -> s.id == id)
+                        |> List.head
+                        |> Maybe.map .name
+                        |> Maybe.withDefault ""
+            in
+            { model | renamingDiagramId = Just id, renameDialogValue = current }
+
+        SetRenameDiagramValue v ->
+            { model | renameDialogValue = v }
+
+        ConfirmRenameDiagram ->
+            case model.renamingDiagramId of
+                Nothing ->
+                    model
+
+                Just id ->
+                    let
+                        newName = String.trim model.renameDialogValue
+                    in
+                    { model
+                        | savedDiagrams =
+                            List.map
+                                (\s -> if s.id == id then { s | name = if newName == "" then s.name else newName } else s)
+                                model.savedDiagrams
+                        , renamingDiagramId = Nothing
+                        , renameDialogValue = ""
+                    }
+
+        CancelRenameDiagram ->
+            { model | renamingDiagramId = Nothing, renameDialogValue = "" }
+
+        
+        ExportDiagram id -> model
+
+        RequestImportFile -> model
+
+        ImportFileContent text ->
+            let
+                data = parseDfaText text
+                --t = translations model.language
+            in
+            { model | showLoadModal = False }
+                |> update (LoadDFAFromSave
+                        data.states
+                        data.alphabet
+                        data.start
+                        data.accept
+                        data.transitions)
+                |> showToast (t.toastImported "file")
+
+        StorageLoaded diagrams ->
+            { model | savedDiagrams = diagrams }
+
+        DismissToast ->
+            { model | toastVisible = False }
+
+        ToastTimeout ->
+            { model | toastVisible = False }
+
+        ExportSvg -> model
+        
         AutoTick _ ->
             if not model.autoRunning then
                 model
@@ -712,3 +844,69 @@ update msg model =
                     |> checkAcceptance t
             else
                 stepOnce t model
+        
+
+
+
+------------SAVE/LOAD HANDLERS----------
+
+diagramDataFromModel : Model -> DiagramData
+diagramDataFromModel model =
+    { states = model.codeStates
+    , alphabet = model.codeAlphabet
+    , start = model.codeStart
+    , accept = model.codeAccept
+    , transitions = model.codeTransitions
+    }
+
+
+
+parseDfaText : String -> DiagramData
+parseDfaText text =
+    let
+        ls = String.lines (String.replace "\r" "" text)
+        get prefix =
+            ls
+                |> List.filter (String.startsWith prefix)
+                |> List.head
+                |> Maybe.map (String.dropLeft (String.length prefix) >> String.trim)
+                |> Maybe.withDefault ""
+        transStart =
+            ls
+                |> List.indexedMap Tuple.pair
+                |> List.filter (\( _, l ) -> String.trim l == "transitions:")
+                |> List.head
+                |> Maybe.map Tuple.first
+                |> Maybe.withDefault -1
+        transitions =
+            if transStart >= 0 then
+                ls
+                    |> List.drop (transStart + 1)
+                    |> String.join "\n"
+                    |> String.trim
+            else
+                ""
+    in
+    { states = get "states: "
+    , alphabet = get "alphabet: "
+    , start = get "start: "
+    , accept = get "accept: "
+    , transitions = transitions
+    }
+
+
+formatDfaText : DiagramData -> String
+formatDfaText d =
+    String.join "\n"
+        [ "states: " ++ d.states
+        , "alphabet: " ++ d.alphabet
+        , "start: " ++ d.start
+        , "accept: " ++ d.accept
+        , "transitions:"
+        , d.transitions
+        ]
+
+
+showToast : String -> Model -> Model
+showToast msg model =
+    { model | toastMessage = msg, toastVisible = True }
