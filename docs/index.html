@@ -7,397 +7,126 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; overflow: hidden; }
         #app { width: 100%; height: 100%; display: flex; flex-direction: column; }
-
-
-        .dfa-modal-backdrop {
-            display: none; position: fixed; inset: 0;
-            background: rgba(0,0,0,0.65); z-index: 9999;
-            align-items: center; justify-content: center;
-        }
-        .dfa-modal-backdrop.open { display: flex; }
-        .dfa-modal {
-            background: #1e1e3a; border: 1px solid rgba(124,77,255,0.4);
-            border-radius: 18px; padding: 28px 32px; width: 560px;
-            max-width: 95vw; max-height: 82vh; display: flex;
-            flex-direction: column; box-shadow: 0 8px 48px rgba(0,0,0,0.7);
-            font-family: 'Segoe UI', Arial, sans-serif; color: #e8eaf6;
-        }
-        .dfa-modal h2 {
-            font-size: 1.25rem; font-weight: 700; margin-bottom: 20px;
-            color: #fff; display: flex; align-items: center; gap: 8px;
-        }
-        .dfa-modal-close {
-            margin-left: auto; background: transparent; border: none;
-            color: #9fa8da; font-size: 1.3rem; cursor: pointer; line-height: 1; padding: 0 4px;
-        }
-        .dfa-modal-close:hover { color: #fff; }
-        .dfa-save-name-row { display: flex; gap: 10px; margin-bottom: 16px; }
-        .dfa-save-name-row input {
-            flex: 1; background: rgba(255,255,255,0.07);
-            border: 1.5px solid rgba(124,77,255,0.5); border-radius: 10px;
-            padding: 9px 14px; color: #e8eaf6; font-family: inherit;
-            font-size: 0.9rem; outline: none;
-        }
-        .dfa-save-name-row input:focus { border-color: #7c4dff; }
-        .dfa-save-name-row input::placeholder { color: #5c6bc0; }
-        .dfa-btn-primary {
-            background: linear-gradient(135deg, #7c4dff, #e040fb);
-            border: none; color: #fff; padding: 9px 22px; border-radius: 10px;
-            cursor: pointer; font-family: inherit; font-size: 0.88rem;
-            font-weight: 600; white-space: nowrap;
-        }
+        .dfa-btn-purple:hover { background: rgba(124,77,255,0.38) !important; }
+        .dfa-btn-teal:hover { background: rgba(38,166,154,0.35) !important; }
+        .dfa-btn-red:hover { background: rgba(239,83,80,0.32)  !important; }
         .dfa-btn-primary:hover { opacity: 0.88; }
-        .dfa-saves-list {
-            overflow-y: auto; flex: 1; display: flex;
-            flex-direction: column; gap: 8px; padding-right: 4px;
-        }
-        .dfa-saves-list::-webkit-scrollbar { width: 5px; }
-        .dfa-saves-list::-webkit-scrollbar-thumb { background: rgba(124,77,255,0.4); border-radius: 4px; }
-        .dfa-save-item {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; padding: 12px 16px; display: flex;
-            align-items: center; gap: 12px; transition: border-color 0.15s;
-        }
-        .dfa-save-item:hover { border-color: rgba(124,77,255,0.5); }
-        .dfa-save-info { flex: 1; min-width: 0; }
-        .dfa-save-name {
-            font-weight: 600; font-size: 0.92rem; color: #fff;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .dfa-save-meta { font-size: 0.73rem; color: #7986cb; margin-top: 3px; }
-        .dfa-save-actions { display: flex; gap: 6px; flex-shrink: 0; }
-        .dfa-btn-load {
-            background: rgba(124,77,255,0.2); border: 1px solid rgba(124,77,255,0.5);
-            color: #ce93d8; padding: 5px 14px; border-radius: 8px; cursor: pointer;
-            font-family: inherit; font-size: 0.78rem; font-weight: 600;
-        }
-        .dfa-btn-load:hover { background: rgba(124,77,255,0.38); }
-        .dfa-btn-del {
-            background: rgba(239,83,80,0.15); border: 1px solid rgba(239,83,80,0.4);
-            color: #ef9a9a; padding: 5px 10px; border-radius: 8px; cursor: pointer;
-            font-family: inherit; font-size: 0.78rem; font-weight: 600;
-        }
-        .dfa-btn-del:hover { background: rgba(239,83,80,0.3); }
-        .dfa-empty { text-align: center; color: #5c6bc0; font-size: 0.85rem; padding: 32px 0; }
-        .dfa-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 16px 0; }
-        .dfa-toast {
-            position: fixed; bottom: 32px; left: 50%;
-            transform: translateX(-50%) translateY(80px);
-            background: linear-gradient(135deg, #7c4dff, #e040fb);
-            color: #fff; padding: 10px 28px; border-radius: 24px;
-            font-family: 'Segoe UI', Arial, sans-serif; font-size: 0.88rem;
-            font-weight: 600; z-index: 99999; box-shadow: 0 4px 24px rgba(0,0,0,0.5);
-            transition: transform 0.35s cubic-bezier(.22,1,.36,1), opacity 0.35s;
-            opacity: 0; pointer-events: none;
-        }
-        .dfa-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-        .dfa-rename-input {
-            flex: 1; background: rgba(255,255,255,0.1); border: 1.5px solid #7c4dff;
-            border-radius: 6px; padding: 3px 8px; color: #fff;
-            font-family: inherit; font-size: 0.88rem; outline: none;
-        }
     </style>
 </head>
 <body>
     <div id="app"></div>
-    <div id="dfa-toast" class="dfa-toast"></div>
-
-    <div id="dfa-save-modal" class="dfa-modal-backdrop">
-        <div class="dfa-modal">
-            <h2 id="modal-save-title">Save diagram <button class="dfa-modal-close" id="dfa-save-close">✕</button></h2>
-            <div class="dfa-save-name-row">
-                <input id="dfa-save-input" type="text" placeholder="Name your save…" maxlength="60" />
-                <button class="dfa-btn-primary" id="dfa-save-confirm">Save</button>
-            </div>
-            <div class="dfa-divider"></div>
-            <div id="modal-saved-diagrams-label" style="font-size:0.72rem;color:#7986cb;margin-bottom:10px;letter-spacing:0.5px;text-transform:uppercase;font-weight:600;">Saved diagrams</div>
-            <div class="dfa-saves-list" id="dfa-saves-list-save"></div>
-        </div>
-    </div>
-
-    
-
-    <div id="dfa-load-modal" class="dfa-modal-backdrop">
-        <div class="dfa-modal">
-            <h2 id="modal-load-title">Load diagram <button class="dfa-modal-close" id="dfa-load-close">✕</button></h2>
-            <div id="modal-your-saved-label" style="font-size:0.72rem;color:#7986cb;margin-bottom:14px;letter-spacing:0.5px;text-transform:uppercase;font-weight:600;">Your saved diagrams</div>
-            <div class="dfa-saves-list" id="dfa-saves-list-load"></div>
-        </div>
-    </div>
+    <input type="file" id="dfa-file-input" accept=".dfa,.txt" style="display:none" />
 
     <script src="main.js"></script>
     <script>
     const STORAGE_KEY = 'dfa_simulator_saves_v1';
-    function loadSaves() {
-        try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
-        catch(e) { return []; }
-    }
-    function persistSaves(arr) { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
-
-   
-    const STRINGS = {
-        EN: {
-            saveTitle:         'Save diagram',
-            savePlaceholder:   'Name your save\u2026',
-            saveBtn:           'Save',
-            savedDiagrams:     'Saved diagrams',
-            loadTitle:         'Load diagram',
-            yourSaved:         'Your saved diagrams',
-            loadBtn:           '\u21a9 Load',
-            deleteBtn:         'X',
-            renameBtn:         '\u270e',
-            noSaves:           'No saved diagrams yet.\nBuild something and save it!',
-            toastSaved:        n => `Saved \u201c${n}\u201d`,
-            toastLoaded:       n => `Loaded \u201c${n}\u201d`,
-            toastDeleted:      'Deleted',
-            toastNothingToSave:'Nothing to save yet.',
-            defaultSaveName:   () => {
-                const d = new Date(), pad = n => String(n).padStart(2,'0');
-                return `DFA ${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-            },
-            stateSuffix:       n => `${n} state${n!==1?'s':''}`,
-            transSuffix:       n => `${n} transition${n!==1?'s':''}`,
-        },
-        SK: {
-            saveTitle:         'Uložiť diagram',
-            savePlaceholder:   'Pomenuj uloženie\u2026',
-            saveBtn:           'Uložiť',
-            savedDiagrams:     'Uložené diagramy',
-            loadTitle:         'Načítať diagram',
-            yourSaved:         'Tvoje uložené diagramy',
-            loadBtn:           '\u21a9 Načítať',
-            deleteBtn:         'X',
-            renameBtn:         '\u270e',
-            noSaves:           'Žiadne uložené diagramy.\nNiečo vytvor a ulož!',
-            toastSaved:        n => `Uložené \u201e${n}\u201c`,
-            toastLoaded:       n => `Načítané \u201e${n}\u201c`,
-            toastDeleted:      'Odstránené',
-            toastNothingToSave:'Zatiaľ nič na uloženie.',
-            defaultSaveName:   () => {
-                const d = new Date(), pad = n => String(n).padStart(2,'0');
-                return `DKA ${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-            },
-            stateSuffix:       n => `${n} stav${n===1?'':'y'}`,
-            transSuffix:       n => `${n} prechod${n===1?'':'y'}`,
-        }
-    };
-
-    let currentLang = 'EN';
-    function s() { return STRINGS[currentLang]; }
-
-    function applyLanguageToModals() {
-        const str = s();
-        const saveTitle = document.getElementById('modal-save-title');
-        if (saveTitle) {
-            saveTitle.childNodes[0].textContent = str.saveTitle + ' ';
-        }
-        const saveInput = document.getElementById('dfa-save-input');
-        if (saveInput) saveInput.placeholder = str.savePlaceholder;
-        const saveConfirm = document.getElementById('dfa-save-confirm');
-        if (saveConfirm) saveConfirm.textContent = str.saveBtn;
-        const savedLabel = document.getElementById('modal-saved-diagrams-label');
-        if (savedLabel) savedLabel.textContent = str.savedDiagrams;
-        const loadTitle = document.getElementById('modal-load-title');
-        if (loadTitle) {
-            loadTitle.childNodes[0].textContent = str.loadTitle + ' ';
-        }
-        const yourSavedLabel = document.getElementById('modal-your-saved-label');
-        if (yourSavedLabel) yourSavedLabel.textContent = str.yourSaved;
-    }
-
-    let toastTimer;
-    function showToast(msg) {
-        const t = document.getElementById('dfa-toast');
-        t.textContent = msg;
-        t.classList.add('show');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
-    }
-
-    function openModal(id)  { document.getElementById(id).classList.add('open'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-    function fmtDate(iso) {
-        const d = new Date(iso);
-        const pad = n => String(n).padStart(2,'0');
-        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}  ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    }
 
     var app = Elm.Main.init({ node: document.getElementById('app') });
 
-    let latestDFAState = null;
-    app.ports.exportDFA.subscribe(function(data) {
-        latestDFAState = data;
+
+
+
+    (function() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            const data = raw ? JSON.parse(raw) : [];
+            app.ports.storageIn.send(data);
+        } catch(e) {
+            app.ports.storageIn.send([]);
+        }
+    })();
+
+    
+
+    app.ports.savesToStorage.subscribe(function(data) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+        catch(e) {}
     });
 
     
-    app.ports.sendLanguage.subscribe(function(lang) {
-        currentLang = (lang === 'SK') ? 'SK' : 'EN';
-        applyLanguageToModals();
+    app.ports.sendLanguage.subscribe(function(_lang) {});
+
+
+    app.ports.downloadFile.subscribe(function(opts) {
+        const blob = new Blob([opts.content], { type: 'text/plain' });
+        const url  = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = opts.filename;
+        a.click();
+        URL.revokeObjectURL(url);
     });
 
-    app.ports.openSaveModal.subscribe(function() {
-        const nameInput = document.getElementById('dfa-save-input');
-        if (!nameInput.value.trim()) {
-            nameInput.value = s().defaultSaveName();
-        }
-        app.ports.requestExport.send(null);
-        renderSavesList('dfa-saves-list-save', 'save');
-        applyLanguageToModals();
-        openModal('dfa-save-modal');
-    });
+    
+    
+    app.ports.exportSvg.subscribe(function(filename) {
+        var svg = document.querySelector('svg');
+        if (!svg) return;
 
-    app.ports.openLoadModal.subscribe(function() {
-        renderSavesList('dfa-saves-list-load', 'load');
-        applyLanguageToModals();
-        openModal('dfa-load-modal');
-    });
+        var clone = svg.cloneNode(true);
+        clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 
-    function renderSavesList(containerId, mode) {
-        const container = document.getElementById(containerId);
-        const saves = loadSaves();
-        const str = s();
-        container.innerHTML = '';
+        var defs = clone.querySelector('defs') || clone.insertBefore(document.createElementNS('http://www.w3.org/2000/svg', 'defs'), clone.firstChild);
+        var style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+        style.textContent = 'text { font-family: monospace, sans-serif; }';
+        defs.appendChild(style);
 
-        if (saves.length === 0) {
-            const lines = str.noSaves.split('\n');
-            container.innerHTML =
-                '<div class="dfa-empty">' +
-                lines.map(l => `<span>${l}</span>`).join('<br>') +
-                '</div>';
-            return;
-        }
+        var bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        var rect = svg.getBoundingClientRect();
+        bg.setAttribute('width', rect.width);
+        bg.setAttribute('height', rect.height);
+        bg.setAttribute('fill', 'white');
+        clone.insertBefore(bg, clone.firstChild.nextSibling);
 
-        [...saves].reverse().forEach(save => {
-            const item = document.createElement('div');
-            item.className = 'dfa-save-item';
-
-            const info = document.createElement('div');
-            info.className = 'dfa-save-info';
-
-            const nameEl = document.createElement('div');
-            nameEl.className = 'dfa-save-name';
-            nameEl.textContent = save.name;
-
-            const meta = document.createElement('div');
-            meta.className = 'dfa-save-meta';
-            const sc = save.data.states ? save.data.states.split(',').filter(s=>s.trim()).length : 0;
-            const tc = save.data.transitions ? save.data.transitions.split('\n').filter(s=>s.trim()).length : 0;
-            meta.textContent = `${fmtDate(save.savedAt)}  ·  ${str.stateSuffix(sc)}  ·  ${str.transSuffix(tc)}`;
-
-            info.appendChild(nameEl);
-            info.appendChild(meta);
-
-            const actions = document.createElement('div');
-            actions.className = 'dfa-save-actions';
-
-            if (mode === 'save') {
-                const renameBtn = document.createElement('button');
-                renameBtn.className = 'dfa-btn-load';
-                renameBtn.textContent = str.renameBtn;
-                renameBtn.title = 'Rename';
-                renameBtn.onclick = () => startInlineRename(save.id, nameEl, renameBtn);
-                actions.appendChild(renameBtn);
-            }
-
-            if (mode === 'load') {
-                const loadBtn = document.createElement('button');
-                loadBtn.className = 'dfa-btn-load';
-                loadBtn.textContent = str.loadBtn;
-                loadBtn.onclick = () => {
-                    closeModal('dfa-load-modal');
-                    app.ports.importDFA.send(save.data);
-                    showToast(str.toastLoaded(save.name));
-                };
-                actions.appendChild(loadBtn);
-            }
-
-            const delBtn = document.createElement('button');
-            delBtn.className = 'dfa-btn-del';
-            delBtn.textContent = str.deleteBtn;
-            delBtn.title = 'Delete';
-            delBtn.onclick = () => {
-                const arr = loadSaves().filter(sv => sv.id !== save.id);
-                persistSaves(arr);
-                renderSavesList(containerId, mode);
-                showToast(str.toastDeleted);
-            };
-            actions.appendChild(delBtn);
-
-            item.appendChild(info);
-            item.appendChild(actions);
-            container.appendChild(item);
+        clone.setAttribute('width', rect.width);
+        clone.setAttribute('height', rect.height);
+        clone.querySelectorAll('text').forEach(function(el) {
+            el.setAttribute('fill', '#111111');
         });
-    }
 
-    function startInlineRename(id, nameEl, renameBtn) {
-        const oldName = nameEl.textContent;
-        const inp = document.createElement('input');
-        inp.className = 'dfa-rename-input';
-        inp.value = oldName;
-        inp.maxLength = 60;
-        nameEl.replaceWith(inp);
-        renameBtn.textContent = '✔';
-        inp.focus(); inp.select();
+        var svgStr = new XMLSerializer().serializeToString(clone);
+        var blob = new Blob([svgStr], { type: 'image/svg+xml' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+    });
 
-        const confirm = () => {
-            const newName = inp.value.trim() || oldName;
-            const arr = loadSaves();
-            const idx = arr.findIndex(sv => sv.id === id);
-            if (idx !== -1) { arr[idx].name = newName; persistSaves(arr); }
-            renderSavesList('dfa-saves-list-save', 'save');
+
+
+    app.ports.triggerFileInput.subscribe(function() {
+        document.getElementById('dfa-file-input').click();
+    });
+
+    document.getElementById('dfa-file-input').addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            app.ports.fileContent.send(e.target.result);
         };
-        renameBtn.onclick = confirm;
-        inp.addEventListener('keydown', e => {
-            if (e.key === 'Enter') confirm();
-            if (e.key === 'Escape') renderSavesList('dfa-saves-list-save', 'save');
-        });
-    }
+        reader.readAsText(file);
+        this.value = '';
+    });
 
-    document.getElementById('dfa-save-confirm').onclick = () => {
-        const nameInput = document.getElementById('dfa-save-input');
-        const name = nameInput.value.trim();
-        if (!name) { nameInput.focus(); return; }
-        if (!latestDFAState) { showToast(s().toastNothingToSave); return; }
-
-        const save = {
-            id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
-            name,
-            savedAt: new Date().toISOString(),
-            data: latestDFAState,
-        };
-        persistSaves([...loadSaves(), save]);
-        nameInput.value = '';
-        renderSavesList('dfa-saves-list-save', 'save');
-        showToast(s().toastSaved(name));
-    };
-
-    document.getElementById('dfa-save-close').onclick  = () => closeModal('dfa-save-modal');
-    document.getElementById('dfa-load-close').onclick  = () => closeModal('dfa-load-modal');
-    document.getElementById('dfa-save-modal').addEventListener('click', e => { if (e.target===e.currentTarget) closeModal('dfa-save-modal'); });
-    document.getElementById('dfa-load-modal').addEventListener('click', e => { if (e.target===e.currentTarget) closeModal('dfa-load-modal'); });
-    document.getElementById('dfa-save-input').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('dfa-save-confirm').click(); });
-    document.addEventListener('keydown', e => {
-        if (e.key==='Escape') { closeModal('dfa-save-modal'); closeModal('dfa-load-modal'); }
-
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { /* modals closed by Elm */ }
         const tag = document.activeElement && document.activeElement.tagName;
-        const isTyping = tag === 'INPUT' || tag === 'TEXTAREA';
-        if (isTyping) return;
-
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
         const ctrl = e.ctrlKey || e.metaKey;
-
         if (ctrl && !e.shiftKey && e.key.toLowerCase() === 'z') {
-            e.preventDefault();
-            app.ports.keyboardMsg.send('undo');
+            e.preventDefault(); app.ports.keyboardMsg.send('undo');
         } else if (ctrl && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
-            e.preventDefault();
-            app.ports.keyboardMsg.send('redo');
+            e.preventDefault(); app.ports.keyboardMsg.send('redo');
         } else if ((e.key === 'Delete' || e.key === 'Backspace') && !ctrl) {
-            e.preventDefault();
-            app.ports.keyboardMsg.send('delete');
+            e.preventDefault(); app.ports.keyboardMsg.send('delete');
         }
     });
 
+    
     (function() {
         function attachFix() {
             var svg = document.querySelector('svg');
