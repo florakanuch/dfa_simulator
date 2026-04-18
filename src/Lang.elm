@@ -1,5 +1,6 @@
 module Lang exposing (Language(..), Translations, translations)
--- import Types exposing (Msg(..))
+--import Types exposing (Msg(..))
+
 
 
 type Language
@@ -58,6 +59,7 @@ type alias Translations =
     , acceptStatesField : String
     , transitionsField : String
     , generateDiagram : String
+    , diagramGenerated : String 
 
 
     , renameState : String
@@ -401,6 +403,7 @@ translations lang =
             , settingsLanguage = "Language"
             , settingsAutoReorder = "Auto-renumber states on delete"
             , settingsAutoReorderDesc = "When deleting q2, all higher states (q3, q4…) are renamed down by one."
+            , diagramGenerated = "Diagram generated from code."
             }
 
         SK ->
@@ -585,4 +588,5 @@ translations lang =
             , settingsLanguage = "Jazyk"
             , settingsAutoReorder = "Automatické prečíslovanie stavov pri vymazaní"
             , settingsAutoReorderDesc = "Pri vymazaní q2 sa všetky vyššie stavy (q3, q4…) premenujú o jedna nadol."
+            , diagramGenerated = "Diagram generované z kódu."
             }
