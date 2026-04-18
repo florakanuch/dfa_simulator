@@ -1,0 +1,16 @@
+{
+  "name": "dfa-simulator",
+  "version": "1.0.0",
+  "description": "Interactive DFA Simulator built in Elm",
+  "scripts": {
+    "build": "elm make src/Main.elm --output=docs/main.js",
+    "build:optimize": "elm make src/Main.elm --optimize --output=docs/main.js",
+    "dev": "npm run build && npx http-server docs -p 3000 -o",
+    "start": "npx http-server docs -p 3000 -o"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "elm": "^0.19.1-6",
+    "http-server": "^14.1.1"
+  }
+}
