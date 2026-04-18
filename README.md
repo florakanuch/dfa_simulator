@@ -10,8 +10,8 @@ Interactive Deterministic Finite Automaton simulator built in Elm.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/florakanuch/dfa-simulator
-cd dfa-simulator
+git clone https://github.com/florakanuch/dfa_simulator
+cd dfa_simulator
 
 # 2. Install dependencies
 npm install
