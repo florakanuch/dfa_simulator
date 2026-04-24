@@ -12,7 +12,20 @@ import Lang exposing (Language(..), translations)
 syncCodeFromDiagram : Model -> Model
 syncCodeFromDiagram model =
     let
-        stateNames = Dict.keys model.statePositions
+        stateNames =
+            Dict.keys model.statePositions
+                |> List.sortWith
+                    (\a b ->
+                        let
+                            idx s =
+                                if String.startsWith "q" s then
+                                    String.toInt (String.dropLeft 1 s)
+                                        |> Maybe.withDefault -1
+                                else
+                                    -1
+                        in
+                        compare (idx a) (idx b)
+                    )
 
         alphabet =
             model.transitions
@@ -23,27 +36,12 @@ syncCodeFromDiagram model =
 
         acceptStr = model.acceptStates |> String.join ", "
 
-        
         transStr =
             model.transitions
                 |> Dict.toList
-                |> List.foldr
-                    (\( ( fr, ch ), to ) acc ->
-                        let
-                            key = ( fr, to )
-                        in
-                        case Dict.get key acc of
-                            Just syms -> Dict.insert key (ch :: syms) acc
-                            Nothing -> Dict.insert key [ ch ] acc
-                    )
-                    Dict.empty
-                |> Dict.toList
-                |> List.map
-                    (\( ( fr, to ), syms ) ->
-                        fr ++ "," ++ String.join "|" syms ++ "," ++ to
-                    )
+                |> List.map (\( ( fr, ch ), to ) -> fr ++ "," ++ ch ++ "," ++ to)
                 |> String.join "\n"
-
+    
     in
     { model
         | codeStates = String.join ", " stateNames
@@ -73,40 +71,28 @@ generateDiagramFromCode model =
                 |> List.map String.trim
                 |> List.filter ((/=) "")
 
+        
         startStates =
             if newStart /= "" then [ newStart ] else []
 
-        parseTransLine : String -> Maybe ( String, List String, String )
-        parseTransLine line =
-            let
-                parts = line |> String.split "," |> List.map String.trim
-            in
-            case parts of
-                [ fr, ch, to ] ->
-                    if fr /= "" && ch /= "" && to /= "" then
-                        let
-                            symbols =
-                                ch
-                                    |> String.split "|"
-                                    |> List.map String.trim
-                                    |> List.filter ((/=) "")
-                        in
-                        Just ( fr, symbols, to )
-                    else
-                        Nothing
-
-                _ ->
-                    Nothing
-
-        parsedLines =
+        impliedFromTransitions =
             model.codeTransitions
                 |> String.lines
-                |> List.filterMap parseTransLine
+                |> List.filterMap
+                    (\line ->
+                        let
+                            parts = line |> String.split "," |> List.map String.trim
+                        in
+                        case parts of
+                            [ fr, _, to ] ->
+                                if fr /= "" && to /= "" then Just [ fr, to ]
+                                else Nothing
+                            _ ->
+                                Nothing
+                    )
+                |> List.concat
 
-        impliedFromTransitions =
-            parsedLines
-                |> List.concatMap (\( fr, _, to ) -> [ fr, to ])
-
+        
         allMentioned =
             startStates ++ acceptList ++ impliedFromTransitions
 
@@ -117,16 +103,29 @@ generateDiagramFromCode model =
 
         stateNames = explicitStates ++ extraStates
 
+        
         explicitAlphabet =
             model.codeAlphabet
                 |> String.split ","
                 |> List.map String.trim
                 |> List.filter ((/=) "")
 
-       
+        
         impliedAlphabet =
-            parsedLines
-                |> List.concatMap (\( _, syms, _ ) -> syms)
+            model.codeTransitions
+                |> String.lines
+                |> List.filterMap
+                    (\line ->
+                        let
+                            parts = line |> String.split "," |> List.map String.trim
+                        in
+                        case parts of
+                            [ _, ch, _ ] ->
+                                if ch /= "" then Just ch
+                                else Nothing
+                            _ ->
+                                Nothing
+                    )
 
         extraAlphabet =
             impliedAlphabet
@@ -149,19 +148,34 @@ generateDiagramFromCode model =
                     (\i name ->
                         let
                             angle = (2 * pi * toFloat i / toFloat n) - pi / 2
+
                             x = cxC + radius * cos angle
+
                             y = cyC + radius * sin angle
+                        
                         in
-                        ( name, { x = x, y = y } )
+                        (name, {x = x, y = y})
                     )
                 |> Dict.fromList
 
-        
         parsedTrans =
-            parsedLines
-                |> List.concatMap
-                    (\( fr, syms, to ) ->
-                        List.map (\sym -> ( ( fr, sym ), to )) syms
+            model.codeTransitions
+                |> String.lines
+                |> List.filterMap
+                    (\line ->
+                        let
+                            parts = line |> String.split "," |> List.map String.trim
+                        in
+                        case parts of
+                            [ fr, ch, to ] ->
+                                if fr /= "" && ch /= "" && to /= "" then
+                                    Just ((fr, ch), to)
+
+                                else
+                                    Nothing
+
+                            _ ->
+                                Nothing
                     )
                 |> Dict.fromList
     in
@@ -176,5 +190,5 @@ generateDiagramFromCode model =
         , currentState = Nothing
         , simPosition = 0
         , simHistory = []
-        , simMessage = t.diagramGenerated 
+        , simMessage = t.diagramGenerated
     }
