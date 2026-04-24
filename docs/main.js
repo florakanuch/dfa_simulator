@@ -8865,7 +8865,7 @@ var $author$project$View$Panels$viewCodePanel = F2(
 												[
 													$elm$html$Html$Attributes$value(model.D),
 													$elm$html$Html$Events$onInput($author$project$Types$SetCodeTransitions),
-													$elm$html$Html$Attributes$placeholder('q0,a,q1\nq1,a|b,q2\nq2,a|b,q2'),
+													$elm$html$Html$Attributes$placeholder('q0,a,q1'),
 													A2($elm$html$Html$Attributes$style, 'width', '100%'),
 													A2($elm$html$Html$Attributes$style, 'background', 'rgba(255,255,255,0.04)'),
 													A2($elm$html$Html$Attributes$style, 'border', '1.5px solid rgba(124,77,255,0.4)'),

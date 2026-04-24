@@ -163,7 +163,7 @@ viewCodePanel t model =
                   , textarea
                       [ value model.codeTransitions
                       , onInput SetCodeTransitions
-                      , placeholder "q0,a,q1\nq1,a|b,q2\nq2,a|b,q2"
+                      , placeholder "q0,a,q1"
                       , style "width" "100%"
                       , style "background" "rgba(255,255,255,0.04)"
                       , style "border" "1.5px solid rgba(124,77,255,0.4)"
