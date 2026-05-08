@@ -814,7 +814,7 @@ update msg model =
         ImportFileContent text ->
             let
                 data = parseDfaText text
-                --t = translations model.language
+                
             in
             { model | showLoadModal = False }
                 |> update (LoadDFAFromSave
